@@ -1,0 +1,46 @@
+import React, { FunctionComponent, useState } from "react";
+
+import OTPInput from "@/components/inputs/OTPInput";
+import AppLayout from "@/components/layouts/AppLayout";
+import { ResponsiveUi } from "@/components/ResponsiveUi";
+import Logo from "@/components/svgs/logo";
+import { Colors } from "@/constants/Colors";
+import { router } from "expo-router";
+import { View } from "react-native";
+
+const OtpScreen: FunctionComponent = () => {
+  const [otp, setOtp] = useState<string>("");
+  return (
+    <AppLayout>
+      <View className="flex-1 justify-center items-center">
+        <Logo />
+        <View className="mt-10">
+          <ResponsiveUi.Text center>
+            Enter OTP code sent to your mail
+          </ResponsiveUi.Text>
+          <View className="my-8">
+            <OTPInput
+              onTextChange={(text) => {
+                setOtp(otp);
+                router.navigate("/(auth)/create-password");
+              }}
+            />
+          </View>
+          <ResponsiveUi.Text onPress={() => {}} center>
+            Didn’t receive a code?{" "}
+            <ResponsiveUi.Text
+              style={{
+                color: Colors.slate,
+              }}
+              tailwind="text-slate"
+            >
+              Resend
+            </ResponsiveUi.Text>
+          </ResponsiveUi.Text>
+        </View>
+      </View>
+    </AppLayout>
+  );
+};
+
+export default OtpScreen;
