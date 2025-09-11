@@ -5,7 +5,6 @@ import BackdropBlur from "@/components/modals/BackdropBlur";
 import BaseModal from "@/components/modals/BaseModal";
 import { useThemeColors } from "@/hooks/useThemeColor";
 import { X } from "lucide-react-native";
-import tw from "twrnc";
 import { ResponsiveUi } from "../../ResponsiveUi";
 
 interface Props {
@@ -46,9 +45,10 @@ const Selector: FunctionComponent<SelectorProps> = ({
     <TouchableOpacity
       onPress={onPress}
       style={[
-        tw`justify-between border-[0.5px] border-gray-hover py-6 rounded-2xl  mb-4`,
+      
         { borderColor },
       ]}
+      className="justify-between border-[0.5px] border-gray-hover py-6 rounded-2xl  mb-4"
     >
       <ResponsiveUi.Text xs medium tailwind="ml-4">
         {title}

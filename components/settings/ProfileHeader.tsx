@@ -15,7 +15,7 @@ const ProfileHeader: FunctionComponent<Props> = ({
   walletAddress,
 }) => {
   return (
-    <View className="flex-row items-center">
+    <View className="flex flex-row items-center">
       <DefaultImage />
       <View className="ml-4">
         <ResponsiveUi.Text small semiBold>

@@ -1,13 +1,13 @@
 import { Copy, X } from "lucide-react-native";
 import React, { FunctionComponent } from "react";
-import { FlatList, View } from "react-native";
 
-import tw from "@/app/lib/tailwind";
 import BackdropBlur from "@/components/modals/BackdropBlur";
 import BaseModal from "@/components/modals/BaseModal";
 import { ResponsiveUi } from "@/components/ResponsiveUi";
-import { useAppDimensions } from "@/hooks/useAppDimensions";
+import { StyledFlatList } from "@/components/StyledComponents";
+import { useAppColorScheme } from "@/hooks/useAppColorScheme";
 import { useThemeColors } from "@/hooks/useThemeColor";
+import { View } from "react-native";
 
 interface Props {
   isVisible: boolean;
@@ -29,7 +29,7 @@ const sampleCodes = [
 
 const BackupCodesModal: FunctionComponent<Props> = ({ ...props }) => {
   const colors = useThemeColors();
-  const { hp } = useAppDimensions();
+  const theme = useAppColorScheme()
   return (
     <BaseModal {...props}>
       <BackdropBlur onClose={props.onClose} />
@@ -47,7 +47,7 @@ const BackupCodesModal: FunctionComponent<Props> = ({ ...props }) => {
           alignSelf: "center",
         }}
       >
-        <View style={tw`flex-row items-center justify-between`}>
+        <View className={`flex-row items-center justify-between`}>
           <ResponsiveUi.Text semiBold>Add 2-Factor auth</ResponsiveUi.Text>
           <X onPress={props.onClose} size={20} color={colors.secondary} />
         </View>
@@ -61,26 +61,18 @@ const BackupCodesModal: FunctionComponent<Props> = ({ ...props }) => {
           </ResponsiveUi.Text>
         </View>
 
-        <FlatList
+        <StyledFlatList
           data={sampleCodes}
           renderItem={(item) => (
             <View
-              className={`border-2 px-3 py-1 rounded-lg border-white   dark:border-white dark:bg-gray`}
+              className={`border-[1px] px-3 py-1 rounded-lg border-accent-gray  `}
             >
               <ResponsiveUi.Text xs>{item.item}</ResponsiveUi.Text>
             </View>
           )}
           numColumns={2}
-          columnWrapperStyle={tw`justify-around py-2`}
-          contentContainerStyle={{
-            borderWidth: 0.2,
-            marginTop: 20,
-            borderColor: colors.secondary,
-            borderRadius: 20,
-            paddingVertical: 10,
-            height: hp(30),
-            justifyContent: "center",
-          }}
+          columnWrapperStyle={`justify-around py-2`}
+          contentContainerStyle={`border border-1, mt-5 border-accent-gray rounded-lg py-4  justify-center`}
         />
         <ResponsiveUi.Text xxs regular secondary tailwind="mt-2">
           Take a screenshot or save the codes in your vault manager.
@@ -89,9 +81,9 @@ const BackupCodesModal: FunctionComponent<Props> = ({ ...props }) => {
           <ResponsiveUi.Button
             title="Copy codes"
             action={() => {}}
-            color="black"
-            style={tw`mb-4 bg-gray border-accent-gray dark:border-0`}
+            className="mb-4 bg-gray "
             iconMiddle={<Copy className="ml-4" color={colors.text} />}
+            color={colors.text}
           />
           <ResponsiveUi.Button title="Done" action={() => {}} />
         </View>
