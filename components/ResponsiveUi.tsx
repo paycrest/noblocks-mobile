@@ -9,7 +9,7 @@ import {
 } from "react-native";
 
 import { Colors } from "@/constants/Colors";
-import { useColorScheme } from "nativewind";
+import { useThemeColors } from "@/hooks/useThemeColor";
 import { useAppDimensions } from "../hooks/useAppDimensions";
 import { cn } from "../utils/general";
 
@@ -86,7 +86,7 @@ const processTextStyles = (
   props: ResponsiveUiTextProps,
   fontPercentageToDP: any
 ): TextStyle | any => {
-  const { colorScheme } = useColorScheme();
+  const colors = useThemeColors()
 
   return Object.assign(
     {
@@ -96,8 +96,8 @@ const processTextStyles = (
       color: props.color,
     },
     !props.darkText &&
-      !props.textWhite && {
-        color: colorScheme === "dark" ? Colors.dark.text : Colors.light.text,
+      !props.textWhite && !props.color && {
+        color: colors.text,
       },
     // FONT SIZE
     props.fontSize && { fontSize: props.fontSize },
@@ -138,7 +138,7 @@ const processTextStyles = (
     props.danger && styles.dangerText,
     props.secondary && {
       color:
-        colorScheme === "dark" ? Colors.dark.secondary : Colors.light.secondary,
+       colors.secondary,
     },
 
     props.bold && { fontWeight: "700" },
@@ -157,8 +157,8 @@ export const ResponsiveUi = {
       <Text
         allowFontScaling={false}
         {...props}
-        className={processTailwindStyles(props)}
         style={processTextStyles(props, fontPercentageToDP)}
+        className={processTailwindStyles(props)}
       >
         {props.children}
       </Text>
@@ -177,8 +177,11 @@ export const ResponsiveUi = {
       gradient = false,
       colors = [],
       btnClassName,
+      titleStyle,
       ...rest
     }: ResponsiveUiButtonProps) => {
+  const themColors = useThemeColors()
+
       return (
         <TouchableOpacity
           disabled={disabled}
@@ -197,11 +200,11 @@ export const ResponsiveUi = {
             <View className="flex-1 flex-row justify-center items-center">
               {iconMiddle ?? <View />}
               <ResponsiveUi.Text
-                textWhite
                 small
                 semiBold={!rest?.bold}
-                {...rest}
                 tailwind="mx-4"
+                {...rest}                 // 👈 move this below
+                color={rest.color ?? themColors.white} // 👈 let prop override theme
               >
                 {title}
               </ResponsiveUi.Text>
