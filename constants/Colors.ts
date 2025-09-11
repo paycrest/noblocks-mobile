@@ -26,6 +26,8 @@ export const Colors = {
     neutral: "#F9FAFB",
     slate: "#5D5DC9",
     white: "white",
+    surface_overlay: "#ffff",
+    gray: "rgba(255, 255, 255, 0.10)",
     tint: tintColorLight,
   },
   dark: {
@@ -36,7 +38,9 @@ export const Colors = {
     place_holder: "#FFFFFF33",
     slate: "#5D5DC9",
     white: "white",
+    surface_overlay: "#202020",
     tint: tintColorDark,
+    gray: "rgba(255, 255, 255, 0.10)",
   },
   ...genericColors,
 };
