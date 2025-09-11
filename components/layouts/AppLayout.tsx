@@ -2,6 +2,7 @@ import React, {
   ReactElement,
   forwardRef,
   useImperativeHandle,
+  useMemo,
   useRef,
 } from "react";
 import {
@@ -10,10 +11,12 @@ import {
   StatusBar,
   View,
   ViewStyle,
+  useColorScheme,
 } from "react-native";
 
-import { useAppColorScheme } from "@/hooks/useAppColorScheme";
+import { useSelector } from "@/app/store/Store";
 import { useAppDimensions } from "@/hooks/useAppDimensions";
+import { useThemeColors } from "@/hooks/useThemeColor";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { StatusBarStyle } from "react-native/Libraries/Components/StatusBar/StatusBar";
@@ -67,10 +70,12 @@ const AppLayout = forwardRef(
     }: AppLayoutProps,
     ref
   ) => {
-    const scheme = useAppColorScheme();
     const insets = useSafeAreaInsets();
     const { wp, isLargeScreen } = useAppDimensions();
     const containerRef = useRef<KeyboardAwareScrollView>(null);
+    const { appTheme } = useSelector(["appTheme"]);
+    const colors = useThemeColors();
+    const phoneTheme = useColorScheme();
 
     useImperativeHandle(ref, () => ({
       scrollToTop: (animated = true) => {
@@ -83,24 +88,21 @@ const AppLayout = forwardRef(
       hideOverlay: () => {},
     }));
 
+    const appBarStyle = useMemo(() => {
+      const effectiveTheme = appTheme === "system" ? phoneTheme : appTheme;
+      return effectiveTheme === "dark" ? "light-content" : "dark-content";
+    }, [appTheme, phoneTheme]);
+
     return (
-      <SafeAreaView className="flex-1 w-full">
+      <SafeAreaView
+        className="flex-1 w-full"
+        style={[{ backgroundColor: colors.background }]}
+      >
         <View
-          className={`flex-grow flex-1 pb-20 w-full  bg-blue dark:bg-dark-background ${layoutClassName}`}
-          style={layoutStyle}
+          className={`flex-grow flex-1 pb-20 w-full  ${layoutClassName}`}
+          style={[{ backgroundColor: colors.background }, layoutStyle]}
         >
-          <StatusBar
-            backgroundColor={
-              statusBarBackgroundColor ? statusBarBackgroundColor : undefined
-            }
-            barStyle={
-              barStyle
-                ? barStyle
-                : scheme === "dark"
-                  ? "light-content"
-                  : "dark-content"
-            }
-          />
+          <StatusBar backgroundColor={colors.text} barStyle={appBarStyle} />
 
           {scrollable ? (
             <View className={`flex-1 w-full ${outerContainerClassName}`}>
@@ -125,8 +127,8 @@ const AppLayout = forwardRef(
                           insets.bottom === 0
                             ? wp(5)
                             : isLargeScreen
-                              ? insets.bottom + wp(2)
-                              : insets.bottom * 0.8,
+                            ? insets.bottom + wp(2)
+                            : insets.bottom * 0.8,
                         default: wp(3),
                       }),
                     }}
@@ -152,8 +154,8 @@ const AppLayout = forwardRef(
                         insets.bottom === 0
                           ? wp(5)
                           : isLargeScreen
-                            ? insets.bottom + wp(2)
-                            : insets.bottom * 0.8,
+                          ? insets.bottom + wp(2)
+                          : insets.bottom * 0.8,
                       default: wp(3),
                     }),
                   }}

@@ -4,6 +4,7 @@ import WalletIcon from "@/components/svgs/wallet-icon";
 import TabBarBackground from "@/components/ui/TabBarBackground";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
+import { useThemeColors } from "@/hooks/useThemeColor";
 import { Tabs } from "expo-router";
 import { Clock } from "lucide-react-native";
 import React from "react";
@@ -11,6 +12,7 @@ import { Platform } from "react-native";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const colors = useThemeColors();
 
   return (
     <Tabs
@@ -23,10 +25,12 @@ export default function TabLayout() {
         },
         tabBarStyle: Platform.select({
           ios: {
-            // Use a transparent background on iOS to show the blur effect
             position: "absolute",
+            backgroundColor: "transparent",
           },
-          default: {},
+          default: {
+            backgroundColor: colors.background,
+          },
         }),
       }}
     >

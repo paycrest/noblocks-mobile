@@ -1,10 +1,6 @@
-import { useColorScheme } from "react-native";
-
-// import {useSelector} from '../store/Store.ts';
+import { useSelector } from "@/app/store/Store";
 
 export const useAppColorScheme = () => {
-  const { appTheme } = { appTheme: null }; // useSelector((state) => state.settings);
-  const colorScheme = useColorScheme();
-
-  return appTheme ?? colorScheme ?? "light";
+  const { appTheme } = useSelector(["appTheme"]);
+  return appTheme;
 };

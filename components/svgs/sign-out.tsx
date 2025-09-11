@@ -10,7 +10,7 @@ function SignOutIcon(props: SvgProps) {
     <Svg width={32} height={32} viewBox="0 0 32 32" fill="none" {...props}>
       <Path
         d="M0 16C0 7.163 7.163 0 16 0s16 7.163 16 16-7.163 16-16 16S0 24.837 0 16z"
-        fill={colors.place_holder}
+        fill={colors.text}
         fillOpacity={0.1}
       />
       <Path

@@ -6,22 +6,24 @@ import {
   ThemeProvider,
 } from "@react-navigation/native";
 
-import { useColorScheme } from "@/hooks/useColorScheme";
 import useCustomFonts from "@/hooks/useCustomFonts";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { PaperProvider } from "react-native-paper";
+import { useSelector } from "./store/Store";
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
   const { loaded } = useCustomFonts();
+  const {appTheme} = useSelector(["appTheme"])
+
 
   if (!loaded) {
     return null;
   }
 
+
   return (
-    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+    <ThemeProvider value={appTheme === "dark" ? DarkTheme : DefaultTheme}>
       <PaperProvider>
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="(onboarding)/index" />
