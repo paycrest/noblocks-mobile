@@ -5,12 +5,13 @@ import { TouchableOpacity, View } from "react-native";
 import { useThemeColors } from "@/hooks/useThemeColor";
 import lodash from "lodash";
 import { useColorScheme } from "nativewind";
-import Modal from "react-native-modal";
 import tw from "twrnc";
 import { ResponsiveUi } from "../ResponsiveUi";
 import DarkAppearanceIcon from "../svgs/dark-appearance-icon";
 import LightAppearanceIcon from "../svgs/light-appearance-icon";
 import SystemAppearanceIcon from "../svgs/system-appearance-icon";
+import BackdropBlur from "./BackdropBlur";
+import BaseModal from "./BaseModal";
 
 interface Props {
   isVisible: boolean;
@@ -83,21 +84,21 @@ const ThemeModal: FunctionComponent<Props> = ({ isVisible, onClose }) => {
     setSelectedTheme(theme);
   };
   return (
-    <View>
-      <Modal
-        onBackdropPress={onClose}
-        isVisible={isVisible}
-        backdropOpacity={0.9}
-      >
+    <BaseModal isVisible={isVisible} onClose={onClose}>
+      <>
+        <BackdropBlur onClose={onClose} />
         <View
           style={{
             height: 300,
             position: "absolute",
-            width: "100%",
+            width: "90%",
             bottom: 10,
             borderRadius: 40,
-            backgroundColor: colors.background,
+            backgroundColor: colors.surface_overlay,
             padding: 20,
+            marginHorizontal: 20,
+            marginBottom: 20,
+            alignSelf: "center",
           }}
         >
           <View style={tw`flex-row items-center justify-between`}>
@@ -115,8 +116,8 @@ const ThemeModal: FunctionComponent<Props> = ({ isVisible, onClose }) => {
             ))}
           </View>
         </View>
-      </Modal>
-    </View>
+      </>
+    </BaseModal>
   );
 };
 

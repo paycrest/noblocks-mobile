@@ -53,7 +53,7 @@ const OTPInput: FunctionComponent<Props> = ({ onTextChange }) => {
 const lightStyles = StyleSheet.create({
   pinCodeContainer: {
     borderRadius: Radius.large,
-    backgroundColor: Colors.light.neutral,
+    backgroundColor: Colors.light.gray_hover,
     borderWidth: 0,
     height: 48,
   },

@@ -55,6 +55,7 @@ export interface ResponsiveUiButtonProps extends ResponsiveUiTextProps {
   title: string;
   iconLeft?: number | ReactElement | null;
   iconRight?: number | ReactElement;
+  iconMiddle?: number | ReactElement;
   action: ((...args: any[]) => void) | undefined;
   style?: {};
   titleStyle?: TextStyle;
@@ -171,6 +172,7 @@ export const ResponsiveUi = {
       action,
       iconLeft,
       iconRight,
+      iconMiddle,
       backgroundColor,
       gradient = false,
       colors = [],
@@ -184,20 +186,27 @@ export const ResponsiveUi = {
           onPress={!disabled ? action : undefined}
           className={cn(btnClassName)}
           style={[
-            style,
-            backgroundColor && { backgroundColor },
             styles.responsiveBtn,
-            {
-              opacity: disabled ? 0.4 : 1,
-            },
+            { opacity: disabled ? 0.4 : 1 },
+            backgroundColor && { backgroundColor },
+            style,
           ]}
         >
-          <View className="justify-center items-center">
-            {iconLeft && <View className="absolute left-4">{iconLeft}</View>}
-            <ResponsiveUi.Text textWhite small semiBold={!rest?.bold} {...rest}>
-              {title}
-            </ResponsiveUi.Text>
-            {iconRight && <View className="absolute right-4">{iconRight}</View>}
+          <View className="flex-row items-center justify-between w-full px-4">
+            {iconLeft ?? <View style={{ width: 24 }} />}
+            <View className="flex-1 flex-row justify-center items-center">
+              {iconMiddle ?? <View />}
+              <ResponsiveUi.Text
+                textWhite
+                small
+                semiBold={!rest?.bold}
+                {...rest}
+                tailwind="mx-4"
+              >
+                {title}
+              </ResponsiveUi.Text>
+            </View>
+            {iconRight ?? <View style={{ width: 24 }} />}
           </View>
         </TouchableOpacity>
       );
