@@ -1,7 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ["./app/**/*.{js,jsx,ts,tsx}"],
-  presets: [require("nativewind/preset")],
+  content: ["./app/**/*.{js,jsx,ts,tsx}", "./components/**/*.{js,jsx,ts,tsx}"],
   theme: {
     extend: {
       fontFamily: {
@@ -14,8 +13,9 @@ module.exports = {
         "crimson-regular": ["CrimsonPro_400Regular_Italic"],
       },
       colors: {
+        background: "var(--background)",
         "dark-text": "#121217",
-        background: "#ffff",
+        // background: "#ffff",
         slate: "#5D5DC9",
         "place-holder": "#A9A9BC",
         "gray-hover": "#EBEBEF",
@@ -24,7 +24,7 @@ module.exports = {
         gray: "rgba(255, 255, 255, 0.10)",
         "white-text": "#ffff",
         "dark-secondary": "#FFFFFF80",
-        "dark-background": "#141414",
+        // "dark-background": "#141414",
         "dark-gray-hover": "#FFFFFF33",
         "dark-place-holder": "#FFFFFF33",
         "accent-gray": "#D1D1DB",
@@ -33,6 +33,9 @@ module.exports = {
       },
       borderRadius: {
         lg: "16px",
+      },
+      borderWidth: {
+        1: 1, 
       },
     },
   },

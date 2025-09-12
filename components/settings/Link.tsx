@@ -17,7 +17,7 @@ const SettingsLinks: FunctionComponent<Props> = ({ onPress, title, icon }) => {
   return (
     <Pressable onPress={onPress} style={globalStyles.centeredBetween}>
       {/* Left side: icon + text */}
-      <View className="flex-row items-center">
+      <View className="flex-row justify-between items-center">
         {icon}
         <ResponsiveUi.Text small style={{ marginLeft: 10 }}>
           {title}

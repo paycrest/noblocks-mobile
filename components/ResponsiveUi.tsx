@@ -9,7 +9,7 @@ import {
 } from "react-native";
 
 import { Colors } from "@/constants/Colors";
-import { useColorScheme } from "nativewind";
+import { useThemeColors } from "@/hooks/useThemeColor";
 import { useAppDimensions } from "../hooks/useAppDimensions";
 import { cn } from "../utils/general";
 
@@ -55,6 +55,7 @@ export interface ResponsiveUiButtonProps extends ResponsiveUiTextProps {
   title: string;
   iconLeft?: number | ReactElement | null;
   iconRight?: number | ReactElement;
+  iconMiddle?: number | ReactElement;
   action: ((...args: any[]) => void) | undefined;
   style?: {};
   titleStyle?: TextStyle;
@@ -85,7 +86,7 @@ const processTextStyles = (
   props: ResponsiveUiTextProps,
   fontPercentageToDP: any
 ): TextStyle | any => {
-  const { colorScheme } = useColorScheme();
+  const colors = useThemeColors()
 
   return Object.assign(
     {
@@ -95,8 +96,8 @@ const processTextStyles = (
       color: props.color,
     },
     !props.darkText &&
-      !props.textWhite && {
-        color: colorScheme === "dark" ? Colors.dark.text : Colors.light.text,
+      !props.textWhite && !props.color && {
+        color: colors.text,
       },
     // FONT SIZE
     props.fontSize && { fontSize: props.fontSize },
@@ -137,7 +138,7 @@ const processTextStyles = (
     props.danger && styles.dangerText,
     props.secondary && {
       color:
-        colorScheme === "dark" ? Colors.dark.secondary : Colors.light.secondary,
+       colors.secondary,
     },
 
     props.bold && { fontWeight: "700" },
@@ -156,8 +157,8 @@ export const ResponsiveUi = {
       <Text
         allowFontScaling={false}
         {...props}
-        className={processTailwindStyles(props)}
         style={processTextStyles(props, fontPercentageToDP)}
+        className={processTailwindStyles(props)}
       >
         {props.children}
       </Text>
@@ -171,12 +172,16 @@ export const ResponsiveUi = {
       action,
       iconLeft,
       iconRight,
+      iconMiddle,
       backgroundColor,
       gradient = false,
       colors = [],
       btnClassName,
+      titleStyle,
       ...rest
     }: ResponsiveUiButtonProps) => {
+  const themColors = useThemeColors()
+
       return (
         <TouchableOpacity
           disabled={disabled}
@@ -184,20 +189,27 @@ export const ResponsiveUi = {
           onPress={!disabled ? action : undefined}
           className={cn(btnClassName)}
           style={[
-            style,
-            backgroundColor && { backgroundColor },
             styles.responsiveBtn,
-            {
-              opacity: disabled ? 0.4 : 1,
-            },
+            { opacity: disabled ? 0.4 : 1 },
+            backgroundColor && { backgroundColor },
+            style,
           ]}
         >
-          <View className="justify-center items-center">
-            {iconLeft && <View className="absolute left-4">{iconLeft}</View>}
-            <ResponsiveUi.Text textWhite small semiBold={!rest?.bold} {...rest}>
-              {title}
-            </ResponsiveUi.Text>
-            {iconRight && <View className="absolute right-4">{iconRight}</View>}
+          <View className="flex-row items-center justify-between w-full px-4">
+            {iconLeft ?? <View style={{ width: 24 }} />}
+            <View className="flex-1 flex-row justify-center items-center">
+              {iconMiddle ?? <View />}
+              <ResponsiveUi.Text
+                small
+                semiBold={!rest?.bold}
+                tailwind="mx-4"
+                {...rest}                 // 👈 move this below
+                color={rest.color ?? themColors.white} // 👈 let prop override theme
+              >
+                {title}
+              </ResponsiveUi.Text>
+            </View>
+            {iconRight ?? <View style={{ width: 24 }} />}
           </View>
         </TouchableOpacity>
       );

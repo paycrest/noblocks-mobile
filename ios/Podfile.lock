@@ -1859,6 +1859,30 @@ PODS:
     - React-logger (= 0.79.6)
     - React-perflogger (= 0.79.6)
     - React-utils (= 0.79.6)
+  - RNCAsyncStorage (2.2.0):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.11.18.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-hermes
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
   - RNCMaskedView (0.3.2):
     - DoubleConversion
     - glog
@@ -2082,7 +2106,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNSVG (15.11.2):
+  - RNSVG (15.13.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -2105,9 +2129,9 @@ PODS:
     - ReactCodegen
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
-    - RNSVG/common (= 15.11.2)
+    - RNSVG/common (= 15.13.0)
     - Yoga
-  - RNSVG/common (15.11.2):
+  - RNSVG/common (15.13.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -2237,6 +2261,7 @@ DEPENDENCIES:
   - ReactAppDependencyProvider (from `build/generated/ios`)
   - ReactCodegen (from `build/generated/ios`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
+  - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - "RNCMaskedView (from `../node_modules/@react-native-masked-view/masked-view`)"
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
@@ -2435,6 +2460,8 @@ EXTERNAL SOURCES:
     :path: build/generated/ios
   ReactCommon:
     :path: "../node_modules/react-native/ReactCommon"
+  RNCAsyncStorage:
+    :path: "../node_modules/@react-native-async-storage/async-storage"
   RNCMaskedView:
     :path: "../node_modules/@react-native-masked-view/masked-view"
   RNGestureHandler:
@@ -2541,11 +2568,12 @@ SPEC CHECKSUMS:
   ReactAppDependencyProvider: d3b706769c10ab0a19199a4d39b73544fffdc549
   ReactCodegen: a3a9eea115b375f25e54643eafa9a7bcdf307f1b
   ReactCommon: d7a6354467ffb346f88312e828764b87d4c81c75
+  RNCAsyncStorage: 2cf7d05f5b1bc38680b6c83971e535a6ae9c5bc7
   RNCMaskedView: 3e8d6bf9764b519d077986413882959eafceffbc
   RNGestureHandler: ccf4105b125002bd88e39d2a1f2b7e6001bcdf34
   RNReanimated: 8b24b49fc13fce9a6e1729ccff645a63d2b7a6d1
   RNScreens: c2e3cc506212228c607b4785b315205e28acbf0f
-  RNSVG: ee32efbed652c5151fd3f98bed13c68af285bc38
+  RNSVG: 719faa79d7c916706c128f0ea96073665c933e54
   SDWebImage: f29024626962457f3470184232766516dee8dfea
   SDWebImageAVIFCoder: 00310d246aab3232ce77f1d8f0076f8c4b021d90
   SDWebImageSVGCoder: 15a300a97ec1c8ac958f009c02220ac0402e936c

@@ -2,10 +2,12 @@ import * as React from "react";
 
 import Svg, { G, Path, SvgProps } from "react-native-svg";
 
-import { useColorScheme } from "react-native";
+import { useSelector } from "@/app/store/Store";
+import { useThemeColors } from "@/hooks/useThemeColor";
 
 function HomeIcon(props: SvgProps) {
-  const theme = useColorScheme();
+  const { appTheme } = useSelector(["appTheme"]);
+  const colors = useThemeColors();
   return (
     <Svg width={32} height={33} viewBox="0 0 32 33" fill="none" {...props}>
       <G opacity={1}>
@@ -22,7 +24,7 @@ function HomeIcon(props: SvgProps) {
         />
         <Path
           d="M19.393 5.69a5.245 5.245 0 015.244 5.245v13.963a5.245 5.245 0 01-5.244 5.245H8.23a5.246 5.246 0 01-5.245-5.245V10.935A5.245 5.245 0 018.23 5.69h11.163z"
-          fill={theme === "dark" ? "black" : "white"}
+          fill={colors.background}
           stroke={props.color ?? "#898989"}
           strokeWidth={2.05321}
         />

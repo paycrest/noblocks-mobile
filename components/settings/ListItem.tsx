@@ -1,7 +1,6 @@
 import React, { FunctionComponent, ReactElement } from "react";
 
 import { View } from "react-native";
-import tw from "twrnc";
 import { ResponsiveUi } from "../ResponsiveUi";
 
 interface Props {
@@ -16,7 +15,7 @@ const ListItem: FunctionComponent<Props> = ({
   rightComponent,
 }) => {
   return (
-    <View style={tw`flex-row w-full  mt-8`}>
+    <View className="flex-row w-full  mt-8">
       <View>
         <ResponsiveUi.Text semiBold small>
           {title}

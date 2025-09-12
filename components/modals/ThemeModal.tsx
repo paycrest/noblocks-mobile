@@ -2,15 +2,15 @@ import { CheckCircle2, X } from "lucide-react-native";
 import React, { FunctionComponent, ReactElement, useState } from "react";
 import { TouchableOpacity, View } from "react-native";
 
+import { useSelector } from "@/app/store/Store";
 import { useThemeColors } from "@/hooks/useThemeColor";
 import lodash from "lodash";
-import { useColorScheme } from "nativewind";
-import Modal from "react-native-modal";
-import tw from "twrnc";
 import { ResponsiveUi } from "../ResponsiveUi";
 import DarkAppearanceIcon from "../svgs/dark-appearance-icon";
 import LightAppearanceIcon from "../svgs/light-appearance-icon";
 import SystemAppearanceIcon from "../svgs/system-appearance-icon";
+import BackdropBlur from "./BackdropBlur";
+import BaseModal from "./BaseModal";
 
 interface Props {
   isVisible: boolean;
@@ -54,7 +54,7 @@ const AppearanceSelector: FunctionComponent<SelectorProps> = ({
   return (
     <TouchableOpacity
       onPress={onPress}
-      style={tw`flex-row justify-between items-center mb-4`}
+      className="flex flex-row justify-between items-center mb-4"
     >
       <View className="flex-row items-center">
         {icon}
@@ -71,40 +71,41 @@ const AppearanceSelector: FunctionComponent<SelectorProps> = ({
 
 const ThemeModal: FunctionComponent<Props> = ({ isVisible, onClose }) => {
   const colors = useThemeColors();
-  const currentTheme = useColorScheme();
+  const {appTheme, setAppTheme} = useSelector(["appTheme", "setAppTheme"])
 
   const [selectedTheme, setSelectedTheme] = useState<theme>(
-    lodash.upperFirst(currentTheme.colorScheme)
+    lodash.upperFirst(appTheme)
   );
   const handleThemeChange = (theme: theme) => {
-    currentTheme.setColorScheme(
+    setAppTheme(
       theme.toLowerCase() as "dark" | "light" | "system"
     );
     setSelectedTheme(theme);
   };
+
   return (
-    <View>
-      <Modal
-        onBackdropPress={onClose}
-        isVisible={isVisible}
-        backdropOpacity={0.9}
-      >
+    <BaseModal isVisible={isVisible} onClose={onClose}>
+      <>
+        <BackdropBlur onClose={onClose} />
         <View
           style={{
             height: 300,
             position: "absolute",
-            width: "100%",
+            width: "90%",
             bottom: 10,
             borderRadius: 40,
-            backgroundColor: colors.background,
+            backgroundColor: colors.surface_overlay,
             padding: 20,
+            marginHorizontal: 20,
+            marginBottom: 20,
+            alignSelf: "center",
           }}
         >
-          <View style={tw`flex-row items-center justify-between`}>
+          <View className="flex flex-row items-center justify-between">
             <ResponsiveUi.Text semiBold>Appearance</ResponsiveUi.Text>
             <X onPress={onClose} size={20} color={colors.secondary} />
           </View>
-          <View className="mt-6 ">
+          <View className="mt-6">
             {themes.map((theme) => (
               <AppearanceSelector
                 key={theme.title}
@@ -115,8 +116,8 @@ const ThemeModal: FunctionComponent<Props> = ({ isVisible, onClose }) => {
             ))}
           </View>
         </View>
-      </Modal>
-    </View>
+      </>
+    </BaseModal>
   );
 };
 

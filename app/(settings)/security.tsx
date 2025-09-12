@@ -1,15 +1,17 @@
-import React, { FunctionComponent } from "react";
+import React, { FunctionComponent, useState } from "react";
+import { TouchableOpacity, View } from "react-native";
 
 import Chip from "@/components/Chip";
 import AppLayout from "@/components/layouts/AppLayout";
 import { ResponsiveUi } from "@/components/ResponsiveUi";
 import ListItem from "@/components/settings/ListItem";
+import BackupCodesModal from "@/components/settings/modals/BackupCodesModal";
 import ScreenHeader from "@/components/settings/ScreenHeader";
 import AppSwitch from "@/components/Switch";
 import { useThemeColors } from "@/hooks/useThemeColor";
-import { View } from "react-native";
 
 const Security: FunctionComponent = () => {
+  const [is2FAModalVisible, setIs2FAModalVisible] = useState<boolean>(false);
   const color = useThemeColors();
   return (
     <AppLayout>
@@ -41,17 +43,31 @@ const Security: FunctionComponent = () => {
             subtitle="Notification sound"
             rightComponent={<Chip text={"Not set"} />}
           />
-          <ResponsiveUi.Text
-            tailwind="mt-3"
-            style={{
-              color: color.slate,
-            }}
-            small
-            semiBold
-          >
-            Add 2FA
-          </ResponsiveUi.Text>
+          <TouchableOpacity onPress={() => setIs2FAModalVisible(true)}>
+            <ResponsiveUi.Text
+              tailwind="mt-3"
+              style={{
+                color: color.slate,
+              }}
+              small
+              semiBold
+            >
+              Add 2FA
+            </ResponsiveUi.Text>
+          </TouchableOpacity>
         </View>
+        {/* <TwoFAModal
+          isVisible={is2FAModalVisible}
+          onClose={() => setIs2FAModalVisible(false)}
+        /> */}
+        {/* <QRCodeAuthModal
+          isVisible={is2FAModalVisible}
+          onClose={() => setIs2FAModalVisible(false)}
+        /> */}
+        <BackupCodesModal
+          isVisible={is2FAModalVisible}
+          onClose={() => setIs2FAModalVisible(false)}
+        />
       </View>
     </AppLayout>
   );
