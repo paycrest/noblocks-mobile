@@ -20,6 +20,7 @@ import { useThemeColors } from "@/hooks/useThemeColor";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { StatusBarStyle } from "react-native/Libraries/Components/StatusBar/StatusBar";
+import { StyledKeyboardAwareScrollView } from "../StyledComponents";
 
 interface AppLayoutProps {
   layoutStyle?: ViewStyle;
@@ -106,7 +107,7 @@ const AppLayout = forwardRef(
 
           {scrollable ? (
             <View className={`flex-1 w-full ${outerContainerClassName}`}>
-              <KeyboardAwareScrollView
+              <StyledKeyboardAwareScrollView
                 keyboardShouldPersistTaps="handled"
                 ref={containerRef}
                 bounces={bounces}
@@ -134,7 +135,7 @@ const AppLayout = forwardRef(
                     }}
                   />
                 )}
-              </KeyboardAwareScrollView>
+              </StyledKeyboardAwareScrollView>
             </View>
           ) : directChild ? (
             children
