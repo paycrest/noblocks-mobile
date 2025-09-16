@@ -7,9 +7,10 @@ import { OtpInput } from "react-native-otp-entry";
 
 interface Props {
   onTextChange: (text: string) => void;
+  onFilled: (text: string) => void;
 }
 
-const OTPInput: FunctionComponent<Props> = ({ onTextChange }) => {
+const OTPInput: FunctionComponent<Props> = ({ onTextChange, onFilled }) => {
   const scheme = useColorScheme();
   const styles = scheme === "dark" ? darkStyles : lightStyles;
   return (
@@ -27,7 +28,7 @@ const OTPInput: FunctionComponent<Props> = ({ onTextChange }) => {
       onFocus={() => console.log("Focused")}
       onBlur={() => console.log("Blurred")}
       onTextChange={onTextChange}
-      onFilled={(text) => console.log(`OTP is ${text}`)}
+      onFilled={onFilled}
       textInputProps={{
         accessibilityLabel: "One-Time Password",
       }}
@@ -53,9 +54,10 @@ const OTPInput: FunctionComponent<Props> = ({ onTextChange }) => {
 const lightStyles = StyleSheet.create({
   pinCodeContainer: {
     borderRadius: Radius.large,
-    backgroundColor: Colors.light.gray_hover,
-    borderWidth: 0,
+    backgroundColor: Colors.light.surface_overlay,
+    borderWidth: 0.5,
     height: 48,
+    borderColor: Colors.light.place_holder,
   },
   pinCodeText: {
     color: "black",
@@ -72,8 +74,8 @@ const lightStyles = StyleSheet.create({
 const darkStyles = StyleSheet.create({
   pinCodeContainer: {
     borderRadius: Radius.large,
-    backgroundColor: Colors.dark.background,
-    borderWidth: 0.5,
+    backgroundColor: Colors.dark.secondary,
+    borderWidth: 1,
     borderColor: Colors.dark.gray_hover,
     height: 48,
   },
