@@ -9,12 +9,14 @@ import ExportIcon from "@/components/svgs/export-icon";
 import NotificationIcon from "@/components/svgs/notification-icon";
 import SecurityIcon from "@/components/svgs/security-icon";
 import SignOutIcon from "@/components/svgs/sign-out";
+import useAuth from "@/hooks/auth/useAuth";
 import { router } from "expo-router";
 import { View } from "react-native";
 
 const Settings: FunctionComponent = () => {
   const [showAppearanceModal, setShowAppearanceModal] =
     useState<boolean>(false);
+  const { logoutUser } = useAuth();
 
   const settingsLinks = [
     {
@@ -39,7 +41,7 @@ const Settings: FunctionComponent = () => {
     },
     {
       title: "Sign out",
-      onPress: () => {},
+      onPress: logoutUser,
       icon: <SignOutIcon />,
     },
   ];

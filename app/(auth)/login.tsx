@@ -1,64 +1,47 @@
 import React, { FunctionComponent, useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Pressable, View } from "react-native";
 
 import { FormInput } from "@/components/inputs/FormInput";
 import AppLayout from "@/components/layouts/AppLayout";
 import { ResponsiveUi } from "@/components/ResponsiveUi";
 import Logo from "@/components/svgs/logo";
 import { Colors } from "@/constants/Colors";
-import { useAppColorScheme } from "@/hooks/useAppColorScheme";
+import useAuth from "@/hooks/auth/useAuth";
 import { signupSchema } from "@/schema/authschema";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { router } from "expo-router";
+import { View } from "react-native";
 import { ActivityIndicator } from "react-native-paper";
+import { ISignUp } from "../types/authTypes";
 
 const Index: FunctionComponent = () => {
   const {
     control,
-    handleSubmit,
     watch,
+    trigger,
     formState: { errors },
-  } = useForm({
-    defaultValues: {
-      email: "",
-      password: "",
-    },
+  } = useForm<ISignUp>({
+    defaultValues: { email: "" },
     resolver: yupResolver(signupSchema),
   });
-  const onSubmit = () => {
-    router.replace("/(auth)/otp-screen");
-  };
-  const scheme = useAppColorScheme();
-  const [emailExists, setEmailExists] = useState<boolean | null>(null);
-  const [isConfirmingEmail, setIsConfirmingEmail] = useState<boolean>(false);
 
-  const confirmEmailExists = () => {
-    setIsConfirmingEmail(true);
-    setTimeout(() => {
-      setEmailExists(false);
-      setIsConfirmingEmail(false);
-    }, 5000);
-  };
-
+  const [isChecking, setIsChecking] = useState(false);
   const emailValue = watch("email");
-  const [isTyping, setIsTyping] = useState(false);
+  const { sendLoginCode } = useAuth();
 
   useEffect(() => {
-    if (emailValue) {
-      setIsTyping(true);
-      const handler = setTimeout(() => {
-        setIsTyping(false);
-        console.log("User stopped typing:", emailValue);
-        confirmEmailExists();
-        // You can trigger validation, API call, etc. here
-      }, 2000); // 800ms after last keystroke
+    if (!emailValue) return;
 
-      return () => clearTimeout(handler);
-    } else {
-      setIsTyping(false);
-    }
-  }, [emailValue]);
+    const handler = setTimeout(async () => {
+      const isValid = await trigger("email");
+      if (!isValid) return;
+
+      setIsChecking(true);
+      await sendLoginCode(emailValue);
+      setIsChecking(false);
+    }, 5000); // debounce after user stops typing
+
+    return () => clearTimeout(handler); // cleanup happens correctly here
+  }, [emailValue, trigger]);
 
   return (
     <AppLayout>
@@ -68,11 +51,10 @@ const Index: FunctionComponent = () => {
           Login or sign up
         </ResponsiveUi.Text>
 
+        {/* EMAIL INPUT */}
         <Controller
           control={control}
-          rules={{
-            required: true,
-          }}
+          name="email"
           render={({ field: { onChange, value } }) => (
             <FormInput
               onChangeText={onChange}
@@ -81,74 +63,57 @@ const Index: FunctionComponent = () => {
               value={value}
               isProtected={false}
               containerClassName="mt-7 w-full"
+              hasError={!!errors.email}
+              customErrorMsg={errors.email?.message}
               rightAction={
-                isConfirmingEmail ? (
-                  <ActivityIndicator color={Colors.slate} />
-                ) : null
+                isChecking ? <ActivityIndicator color={Colors.slate} /> : null
               }
             />
           )}
-          name="email"
         />
-        {!emailExists && emailExists !== null && (
-          <View className="mt-4 items-center border-[0.5px] py-4 px-4 border-secondary dark:border-dark-secondary border-dashed">
-            <ResponsiveUi.Text xxs center secondary tailwind="w-80">
-              There is no user with this email. Would you like to create an
-              account?
-            </ResponsiveUi.Text>
-          </View>
-        )}
-        {emailExists && (
+
+        {/* Show create account prompt if email not found */}
+        {/* <View className="mt-4 items-center border-[0.5px] py-4 px-4 border-secondary dark:border-dark-secondary border-dashed">
+          <ResponsiveUi.Text xxs center secondary tailwind="w-80">
+            There is no user with this email. Would you like to create an
+            account?
+          </ResponsiveUi.Text>
+        </View> */}
+
+        {/* Password field only if email exists */}
+        {/* {emailExists === true && (
           <Controller
             control={control}
-            rules={{
-              required: true,
-            }}
+            name="password"
             render={({ field: { onChange, value } }) => (
               <FormInput
                 onChangeText={onChange}
                 placeholder="your password"
-                keyboardType="email-address"
+                keyboardType="default"
                 value={value}
-                isProtected={true}
+                isProtected
                 containerClassName="mt-4 w-full"
               />
             )}
-            name="password"
           />
-        )}
-        {emailExists && (
+        )} */}
+
+        {/* Continue or Create button */}
+        {/* {emailExists !== null && (
           <View className="items-center justify-center w-full">
             <ResponsiveUi.Button
               btnClassName="mt-4"
-              title="Continue"
+              title={emailExists ? "Continue" : "Create account"}
               action={handleSubmit(onSubmit)}
             />
           </View>
-        )}
-        {!emailExists && emailExists !== null && (
-          <View className="items-center justify-center w-full">
-            <ResponsiveUi.Button
-              btnClassName="mt-4"
-              title="Create account"
-              action={handleSubmit(onSubmit)}
-            />
-          </View>
-        )}
-        {!emailExists && !isConfirmingEmail && (
-          <ResponsiveUi.Text xs secondary tailwind="text-center mx-4 my-4">
-            By using Noblocks, you agree to accept our Terms of Use and Privacy
-            Policy
-          </ResponsiveUi.Text>
-        )}
-      </View>
-      <View className="flex-row items-center justify-center mt-4">
-        <Pressable className="mr-4">
-          <ResponsiveUi.Text xs>Privacy Policy</ResponsiveUi.Text>
-        </Pressable>
-        <Pressable>
-          <ResponsiveUi.Text xs>Terms</ResponsiveUi.Text>
-        </Pressable>
+        )} */}
+
+        {/* Terms notice only when email not found */}
+        <ResponsiveUi.Text xs secondary tailwind="text-center mx-4 my-4">
+          By using Noblocks, you agree to accept our Terms of Use and Privacy
+          Policy
+        </ResponsiveUi.Text>
       </View>
     </AppLayout>
   );

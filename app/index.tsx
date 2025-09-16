@@ -1,9 +1,17 @@
+import { Href, Redirect } from "expo-router";
 import React, { FunctionComponent } from "react";
 
-import { Redirect } from "expo-router";
+import { useSelector } from "./store/Store";
 
 const Index: FunctionComponent = () => {
-  return <Redirect href={"/(onboarding)"} />;
+  const { user, newInstall } = useSelector(["user", "newInstall"]);
+
+  const initialRoute: Href = newInstall
+    ? "/(onboarding)"
+    : user
+      ? "/(tabs)"
+      : "/(auth)/login";
+  return <Redirect href={initialRoute} />;
 };
 
 export default Index;

@@ -1,16 +1,17 @@
-import React, { FunctionComponent, useMemo, useState } from "react";
 import { Pressable, View } from "react-native";
+import React, { FunctionComponent, useMemo, useState } from "react";
 
-import Check from "@/components/Check";
-import GradientText from "@/components/GradientText";
 import AppLayout from "@/components/layouts/AppLayout";
+import Check from "@/components/Check";
+import { Colors } from "@/constants/Colors";
+import { FileText } from "lucide-react-native";
+import GradientText from "@/components/GradientText";
 import { ResponsiveUi } from "@/components/ResponsiveUi";
 import TropicalIndigo from "@/components/svgs/tropical-indigo";
-import { Colors } from "@/constants/Colors";
-import { router } from "expo-router";
-import { FileText } from "lucide-react-native";
+import useAuth from "@/hooks/auth/useAuth";
 
 const Kyc: FunctionComponent = () => {
+  const { acceptTermsOfService } = useAuth();
   const [terms, setTerms] = useState([
     {
       id: 1,
@@ -93,7 +94,7 @@ const Kyc: FunctionComponent = () => {
           <ResponsiveUi.Button
             btnClassName="mt-4"
             title="Get started"
-            action={() => router.replace("/(tabs)")}
+            action={acceptTermsOfService}
             disabled={!allChecked}
           />
         </View>

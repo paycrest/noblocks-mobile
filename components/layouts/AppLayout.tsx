@@ -61,7 +61,6 @@ const AppLayout = forwardRef(
       outerContainerClassName,
       containerStyle,
       statusBarBackgroundColor,
-      barStyle,
       horizontalPadding = true,
       bottomPadding = true,
       scrollable = true,
@@ -96,15 +95,21 @@ const AppLayout = forwardRef(
 
     return (
       <SafeAreaView
-        className="flex-1 w-full"
-        style={[{ backgroundColor: colors.background }]}
+        style={{
+          flex: 1,
+          backgroundColor: statusBarBackgroundColor ?? colors.background,
+        }}
       >
+        <StatusBar
+          animated={true}
+          barStyle={appBarStyle}
+          backgroundColor={statusBarBackgroundColor ?? colors.background}
+          hidden={false}
+        />
         <View
           className={`flex-grow flex-1 pb-20 w-full  ${layoutClassName}`}
           style={[{ backgroundColor: colors.background }, layoutStyle]}
         >
-          <StatusBar backgroundColor={colors.text} barStyle={appBarStyle} />
-
           {scrollable ? (
             <View className={`flex-1 w-full ${outerContainerClassName}`}>
               <StyledKeyboardAwareScrollView
@@ -128,8 +133,8 @@ const AppLayout = forwardRef(
                           insets.bottom === 0
                             ? wp(5)
                             : isLargeScreen
-                            ? insets.bottom + wp(2)
-                            : insets.bottom * 0.8,
+                              ? insets.bottom + wp(2)
+                              : insets.bottom * 0.8,
                         default: wp(3),
                       }),
                     }}
@@ -155,8 +160,8 @@ const AppLayout = forwardRef(
                         insets.bottom === 0
                           ? wp(5)
                           : isLargeScreen
-                          ? insets.bottom + wp(2)
-                          : insets.bottom * 0.8,
+                            ? insets.bottom + wp(2)
+                            : insets.bottom * 0.8,
                       default: wp(3),
                     }),
                   }}

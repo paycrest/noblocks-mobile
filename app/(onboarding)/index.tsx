@@ -5,8 +5,11 @@ import { ResponsiveUi } from "@/components/ResponsiveUi";
 import OnboardingIcon1 from "@/components/svgs/onboarding-icon1";
 import { router } from "expo-router";
 import { View } from "react-native";
+import { useSelector } from "../store/Store";
 
 const Index: FunctionComponent = () => {
+  const { setNewInstall } = useSelector(["setLaunchState", "setNewInstall"]);
+
   return (
     <AppLayout>
       <View className="flex-1 justify-center items-center">
@@ -28,7 +31,10 @@ const Index: FunctionComponent = () => {
           <ResponsiveUi.Button
             btnClassName="mt-4"
             title="Continue"
-            action={() => router.push("/(auth)/kyc")}
+            action={() => {
+              router.push("/(auth)/login");
+              setNewInstall(false);
+            }}
           />
         </View>
         <View className="mt-9 w-72">
