@@ -4,7 +4,8 @@ import {
   persist,
   subscribeWithSelector,
 } from "zustand/middleware";
-import { GeneralSlice, generalState } from "./sllices/generalSlice";
+import { AuthSlice, authState } from "./slices/authslice";
+import { GeneralSlice, generalState } from "./slices/generalSlice";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { immer } from "zustand/middleware/immer";
@@ -18,7 +19,7 @@ interface RootState {
   logoutAndClearState: () => void;
 }
 
-export type StoreState = RootState & GeneralSlice;
+export type StoreState = RootState & GeneralSlice & AuthSlice;
 
 export type ImmerStateCreator<T> = StateCreator<
   T,
@@ -32,10 +33,13 @@ export const createStoreWithSelectors =
   <K extends keyof T>(keys: K[]) => {
     return store(
       useShallow((state) =>
-        keys.reduce((selected, key) => {
-          selected[key] = state[key];
-          return selected;
-        }, {} as { [P in K]: T[P] })
+        keys.reduce(
+          (selected, key) => {
+            selected[key] = state[key];
+            return selected;
+          },
+          {} as { [P in K]: T[P] }
+        )
       )
     );
   };
@@ -57,6 +61,7 @@ export const boundStore = create<StoreState>()(
           });
         },
         ...generalState.slice(setState, getState, store),
+        ...authState.slice(setState, getState, store),
       }))
     ),
     {
