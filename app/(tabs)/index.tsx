@@ -4,10 +4,9 @@ if (__DEV__) {
 
 import "../../global.css";
 
-import { Text } from "react-native";
-
 import AppLayout from "@/components/layouts/AppLayout";
 import useCustomFonts from "@/hooks/useCustomFonts";
+import { Text } from "react-native";
 
 export default function HomeScreen() {
   const { loaded } = useCustomFonts();
