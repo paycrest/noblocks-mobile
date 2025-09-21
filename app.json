@@ -10,7 +10,11 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.paycrest.noblocks"
+      "bundleIdentifier": "com.paycrest.noblocks",
+      "associatedDomains": ["webcredentials:roosta-landing-page.vercel.app"]
+    },
+    "extra": {
+      "passkeyAssociatedDomain": "https://roosta-landing-page.vercel.app"
     },
     "android": {
       "adaptiveIcon": {
@@ -34,6 +38,11 @@
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
+        }
+      ],
+      [ "expo-local-authentication",
+        {
+          "faceIDPermission": "Allow $(PRODUCT_NAME) to use Face ID."
         }
       ],
       "expo-font",

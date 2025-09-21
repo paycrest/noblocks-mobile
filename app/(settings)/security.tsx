@@ -8,10 +8,12 @@ import ListItem from "@/components/settings/ListItem";
 import BackupCodesModal from "@/components/settings/modals/BackupCodesModal";
 import ScreenHeader from "@/components/settings/ScreenHeader";
 import AppSwitch from "@/components/Switch";
+import useAuth from "@/hooks/auth/useAuth";
 import { useThemeColors } from "@/hooks/useThemeColor";
 
 const Security: FunctionComponent = () => {
   const [is2FAModalVisible, setIs2FAModalVisible] = useState<boolean>(false);
+  const { handleEnrollmentWithPasskey } = useAuth();
   const color = useThemeColors();
   return (
     <AppLayout>
@@ -21,7 +23,13 @@ const Security: FunctionComponent = () => {
           <ListItem
             title="Face ID"
             subtitle="Enable face ID for app login and approving transactions for added security."
-            rightComponent={<AppSwitch onToggle={(state) => {}} />}
+            rightComponent={
+              <AppSwitch
+                onToggle={(state) => {
+                  handleEnrollmentWithPasskey();
+                }}
+              />
+            }
           />
           <ListItem
             title="Password"
@@ -53,6 +61,18 @@ const Security: FunctionComponent = () => {
               semiBold
             >
               Add 2FA
+            </ResponsiveUi.Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handleEnrollmentWithPasskey}>
+            <ResponsiveUi.Text
+              tailwind="mt-3"
+              style={{
+                color: color.slate,
+              }}
+              small
+              semiBold
+            >
+              Link account to passkey
             </ResponsiveUi.Text>
           </TouchableOpacity>
         </View>
