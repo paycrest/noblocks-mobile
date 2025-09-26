@@ -1,56 +1,59 @@
 import {
+  PrivyUser,
   useLoginWithEmail,
-  useMfa,
   useMfaEnrollment,
   usePrivy,
 } from "@privy-io/expo";
 
-import { useSelector } from "@/app/store/Store";
-import { useLinkWithPasskey } from "@privy-io/expo/passkey";
 import { router } from "expo-router";
 import { useCallback } from "react";
+import { useEmbeddedEthereumWallet } from "@privy-io/expo";
+import { useLinkWithPasskey } from "@privy-io/expo/passkey";
+import { useSelector } from "@/app/store/Store";
 
 const useAuth = () => {
-  const { sendCode, loginWithCode } = useLoginWithEmail();
+  const { create } = useEmbeddedEthereumWallet();
+  const { sendCode, loginWithCode } = useLoginWithEmail({
+    onLoginSuccess: (user, isNewUser) => {
+      navigateAfterLogin(user, !!isNewUser);
+    },
+  });
   const { linkWithPasskey } = useLinkWithPasskey();
-  const { saveUserInfo, logoutAndClearState } = useSelector([
+  const { saveUserInfo, logoutAndClearState, setNewInstall } = useSelector([
     "saveUserInfo",
     "logoutAndClearState",
+    "setNewInstall",
   ]);
-  const { logout, user, getAccessToken, isReady } = usePrivy();
+  const { logout, user } = usePrivy();
   const { initMfaEnrollment, submitMfaEnrollment } = useMfaEnrollment();
   const appId = process.env.EXPO_PUBLIC_PRIVY_APP_ID;
   const client_id = process.env.EXPO_PUBLIC_PRIVY_CLIENT_ID;
-  const currentTime = Math.floor(Date.now() / 1000);
-  const { init, submit, cancel } = useMfa();
 
-  const loginUser = useCallback(
-    async (email: string, code: string) => {
-      try {
-        const response = await loginWithCode({
-          code,
-          email,
-        });
-        console.log(isReady, response);
-        if (isReady && response) {
-          const isFirstTime = Math.abs(currentTime - response?.created_at) < 10;
-          saveUserInfo(response);
-          if (isFirstTime) {
-            router.replace("/(auth)/kyc");
-          } else {
-            router.replace("/(tabs)");
-          }
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    },
-    [loginWithCode, router]
-  );
+  const navigateAfterLogin = async (user: PrivyUser, isNewUser: boolean) => {
+    saveUserInfo(user);
+    if (isNewUser) {
+      await create();
+      router.replace("/(auth)/kyc");
+    } else {
+      router.replace("/(tabs)");
+    }
+    setNewInstall(false);
+  };
+
+  const loginUser = async (email: string, code: string) => {
+    try {
+      await loginWithCode({
+        code,
+        email,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const sendLoginCode = useCallback(async (email: string) => {
     try {
-      const response = await sendCode({
+      await sendCode({
         email,
       });
       router.navigate({
@@ -107,6 +110,7 @@ const useAuth = () => {
   // }, [])
 
   const acceptTermsOfService = useCallback(async () => {
+    router.replace("/(tabs)");
     // const token = await getAccessToken();
     // console.log(token);
     // try {
