@@ -2283,12 +2283,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@privy-io/api-base@npm:1.6.0":
-  version: 1.6.0
-  resolution: "@privy-io/api-base@npm:1.6.0"
+"@privy-io/api-base@npm:1.7.0":
+  version: 1.7.0
+  resolution: "@privy-io/api-base@npm:1.7.0"
   dependencies:
     zod: ^3.24.3
-  checksum: e41f90d3518a94294f91fb617143471d53b59e692257e55aa394a9b4a2dcbf495c983d2e3f3190d1ee869ed1b45f44b84f106c643a3fa4c4e5cf200ed800f746
+  checksum: 3a749df3fa51d24f003aa477d34dc091143f40d367d1e5caf1c708eed8389a1061d015d8e66de45308eea543534b17c9d008ad5d5d0355a4cd9061f1788a39b3
   languageName: node
   linkType: hard
 
@@ -2310,11 +2310,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@privy-io/expo@npm:0.58.3":
-  version: 0.58.3
-  resolution: "@privy-io/expo@npm:0.58.3"
+"@privy-io/expo@npm:^0.59.2":
+  version: 0.59.2
+  resolution: "@privy-io/expo@npm:0.59.2"
   dependencies:
-    "@privy-io/js-sdk-core": 0.53.4
+    "@privy-io/js-sdk-core": 0.55.2
     "@scure/base": ^1.2.4
     react-fast-compare: ^3.2.2
     tweetnacl: ^1.0.3
@@ -2356,13 +2356,13 @@ __metadata:
       optional: true
     viem:
       optional: true
-  checksum: 30843ef83bdd3c14975bcfdd84fa8ea41517f882e7b4af5b8d91d45d9e6caa6e40304d2b9cc3962749f8d8bb8206343b83a1d53022c49b8bcfab9fb97a79fcac
+  checksum: 154333558eb341ff71a6e24567e739e3db85ad6074dcf5689b0acd8f8c29d96687a645d667fe62ec53041b3d34f727df4dd8f2d332c30a9924225c8a970be74c
   languageName: node
   linkType: hard
 
-"@privy-io/js-sdk-core@npm:0.53.4":
-  version: 0.53.4
-  resolution: "@privy-io/js-sdk-core@npm:0.53.4"
+"@privy-io/js-sdk-core@npm:0.55.2":
+  version: 0.55.2
+  resolution: "@privy-io/js-sdk-core@npm:0.55.2"
   dependencies:
     "@ethersproject/abstract-signer": ^5.7.0
     "@ethersproject/bignumber": ^5.7.0
@@ -2370,9 +2370,9 @@ __metadata:
     "@ethersproject/providers": ^5.7.2
     "@ethersproject/transactions": ^5.7.0
     "@ethersproject/units": ^5.7.0
-    "@privy-io/api-base": 1.6.0
+    "@privy-io/api-base": 1.7.0
     "@privy-io/chains": 0.0.2
-    "@privy-io/public-api": 2.43.1
+    "@privy-io/public-api": 2.45.2
     canonicalize: ^2.0.0
     eventemitter3: ^5.0.1
     fetch-retry: ^6.0.0
@@ -2389,20 +2389,20 @@ __metadata:
       optional: true
     viem:
       optional: true
-  checksum: eb2a15b38d58a19b436e12f1166ad36d96ee9ed4318f04b0348732ec699c6b5d63919a1a86578a8a47070962a3ce75d05b203bcd5e396fe0bf464636aaae5564
+  checksum: 52b07ed35ed560d205d7770a10dfa255f3e741359d63ba6bb6227d3d9d731dcb05f7dbe2eb60b292ca6ab33558928d354fbc7c4d88224d972b512b23dc4c2f42
   languageName: node
   linkType: hard
 
-"@privy-io/public-api@npm:2.43.1":
-  version: 2.43.1
-  resolution: "@privy-io/public-api@npm:2.43.1"
+"@privy-io/public-api@npm:2.45.2":
+  version: 2.45.2
+  resolution: "@privy-io/public-api@npm:2.45.2"
   dependencies:
-    "@privy-io/api-base": 1.6.0
+    "@privy-io/api-base": 1.7.0
     bs58: ^5.0.0
     libphonenumber-js: ^1.10.31
     viem: ^2
     zod: ^3.24.3
-  checksum: 7751fac16c877a81deafa8511828ffd662590d3d6bd0087799d175d3bb8c5b2022d66029ab0fb8055d1026c56d2e885f2a026c1c6071cbce2e32b91985bc9f81
+  checksum: c04d8a31b34e93fa75d69f06dc4e20e19b7e4be14d175674a7a084e056d3a17b3353d2367f7c97cfb2801f5d5fac941ffdf256f8a60c4d83f86e62139ad73e68
   languageName: node
   linkType: hard
 
@@ -6975,7 +6975,7 @@ __metadata:
     "@expo/vector-icons": ^14.1.0
     "@gorhom/bottom-sheet": ^5.2.6
     "@hookform/resolvers": ^5.2.1
-    "@privy-io/expo": 0.58.3
+    "@privy-io/expo": ^0.59.2
     "@privy-io/expo-native-extensions": ^0.0.5
     "@react-native-async-storage/async-storage": ^2.2.0
     "@react-native-masked-view/masked-view": ^0.3.2
@@ -7033,7 +7033,7 @@ __metadata:
     react-native-passkeys: ^0.3.3
     react-native-qrcode-svg: ^6.3.15
     react-native-reanimated: ~3.17.4
-    react-native-safe-area-context: 5.4.0
+    react-native-safe-area-context: ^5.6.1
     react-native-screens: ~4.11.1
     react-native-svg: ^15.13.0
     react-native-web: ~0.20.0
@@ -8156,13 +8156,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-safe-area-context@npm:5.4.0":
-  version: 5.4.0
-  resolution: "react-native-safe-area-context@npm:5.4.0"
+"react-native-safe-area-context@npm:^5.6.1":
+  version: 5.6.1
+  resolution: "react-native-safe-area-context@npm:5.6.1"
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: 7d7f9a8278048650fd207d436798bd062d6f78d771cb0665b92aef69dba870251339e6812e1d669fd1958345288bd0f9ac98fbfe353c13958d18b58dc946c341
+  checksum: f346615d5f8f26c0c8459d29c149ea3f66684b8ae79cea6fd48d118d039851a69a92955d67b455d0e7ab46639155c4357ebf58ec1859b2377ee459e2a04b602b
   languageName: node
   linkType: hard
 
