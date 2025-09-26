@@ -1,13 +1,13 @@
 import React, { FunctionComponent, useState } from "react";
 import { TouchableOpacity, View } from "react-native";
 
-import Chip from "@/components/Chip";
 import AppLayout from "@/components/layouts/AppLayout";
-import { ResponsiveUi } from "@/components/ResponsiveUi";
-import ListItem from "@/components/settings/ListItem";
-import BackupCodesModal from "@/components/settings/modals/BackupCodesModal";
-import ScreenHeader from "@/components/settings/ScreenHeader";
 import AppSwitch from "@/components/Switch";
+import BackupCodesModal from "@/components/settings/modals/BackupCodesModal";
+import Chip from "@/components/Chip";
+import ListItem from "@/components/settings/ListItem";
+import { ResponsiveUi } from "@/components/ResponsiveUi";
+import ScreenHeader from "@/components/settings/ScreenHeader";
 import useAuth from "@/hooks/auth/useAuth";
 import { useThemeColors } from "@/hooks/useThemeColor";
 
@@ -17,16 +17,16 @@ const Security: FunctionComponent = () => {
   const color = useThemeColors();
   return (
     <AppLayout>
-      <View className="w-full mx-1">
+      <View className="w-full">
         <ScreenHeader screenTitle="Security" />
-        <View className="mx-5">
+        <View className="mx-3">
           <ListItem
             title="Face ID"
             subtitle="Enable face ID for app login and approving transactions for added security."
             rightComponent={
               <AppSwitch
                 onToggle={(state) => {
-                  handleEnrollmentWithPasskey();
+                  const response = handleEnrollmentWithPasskey();
                 }}
               />
             }

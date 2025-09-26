@@ -1,7 +1,8 @@
 import React, { FunctionComponent, ReactElement } from "react";
 
-import { View } from "react-native";
 import { ResponsiveUi } from "../ResponsiveUi";
+import { View } from "react-native";
+import { useAppDimensions } from "@/hooks/useAppDimensions";
 
 interface Props {
   title: string;
@@ -14,8 +15,9 @@ const ListItem: FunctionComponent<Props> = ({
   subtitle,
   rightComponent,
 }) => {
+  const { wp } = useAppDimensions();
   return (
-    <View className="flex-row w-full  mt-8">
+    <View className="flex-row mt-8">
       <View>
         <ResponsiveUi.Text semiBold small>
           {title}
@@ -23,7 +25,7 @@ const ListItem: FunctionComponent<Props> = ({
         <ResponsiveUi.Text
           secondary
           style={{
-            width: 300,
+            width: wp(75),
             marginTop: 10,
           }}
           xs
@@ -31,7 +33,7 @@ const ListItem: FunctionComponent<Props> = ({
           {subtitle}
         </ResponsiveUi.Text>
       </View>
-      <View style={{ width: 50 }}>{rightComponent}</View>
+      <View style={{ width: wp(15) }}>{rightComponent}</View>
     </View>
   );
 };
