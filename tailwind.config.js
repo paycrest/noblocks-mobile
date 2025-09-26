@@ -29,13 +29,16 @@ module.exports = {
         "dark-place-holder": "#FFFFFF33",
         "accent-gray": "#D1D1DB",
         "accent-gray-bolder": "#F7F7F8",
-        danger: "#F53D6B",
+        yellow: "#F2C71C",
+        red: "#F53D6B",
+        orange: "#FF7D52",
+        green: "#39C65D",
       },
       borderRadius: {
         lg: "16px",
       },
       borderWidth: {
-        1: 1, 
+        1: 1,
       },
     },
   },
