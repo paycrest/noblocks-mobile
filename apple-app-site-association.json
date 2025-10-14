@@ -1,0 +1,14 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "5RHBQ5CR25.com.paycrest.noblocks",
+        "paths": [ "*" ]
+      }
+    ]
+  },
+  "webcredentials": {
+    "apps": ["5RHBQ5CR25.com.paycrest.noblocks" ]
+  }
+}

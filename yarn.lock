@@ -2283,12 +2283,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@privy-io/api-base@npm:1.7.0":
-  version: 1.7.0
-  resolution: "@privy-io/api-base@npm:1.7.0"
+"@privy-io/api-base@npm:1.6.1":
+  version: 1.6.1
+  resolution: "@privy-io/api-base@npm:1.6.1"
   dependencies:
     zod: ^3.24.3
-  checksum: 3a749df3fa51d24f003aa477d34dc091143f40d367d1e5caf1c708eed8389a1061d015d8e66de45308eea543534b17c9d008ad5d5d0355a4cd9061f1788a39b3
+  checksum: 433d72c18d05dceafdb70650b1c5caefddc150566aa367bb988cd599320ec42ce8c76b3e3ef1fa0ac589998d6eeaf644bce807666b606c030a1a1452657b2091
   languageName: node
   linkType: hard
 
@@ -2310,11 +2310,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@privy-io/expo@npm:^0.59.2":
-  version: 0.59.2
-  resolution: "@privy-io/expo@npm:0.59.2"
+"@privy-io/expo@npm:^0.58.1":
+  version: 0.58.6
+  resolution: "@privy-io/expo@npm:0.58.6"
   dependencies:
-    "@privy-io/js-sdk-core": 0.55.2
+    "@privy-io/js-sdk-core": 0.54.2
     "@scure/base": ^1.2.4
     react-fast-compare: ^3.2.2
     tweetnacl: ^1.0.3
@@ -2356,13 +2356,13 @@ __metadata:
       optional: true
     viem:
       optional: true
-  checksum: 154333558eb341ff71a6e24567e739e3db85ad6074dcf5689b0acd8f8c29d96687a645d667fe62ec53041b3d34f727df4dd8f2d332c30a9924225c8a970be74c
+  checksum: d79bd34ff93e30bf9d0a3a68c895ea9780d7a0004687b47c8519c2258e7064c71ffb134cdc160773f088b2ad61dae002327303059f2aa271e92a63928763cad8
   languageName: node
   linkType: hard
 
-"@privy-io/js-sdk-core@npm:0.55.2":
-  version: 0.55.2
-  resolution: "@privy-io/js-sdk-core@npm:0.55.2"
+"@privy-io/js-sdk-core@npm:0.54.2":
+  version: 0.54.2
+  resolution: "@privy-io/js-sdk-core@npm:0.54.2"
   dependencies:
     "@ethersproject/abstract-signer": ^5.7.0
     "@ethersproject/bignumber": ^5.7.0
@@ -2370,9 +2370,9 @@ __metadata:
     "@ethersproject/providers": ^5.7.2
     "@ethersproject/transactions": ^5.7.0
     "@ethersproject/units": ^5.7.0
-    "@privy-io/api-base": 1.7.0
+    "@privy-io/api-base": 1.6.1
     "@privy-io/chains": 0.0.2
-    "@privy-io/public-api": 2.45.2
+    "@privy-io/public-api": 2.44.2
     canonicalize: ^2.0.0
     eventemitter3: ^5.0.1
     fetch-retry: ^6.0.0
@@ -2389,20 +2389,20 @@ __metadata:
       optional: true
     viem:
       optional: true
-  checksum: 52b07ed35ed560d205d7770a10dfa255f3e741359d63ba6bb6227d3d9d731dcb05f7dbe2eb60b292ca6ab33558928d354fbc7c4d88224d972b512b23dc4c2f42
+  checksum: 23c4732d41dc608592a423d8df1c596b5f1a6a0fe8130f33d8ba3853ec4a5c1706a2e4f555dcc5cb1ea5df62c7b182dc8544cb2d87b3769c02fda8be8436af7e
   languageName: node
   linkType: hard
 
-"@privy-io/public-api@npm:2.45.2":
-  version: 2.45.2
-  resolution: "@privy-io/public-api@npm:2.45.2"
+"@privy-io/public-api@npm:2.44.2":
+  version: 2.44.2
+  resolution: "@privy-io/public-api@npm:2.44.2"
   dependencies:
-    "@privy-io/api-base": 1.7.0
+    "@privy-io/api-base": 1.6.1
     bs58: ^5.0.0
     libphonenumber-js: ^1.10.31
     viem: ^2
     zod: ^3.24.3
-  checksum: c04d8a31b34e93fa75d69f06dc4e20e19b7e4be14d175674a7a084e056d3a17b3353d2367f7c97cfb2801f5d5fac941ffdf256f8a60c4d83f86e62139ad73e68
+  checksum: 723ea1b4b7f170e6e6d4e92ddc93b19b955ebc20f5665352067ebaad6bf460fbdd8351a4baa15f59bfa1ab32677e4d56fa8c74e98891d551b88ba858f8d4ccfc
   languageName: node
   linkType: hard
 
@@ -6975,7 +6975,7 @@ __metadata:
     "@expo/vector-icons": ^14.1.0
     "@gorhom/bottom-sheet": ^5.2.6
     "@hookform/resolvers": ^5.2.1
-    "@privy-io/expo": ^0.59.2
+    "@privy-io/expo": ^0.58.1
     "@privy-io/expo-native-extensions": ^0.0.5
     "@react-native-async-storage/async-storage": ^2.2.0
     "@react-native-masked-view/masked-view": ^0.3.2

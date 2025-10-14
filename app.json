@@ -14,7 +14,10 @@
       "associatedDomains": ["webcredentials:roosta-landing-page.vercel.app"]
     },
     "extra": {
-      "passkeyAssociatedDomain": "https://roosta-landing-page.vercel.app"
+      "passkeyAssociatedDomain": "https://roosta-landing-page.vercel.app",
+      "privyAppId": "cmfgv67190088jx0bl9boahgl",
+      "privyClientId": "client-WY6QhUcguZYygmFFCzRW8kqCjPeT9XkDWS6UwxKHKxYnV"
+
     },
     "android": {
       "adaptiveIcon": {
