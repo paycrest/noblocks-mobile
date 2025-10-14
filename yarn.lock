@@ -2283,12 +2283,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@privy-io/api-base@npm:1.6.0":
-  version: 1.6.0
-  resolution: "@privy-io/api-base@npm:1.6.0"
+"@privy-io/api-base@npm:1.6.1":
+  version: 1.6.1
+  resolution: "@privy-io/api-base@npm:1.6.1"
   dependencies:
     zod: ^3.24.3
-  checksum: e41f90d3518a94294f91fb617143471d53b59e692257e55aa394a9b4a2dcbf495c983d2e3f3190d1ee869ed1b45f44b84f106c643a3fa4c4e5cf200ed800f746
+  checksum: 433d72c18d05dceafdb70650b1c5caefddc150566aa367bb988cd599320ec42ce8c76b3e3ef1fa0ac589998d6eeaf644bce807666b606c030a1a1452657b2091
   languageName: node
   linkType: hard
 
@@ -2310,11 +2310,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@privy-io/expo@npm:0.58.3":
-  version: 0.58.3
-  resolution: "@privy-io/expo@npm:0.58.3"
+"@privy-io/expo@npm:^0.58.1":
+  version: 0.58.6
+  resolution: "@privy-io/expo@npm:0.58.6"
   dependencies:
-    "@privy-io/js-sdk-core": 0.53.4
+    "@privy-io/js-sdk-core": 0.54.2
     "@scure/base": ^1.2.4
     react-fast-compare: ^3.2.2
     tweetnacl: ^1.0.3
@@ -2356,13 +2356,13 @@ __metadata:
       optional: true
     viem:
       optional: true
-  checksum: 30843ef83bdd3c14975bcfdd84fa8ea41517f882e7b4af5b8d91d45d9e6caa6e40304d2b9cc3962749f8d8bb8206343b83a1d53022c49b8bcfab9fb97a79fcac
+  checksum: d79bd34ff93e30bf9d0a3a68c895ea9780d7a0004687b47c8519c2258e7064c71ffb134cdc160773f088b2ad61dae002327303059f2aa271e92a63928763cad8
   languageName: node
   linkType: hard
 
-"@privy-io/js-sdk-core@npm:0.53.4":
-  version: 0.53.4
-  resolution: "@privy-io/js-sdk-core@npm:0.53.4"
+"@privy-io/js-sdk-core@npm:0.54.2":
+  version: 0.54.2
+  resolution: "@privy-io/js-sdk-core@npm:0.54.2"
   dependencies:
     "@ethersproject/abstract-signer": ^5.7.0
     "@ethersproject/bignumber": ^5.7.0
@@ -2370,9 +2370,9 @@ __metadata:
     "@ethersproject/providers": ^5.7.2
     "@ethersproject/transactions": ^5.7.0
     "@ethersproject/units": ^5.7.0
-    "@privy-io/api-base": 1.6.0
+    "@privy-io/api-base": 1.6.1
     "@privy-io/chains": 0.0.2
-    "@privy-io/public-api": 2.43.1
+    "@privy-io/public-api": 2.44.2
     canonicalize: ^2.0.0
     eventemitter3: ^5.0.1
     fetch-retry: ^6.0.0
@@ -2389,20 +2389,20 @@ __metadata:
       optional: true
     viem:
       optional: true
-  checksum: eb2a15b38d58a19b436e12f1166ad36d96ee9ed4318f04b0348732ec699c6b5d63919a1a86578a8a47070962a3ce75d05b203bcd5e396fe0bf464636aaae5564
+  checksum: 23c4732d41dc608592a423d8df1c596b5f1a6a0fe8130f33d8ba3853ec4a5c1706a2e4f555dcc5cb1ea5df62c7b182dc8544cb2d87b3769c02fda8be8436af7e
   languageName: node
   linkType: hard
 
-"@privy-io/public-api@npm:2.43.1":
-  version: 2.43.1
-  resolution: "@privy-io/public-api@npm:2.43.1"
+"@privy-io/public-api@npm:2.44.2":
+  version: 2.44.2
+  resolution: "@privy-io/public-api@npm:2.44.2"
   dependencies:
-    "@privy-io/api-base": 1.6.0
+    "@privy-io/api-base": 1.6.1
     bs58: ^5.0.0
     libphonenumber-js: ^1.10.31
     viem: ^2
     zod: ^3.24.3
-  checksum: 7751fac16c877a81deafa8511828ffd662590d3d6bd0087799d175d3bb8c5b2022d66029ab0fb8055d1026c56d2e885f2a026c1c6071cbce2e32b91985bc9f81
+  checksum: 723ea1b4b7f170e6e6d4e92ddc93b19b955ebc20f5665352067ebaad6bf460fbdd8351a4baa15f59bfa1ab32677e4d56fa8c74e98891d551b88ba858f8d4ccfc
   languageName: node
   linkType: hard
 
@@ -4787,6 +4787,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"expo-local-authentication@npm:~16.0.5":
+  version: 16.0.5
+  resolution: "expo-local-authentication@npm:16.0.5"
+  dependencies:
+    invariant: ^2.2.4
+  peerDependencies:
+    expo: "*"
+  checksum: a7c2a70d5d88b94bb6a2168e077ee7286b63a9718cc4cb2b211fa2b837c23c9581b01363088df4e149e922389b981ced533ffbbcd8ce856f1ad82aeb671aeff9
+  languageName: node
+  linkType: hard
+
 "expo-modules-autolinking@npm:2.1.14":
   version: 2.1.14
   resolution: "expo-modules-autolinking@npm:2.1.14"
@@ -6964,7 +6975,7 @@ __metadata:
     "@expo/vector-icons": ^14.1.0
     "@gorhom/bottom-sheet": ^5.2.6
     "@hookform/resolvers": ^5.2.1
-    "@privy-io/expo": 0.58.3
+    "@privy-io/expo": ^0.58.1
     "@privy-io/expo-native-extensions": ^0.0.5
     "@react-native-async-storage/async-storage": ^2.2.0
     "@react-native-masked-view/masked-view": ^0.3.2
@@ -6988,6 +6999,7 @@ __metadata:
     expo-image: ~2.4.0
     expo-linear-gradient: ~14.1.5
     expo-linking: ~7.1.7
+    expo-local-authentication: ~16.0.5
     expo-navigation-bar: ^4.2.7
     expo-router: ~5.1.5
     expo-secure-store: ~14.2.4
@@ -7017,10 +7029,11 @@ __metadata:
     react-native-modal: ^14.0.0-rc.1
     react-native-otp-entry: ^1.8.5
     react-native-paper: ^5.14.5
+    react-native-passkey: ^3.1.0
     react-native-passkeys: ^0.3.3
     react-native-qrcode-svg: ^6.3.15
     react-native-reanimated: ~3.17.4
-    react-native-safe-area-context: 5.4.0
+    react-native-safe-area-context: ^5.6.1
     react-native-screens: ~4.11.1
     react-native-svg: ^15.13.0
     react-native-web: ~0.20.0
@@ -8083,6 +8096,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-native-passkey@npm:^3.1.0":
+  version: 3.1.0
+  resolution: "react-native-passkey@npm:3.1.0"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: 24e39648eae2162bf88c258f421c74a52dea243e9943f5fb89a7a5adc1b201cad61b687d3d0c56c5363fedc8339f6d4e1e160c8076b8a221464514db6b7a2717
+  languageName: node
+  linkType: hard
+
 "react-native-passkeys@npm:^0.3.3":
   version: 0.3.3
   resolution: "react-native-passkeys@npm:0.3.3"
@@ -8133,13 +8156,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-safe-area-context@npm:5.4.0":
-  version: 5.4.0
-  resolution: "react-native-safe-area-context@npm:5.4.0"
+"react-native-safe-area-context@npm:^5.6.1":
+  version: 5.6.1
+  resolution: "react-native-safe-area-context@npm:5.6.1"
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: 7d7f9a8278048650fd207d436798bd062d6f78d771cb0665b92aef69dba870251339e6812e1d669fd1958345288bd0f9ac98fbfe353c13958d18b58dc946c341
+  checksum: f346615d5f8f26c0c8459d29c149ea3f66684b8ae79cea6fd48d118d039851a69a92955d67b455d0e7ab46639155c4357ebf58ec1859b2377ee459e2a04b602b
   languageName: node
   linkType: hard
 

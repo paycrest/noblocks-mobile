@@ -44,10 +44,7 @@ const Selector: FunctionComponent<SelectorProps> = ({
   return (
     <TouchableOpacity
       onPress={onPress}
-      style={[
-      
-        { borderColor },
-      ]}
+      style={[{ borderColor }]}
       className="justify-between border-[0.5px] border-gray-hover py-6 rounded-2xl  mb-4"
     >
       <ResponsiveUi.Text xs medium tailwind="ml-4">
@@ -86,7 +83,7 @@ const TwoFAModal: FunctionComponent<Props> = ({ isVisible, onClose }) => {
           alignSelf: "center",
         }}
       >
-        <View style={tw`flex-row items-center justify-between`}>
+        <View className={`flex-row items-center justify-between`}>
           <ResponsiveUi.Text semiBold>Add 2-Factor auth</ResponsiveUi.Text>
           <X onPress={onClose} size={20} color={colors.secondary} />
         </View>

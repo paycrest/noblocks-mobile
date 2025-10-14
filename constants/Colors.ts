@@ -3,6 +3,37 @@
  * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
  */
 
+interface ThemeColors {
+  text: string;
+  background: string;
+  place_holder: string;
+  gray_hover: string;
+  secondary: string;
+  neutral?: string; // only exists in light
+  slate: string;
+  white: string;
+  surface_overlay: string;
+  gray: string;
+  tint: string;
+}
+
+interface GenericColors {
+  destructive: string;
+  slate: string;
+  black: string;
+  white: string;
+  disabled: string;
+  yellow: string;
+  red: string;
+  orange: string;
+  green: string;
+}
+
+export interface ColorsInterface extends GenericColors {
+  light: ThemeColors;
+  dark: ThemeColors;
+}
+
 import { useSelector } from "@/app/store/Store";
 
 const tintColorLight = "#0a7ea4";
@@ -14,9 +45,13 @@ const genericColors = {
   black: "rgba(255, 255, 255, 0.1)",
   white: "white",
   disabled: "#5D5DC9",
+  yellow: "#F2C71C",
+  red: "#F53D6B",
+  orange: "#FF7D52",
+  green: "#39C65D",
 };
 
-export const Colors = {
+export const Colors: ColorsInterface = {
   light: {
     text: "black",
     background: "#ffff",
@@ -46,7 +81,7 @@ export const Colors = {
 };
 
 export const colors = () => {
-  const {appTheme} = useSelector(['appTheme']);
+  const { appTheme } = useSelector(["appTheme"]);
   if (appTheme === "dark") {
     return {
       ...genericColors,

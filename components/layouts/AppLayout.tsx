@@ -1,3 +1,10 @@
+import {
+  Platform,
+  StatusBar,
+  View,
+  ViewStyle,
+  useColorScheme,
+} from "react-native";
 import React, {
   ReactElement,
   forwardRef,
@@ -6,21 +13,16 @@ import React, {
   useRef,
 } from "react";
 import {
-  Platform,
   SafeAreaView,
-  StatusBar,
-  View,
-  ViewStyle,
-  useColorScheme,
-} from "react-native";
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 
-import { useSelector } from "@/app/store/Store";
-import { useAppDimensions } from "@/hooks/useAppDimensions";
-import { useThemeColors } from "@/hooks/useThemeColor";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { StatusBarStyle } from "react-native/Libraries/Components/StatusBar/StatusBar";
 import { StyledKeyboardAwareScrollView } from "../StyledComponents";
+import { useAppDimensions } from "@/hooks/useAppDimensions";
+import { useSelector } from "@/app/store/Store";
+import { useThemeColors } from "@/hooks/useThemeColor";
 
 interface AppLayoutProps {
   layoutStyle?: ViewStyle;
@@ -107,7 +109,7 @@ const AppLayout = forwardRef(
           hidden={false}
         />
         <View
-          className={`flex-grow flex-1 pb-20 w-full  ${layoutClassName}`}
+          className={`flex-grow flex-1 w-full  ${layoutClassName}`}
           style={[{ backgroundColor: colors.background }, layoutStyle]}
         >
           {scrollable ? (

@@ -127,7 +127,7 @@ export const FormInput = ({
         className={cn(
           " flex-row items-center px-2.5 max-h-12   rounded-lg border-[0.5px] border-black",
           isFocused && "border border-gray-hover dark:bg-dark-gray-hover",
-          showError && "border border-danger",
+          showError && "border border-red",
           inputClassName
         )}
         style={[

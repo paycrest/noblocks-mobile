@@ -1,0 +1,12 @@
+[
+    {
+        "relation": ["delegate_permission/common.handle_all_urls"],
+        "target": {
+            "namespace": "android_app",
+            "package_name": "com.paycrest.noblocks",
+            "sha256_cert_fingerprints": [
+                "C2:79:70:9E:9A:8B:E6:8E:58:E6:F1:53:9E:E7:82:15:2C:A5:99:88:79:94:47:39:E6:47:83:94:75:C1:55:8E"
+            ]
+        }
+    }
+]

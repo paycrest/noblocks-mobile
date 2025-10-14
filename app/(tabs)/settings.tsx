@@ -1,7 +1,9 @@
 import React, { FunctionComponent, useState } from "react";
 
 import AppLayout from "@/components/layouts/AppLayout";
+import RevealCodesModal from "@/components/modals/RevealedCodesModal";
 import ThemeModal from "@/components/modals/ThemeModal";
+import WalletExportModal from "@/components/modals/WalletExportModal";
 import SettingsLinks from "@/components/settings/Link";
 import ProfileHeader from "@/components/settings/ProfileHeader";
 import AppearanceIcon from "@/components/svgs/appearance-icon";
@@ -15,6 +17,10 @@ import { View } from "react-native";
 
 const Settings: FunctionComponent = () => {
   const [showAppearanceModal, setShowAppearanceModal] =
+    useState<boolean>(false);
+  const [showExportWalletModal, setShowExportWalletModal] =
+    useState<boolean>(false);
+  const [showRevealedCodesModal, setShowRevealCodesModal] =
     useState<boolean>(false);
   const { logoutUser } = useAuth();
 
@@ -36,7 +42,7 @@ const Settings: FunctionComponent = () => {
     },
     {
       title: "Export wallet",
-      onPress: () => {},
+      onPress: () => setShowExportWalletModal(true),
       icon: <ExportIcon />,
     },
     {
@@ -61,6 +67,21 @@ const Settings: FunctionComponent = () => {
         <ThemeModal
           isVisible={showAppearanceModal}
           onClose={() => setShowAppearanceModal((prev) => !prev)}
+        />
+        <WalletExportModal
+          isVisible={showExportWalletModal}
+          onClose={() => setShowExportWalletModal(false)}
+          onRevealBtnPressed={() => {
+            setShowExportWalletModal(false);
+            setTimeout(() => {
+              setShowRevealCodesModal(true);
+            }, 1500);
+          }}
+        />
+        <RevealCodesModal
+          isVisible={showRevealedCodesModal}
+          onClose={() => setShowRevealCodesModal(false)}
+          onDone={() => {}}
         />
       </View>
     </AppLayout>
