@@ -25,6 +25,7 @@
     "@react-navigation/bottom-tabs": "^7.3.10",
     "@react-navigation/elements": "^2.3.8",
     "@react-navigation/native": "^7.1.6",
+    "@smile_identity/react-native-expo": "^11.2.7",
     "@types/lodash": "^4.17.20",
     "axios": "^1.12.1",
     "clsx": "^2.1.1",
