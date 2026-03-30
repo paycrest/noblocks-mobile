@@ -2783,6 +2783,27 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@smile_identity/react-native-expo@npm:^11.2.8":
+  version: 11.2.8
+  resolution: "@smile_identity/react-native-expo@npm:11.2.8"
+  peerDependencies:
+    expo: "*"
+    react: "*"
+    react-native: "*"
+  checksum: 3ff91e14475356ccc305839c6ec52500756974b9a300bc869d3a16d7a7bf61b69b85c4e2bb893af6eb0ac70e676676a192629dede8582cac70bf84d09a10b56b
+  languageName: node
+  linkType: hard
+
+"@smile_identity/react-native@npm:^11.1.7":
+  version: 11.1.7
+  resolution: "@smile_identity/react-native@npm:11.1.7"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: 3d2d7e9a4006f1e0185e03a5a09e70491c92e6b94c80c379b14f8ab2420dd11f01f7c938ca2a1535b38a830dc8a4e3dd39f60cfbfc06aa7ca95b4b408c58c0bd
+  languageName: node
+  linkType: hard
+
 "@standard-schema/utils@npm:^0.3.0":
   version: 0.3.0
   resolution: "@standard-schema/utils@npm:0.3.0"
@@ -6982,6 +7003,8 @@ __metadata:
     "@react-navigation/bottom-tabs": ^7.3.10
     "@react-navigation/elements": ^2.3.8
     "@react-navigation/native": ^7.1.6
+    "@smile_identity/react-native": ^11.1.7
+    "@smile_identity/react-native-expo": ^11.2.8
     "@types/lodash": ^4.17.20
     "@types/react": ~19.0.10
     axios: ^1.12.1

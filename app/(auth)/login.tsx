@@ -1,16 +1,15 @@
 import React, { FunctionComponent, useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 
+import { ResponsiveUi } from "@/components/ResponsiveUi";
 import { FormInput } from "@/components/inputs/FormInput";
 import AppLayout from "@/components/layouts/AppLayout";
-import { ResponsiveUi } from "@/components/ResponsiveUi";
 import Logo from "@/components/svgs/logo";
 import { Colors } from "@/constants/Colors";
 import useAuth from "@/hooks/auth/useAuth";
 import { signupSchema } from "@/schema/authschema";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { View } from "react-native";
-import { ActivityIndicator } from "react-native-paper";
+import { ActivityIndicator, View } from "react-native";
 import { ISignUp } from "../types/authTypes";
 
 const Index: FunctionComponent = () => {

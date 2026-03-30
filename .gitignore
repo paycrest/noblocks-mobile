@@ -81,3 +81,7 @@ yarn-error.*
 *.tsbuildinfo
 
 # @end expo-cli
+
+// smile id
+android/app/src/main/assets/smile_config.json
+Smile_ID_Config.json
