@@ -1,17 +1,24 @@
-import { Pressable, View } from "react-native";
 import React, { FunctionComponent, useMemo, useState } from "react";
+import { Pressable, View } from "react-native";
 
-import AppLayout from "@/components/layouts/AppLayout";
 import Check from "@/components/Check";
-import { Colors } from "@/constants/Colors";
-import { FileText } from "lucide-react-native";
 import GradientText from "@/components/GradientText";
+import AppLayout from "@/components/layouts/AppLayout";
 import { ResponsiveUi } from "@/components/ResponsiveUi";
 import TropicalIndigo from "@/components/svgs/tropical-indigo";
-import useAuth from "@/hooks/auth/useAuth";
+import { Colors } from "@/constants/Colors";
+import { biometricKYCParams, smile_id_config } from "@/utils/constants";
+import {
+  initialize,
+  SmileIDBiometricKYCView,
+} from "@smile_identity/react-native-expo";
+import { router } from "expo-router";
+import { FileText } from "lucide-react-native";
 
 const Kyc: FunctionComponent = () => {
-  const { acceptTermsOfService } = useAuth();
+  // const { acceptTermsOfService } = useAuth();
+  initialize(false, true, smile_id_config);
+  const [showKyc, setShowKyc] = useState(false);
   const [terms, setTerms] = useState([
     {
       id: 1,
@@ -33,8 +40,8 @@ const Kyc: FunctionComponent = () => {
   const toggleCheck = (id: number) => {
     setTerms((prev) =>
       prev.map((term) =>
-        term.id === id ? { ...term, checked: !term.checked } : term
-      )
+        term.id === id ? { ...term, checked: !term.checked } : term,
+      ),
     );
   };
 
@@ -42,63 +49,83 @@ const Kyc: FunctionComponent = () => {
     return terms.every((t) => t.checked);
   }, [terms]);
 
+  const kycView = () => {
+    return (
+      <SmileIDBiometricKYCView
+        style={{ flex: 1 }}
+        params={biometricKYCParams}
+        onResult={(response) => {
+          console.log("success", response);
+          router.replace("/(tabs)");
+        }}
+        onError={(error) => {
+          console.log("error", error);
+        }}
+      />
+    );
+  };
+
   return (
     <AppLayout>
-      <View className="flex-1 items-center justify-center">
-        <View className="items-center flex-1 justify-center">
-          <View>
-            <View className="bg-gray border-gray-hover border-[0.6px] dark:border-0 p-4 rounded-full">
-              <TropicalIndigo />
+      {showKyc ? (
+        kycView()
+      ) : (
+        <View className="flex-1 items-center justify-center">
+          <View className="items-center flex-1 justify-center">
+            <View>
+              <View className="bg-gray border-gray-hover border-[0.6px] dark:border-0 p-4 rounded-full">
+                <TropicalIndigo />
+              </View>
+            </View>
+            <View className="flex-row mt-12">
+              <ResponsiveUi.Text semiBold>
+                Verify your identity in{" "}
+              </ResponsiveUi.Text>
+              <GradientText style={{ marginTop: 2, fontWeight: "600" }}>
+                2 Minutes
+              </GradientText>
+            </View>
+            <View className="mt-10">
+              <ResponsiveUi.Text medium>
+                Accept terms to get started
+              </ResponsiveUi.Text>
+            </View>
+            <View className="mt-8 mx-8">
+              {terms.map((item) => (
+                <Pressable
+                  onPress={() => toggleCheck(item.id)}
+                  className="mb-8 flex-row"
+                  key={item.id}
+                >
+                  <Check checked={item.checked} />
+                  <ResponsiveUi.Text small tailwind="ml-4" secondary>
+                    {item.text}
+                  </ResponsiveUi.Text>
+                </Pressable>
+              ))}
+            </View>
+            <View className="flex-row mt-4 justify-start mr-4 items-center">
+              <FileText color={Colors.slate} />
+              <ResponsiveUi.Text
+                style={{
+                  color: Colors.slate,
+                  marginLeft: 10,
+                }}
+              >
+                Read full Terms and Conditions
+              </ResponsiveUi.Text>
             </View>
           </View>
-          <View className="flex-row mt-12">
-            <ResponsiveUi.Text semiBold>
-              Verify your identity in{" "}
-            </ResponsiveUi.Text>
-            <GradientText style={{ marginTop: 2, fontWeight: "600" }}>
-              2 Minutes
-            </GradientText>
-          </View>
-          <View className="mt-10">
-            <ResponsiveUi.Text medium>
-              Accept terms to get started
-            </ResponsiveUi.Text>
-          </View>
-          <View className="mt-8 mx-8">
-            {terms.map((item) => (
-              <Pressable
-                onPress={() => toggleCheck(item.id)}
-                className="mb-8 flex-row"
-                key={item.id}
-              >
-                <Check checked={item.checked} />
-                <ResponsiveUi.Text small tailwind="ml-4" secondary>
-                  {item.text}
-                </ResponsiveUi.Text>
-              </Pressable>
-            ))}
-          </View>
-          <View className="flex-row mt-4 justify-start mr-4 items-center">
-            <FileText color={Colors.slate} />
-            <ResponsiveUi.Text
-              style={{
-                color: Colors.slate,
-                marginLeft: 10,
-              }}
-            >
-              Read full Terms and Conditions
-            </ResponsiveUi.Text>
+          <View className="flex-1  justify-end mt-3 w-full">
+            <ResponsiveUi.Button
+              btnClassName="mt-4"
+              title="Get started"
+              action={() => setShowKyc(true)}
+              disabled={!allChecked}
+            />
           </View>
         </View>
-        <View className="flex-1  justify-end mt-3 w-full">
-          <ResponsiveUi.Button
-            btnClassName="mt-4"
-            title="Get started"
-            action={acceptTermsOfService}
-            disabled={!allChecked}
-          />
-        </View>
-      </View>
+      )}
     </AppLayout>
   );
 };
