@@ -78,15 +78,15 @@ function processTailwindStyles(props: any) {
     props.regular && "font-inter-regular",
     props.light && "font-inter-light",
     // general
-    props.tailwind && " " + props.tailwind
+    props.tailwind && " " + props.tailwind,
   );
 }
 
 const processTextStyles = (
   props: ResponsiveUiTextProps,
-  fontPercentageToDP: any
+  fontPercentageToDP: any,
 ): TextStyle | any => {
-  const colors = useThemeColors()
+  const colors = useThemeColors();
 
   return Object.assign(
     {
@@ -96,7 +96,8 @@ const processTextStyles = (
       color: props.color,
     },
     !props.darkText &&
-      !props.textWhite && !props.color && {
+      !props.textWhite &&
+      !props.color && {
         color: colors.text,
       },
     // FONT SIZE
@@ -137,8 +138,7 @@ const processTextStyles = (
     props.darkText && styles.darkText,
     props.danger && styles.dangerText,
     props.secondary && {
-      color:
-       colors.secondary,
+      color: colors.secondary,
     },
 
     props.bold && { fontWeight: "700" },
@@ -146,7 +146,7 @@ const processTextStyles = (
     props.medium && { fontWeight: "500" },
     props.regular && { fontWeight: "400" },
     props.light && { fontWeight: "300" },
-    props.italic && { fontStyle: "italic" }
+    props.italic && { fontStyle: "italic" },
   );
 };
 
@@ -180,7 +180,7 @@ export const ResponsiveUi = {
       titleStyle,
       ...rest
     }: ResponsiveUiButtonProps) => {
-  const themColors = useThemeColors()
+      const themColors = useThemeColors();
 
       return (
         <TouchableOpacity
@@ -203,7 +203,7 @@ export const ResponsiveUi = {
                 small
                 semiBold={!rest?.bold}
                 tailwind="mx-4"
-                {...rest}                 // 👈 move this below
+                {...rest}
                 color={rest.color ?? themColors.white} // 👈 let prop override theme
               >
                 {title}
@@ -213,9 +213,8 @@ export const ResponsiveUi = {
           </View>
         </TouchableOpacity>
       );
-    }
+    },
   ),
-  // other ui components can be added here like container, button etc.
 };
 
 const styles = StyleSheet.create({
