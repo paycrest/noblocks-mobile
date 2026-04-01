@@ -1,57 +1,67 @@
-import {
-  BottomSheetModal,
-  BottomSheetModalProvider,
-  BottomSheetView,
-} from "@gorhom/bottom-sheet";
-import React, { useCallback, useRef } from "react";
-import { Button, StyleSheet, Text } from "react-native";
+// BaseSheet.tsx
+import { BottomSheetModal, BottomSheetView } from "@gorhom/bottom-sheet";
+import React, { useCallback, useEffect, useRef } from "react";
+import { Pressable, StyleSheet, View } from "react-native";
 
-import { GestureHandlerRootView } from "react-native-gesture-handler";
+interface BaseSheetProps {
+  children?: React.ReactNode;
+  isVisible?: boolean;
+  onVisibilityChange?: (visible: boolean) => void;
+}
 
-const BaseSheet = () => {
-  // ref
+const BaseSheet: React.FC<BaseSheetProps> = ({
+  children,
+  isVisible = false,
+  onVisibilityChange,
+}) => {
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
-  // callbacks
-  const handlePresentModalPress = useCallback(() => {
-    bottomSheetModalRef.current?.present();
-  }, []);
-  const handleSheetChanges = useCallback((index: number) => {
-    console.log("handleSheetChanges", index);
-  }, []);
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (isVisible) {
+        bottomSheetModalRef.current?.present();
+        return;
+      }
 
-  // renders
+      bottomSheetModalRef.current?.dismiss();
+    }, 0);
+
+    return () => clearTimeout(timeout);
+  }, [isVisible]);
+
+  const renderBackdrop = useCallback(
+    () => (
+      <Pressable
+        onPress={() => {
+          onVisibilityChange?.(false);
+          bottomSheetModalRef.current?.dismiss();
+        }}
+        className=" absolute top-0 left-0 right-0 bottom-0"
+      />
+    ),
+    [onVisibilityChange],
+  );
+
   return (
-    <GestureHandlerRootView style={styles.container}>
-      <BottomSheetModalProvider>
-        <Button
-          onPress={handlePresentModalPress}
-          title="Present Modal"
-          color="black"
-        />
-        <BottomSheetModal
-          ref={bottomSheetModalRef}
-          onChange={handleSheetChanges}
-        >
-          <BottomSheetView style={styles.contentContainer}>
-            <Text>Awesome 🎉</Text>
-          </BottomSheetView>
-        </BottomSheetModal>
-      </BottomSheetModalProvider>
-    </GestureHandlerRootView>
+    <BottomSheetModal
+      ref={bottomSheetModalRef}
+      onDismiss={() => onVisibilityChange?.(false)}
+      snapPoints={["50%"]}
+      style={{ flex: 1 }}
+      backdropComponent={renderBackdrop}
+    >
+      <BottomSheetView style={styles.contentContainer}>
+        <View className="flex-1">{children}</View>
+      </BottomSheetView>
+    </BottomSheetModal>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 24,
-    justifyContent: "center",
-    backgroundColor: "grey",
-  },
   contentContainer: {
     flex: 1,
     alignItems: "center",
+    justifyContent: "center",
   },
 });
 
