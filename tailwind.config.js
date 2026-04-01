@@ -15,6 +15,7 @@ module.exports = {
       colors: {
         background: "var(--background)",
         "dark-text": "#121217",
+        primary: "#8B85F4",
         // background: "#ffff",
         slate: "#5D5DC9",
         "place-holder": "#A9A9BC",

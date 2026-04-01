@@ -15,6 +15,7 @@ interface ThemeColors {
   surface_overlay: string;
   gray: string;
   tint: string;
+  primary: string;
 }
 
 interface GenericColors {
@@ -27,6 +28,7 @@ interface GenericColors {
   red: string;
   orange: string;
   green: string;
+  primary: string;
 }
 
 export interface ColorsInterface extends GenericColors {
@@ -49,6 +51,7 @@ const genericColors = {
   red: "#F53D6B",
   orange: "#FF7D52",
   green: "#39C65D",
+  primary: "#8B85F4",
 };
 
 export const Colors: ColorsInterface = {
@@ -64,6 +67,7 @@ export const Colors: ColorsInterface = {
     surface_overlay: "#ffff",
     gray: "rgba(255, 255, 255, 0.10)",
     tint: tintColorLight,
+    primary: "#8B85F4",
   },
   dark: {
     text: "#ffff",
@@ -76,6 +80,7 @@ export const Colors: ColorsInterface = {
     surface_overlay: "#202020",
     tint: tintColorDark,
     gray: "rgba(255, 255, 255, 0.10)",
+    primary: "#8B85F4",
   },
   ...genericColors,
 };
