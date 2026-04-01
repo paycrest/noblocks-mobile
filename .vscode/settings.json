@@ -6,6 +6,6 @@
   },
   "java.compile.nullAnalysis.mode": "automatic",
   "java.configuration.updateBuildConfiguration": "interactive",
-  "workbench.colorTheme": "Abyss",
+  "workbench.colorTheme": "VS Code Dark",
   "workbench.preferredHighContrastColorTheme": "Abyss"
 }
