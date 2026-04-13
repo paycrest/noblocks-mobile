@@ -41,6 +41,9 @@ interface AssetSelectorSheetProps {
   onClose: () => void;
   onSelect: (asset: LifiToken) => void;
   selectedAssetAddress?: string;
+  selectedChainName?: string;
+  onChainPress?: () => void;
+  chainLogoURI?: string;
 }
 
 const AssetSelectorSheet: FunctionComponent<AssetSelectorSheetProps> = ({
@@ -49,6 +52,9 @@ const AssetSelectorSheet: FunctionComponent<AssetSelectorSheetProps> = ({
   onClose,
   onSelect,
   selectedAssetAddress,
+  selectedChainName,
+  onChainPress,
+  chainLogoURI,
 }) => {
   const colors = useThemeColors();
   const [assets, setAssets] = useState<LifiToken[]>([]);
@@ -161,21 +167,38 @@ const AssetSelectorSheet: FunctionComponent<AssetSelectorSheetProps> = ({
           onClose();
         }}
       >
-        {item.logoURI ? (
-          <Image
-            source={{ uri: item.logoURI }}
-            style={{ width: 40, height: 40, borderRadius: 20 }}
-          />
-        ) : (
-          <View
-            style={{ backgroundColor: colors.secondary }}
-            className="w-10 h-10 rounded-full items-center justify-center"
-          >
-            <ResponsiveUi.Text medium fontSize={13}>
-              {item.symbol.slice(0, 3)}
-            </ResponsiveUi.Text>
-          </View>
-        )}
+        <View style={{ width: 40, height: 40 }}>
+          {item.logoURI ? (
+            <Image
+              source={{ uri: item.logoURI }}
+              style={{ width: 40, height: 40, borderRadius: 20 }}
+            />
+          ) : (
+            <View
+              style={{ backgroundColor: colors.secondary }}
+              className="w-10 h-10 rounded-full items-center justify-center"
+            >
+              <ResponsiveUi.Text medium fontSize={13}>
+                {item.symbol.slice(0, 3)}
+              </ResponsiveUi.Text>
+            </View>
+          )}
+          {chainLogoURI ? (
+            <Image
+              source={{ uri: chainLogoURI }}
+              style={{
+                width: 16,
+                height: 16,
+                borderRadius: 8,
+                position: "absolute",
+                bottom: 0,
+                right: -2,
+                borderWidth: 1.5,
+                borderColor: colors.surface_overlay,
+              }}
+            />
+          ) : null}
+        </View>
 
         <View className="ml-3 flex-1">
           <ResponsiveUi.Text medium fontSize={16}>
@@ -211,16 +234,16 @@ const AssetSelectorSheet: FunctionComponent<AssetSelectorSheetProps> = ({
             style={{
               width: "100%",
               height: MODAL_HEIGHT,
-              borderRadius: 28,
+              borderRadius: 30,
               backgroundColor: colors.surface_overlay,
               paddingHorizontal: 16,
               paddingTop: 28,
-              paddingBottom: 8,
+              paddingBottom: 12,
             }}
           >
             <View className="flex-row items-center justify-between mb-4">
               <ResponsiveUi.Text semiBold fontSize={18}>
-                Select asset
+                Select token
               </ResponsiveUi.Text>
               <TouchableOpacity activeOpacity={0.8} onPress={onClose}>
                 <X size={20} color={colors.secondary} />

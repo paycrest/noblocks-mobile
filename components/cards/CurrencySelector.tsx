@@ -13,11 +13,13 @@ interface CurrencySelectorProps {
     logoURI?: string;
   } | null;
   onPress?: () => void;
+  chainLogoURI?: string;
 }
 
 const CurrencySelector: FunctionComponent<CurrencySelectorProps> = ({
   selectedAsset,
   onPress,
+  chainLogoURI,
 }) => {
   const colors = useThemeColors();
   return (
@@ -27,19 +29,36 @@ const CurrencySelector: FunctionComponent<CurrencySelectorProps> = ({
         className="flex-row items-center"
         onPress={onPress}
       >
-        {selectedAsset?.logoURI ? (
-          <Image
-            source={{ uri: selectedAsset.logoURI }}
-            style={{ width: 32, height: 32, borderRadius: 16 }}
-          />
-        ) : (
-          <View
-            style={{ backgroundColor: colors.secondary }}
-            className="w-8 h-8 rounded-full items-center justify-center"
-          >
-            <Plus size={18} color={colors.secondary} />
-          </View>
-        )}
+        <View style={{ width: 32, height: 32 }}>
+          {selectedAsset?.logoURI ? (
+            <Image
+              source={{ uri: selectedAsset.logoURI }}
+              style={{ width: 32, height: 32, borderRadius: 16 }}
+            />
+          ) : (
+            <View
+              style={{ backgroundColor: colors.secondary }}
+              className="w-8 h-8 rounded-full items-center justify-center"
+            >
+              <Plus size={18} color={colors.secondary} />
+            </View>
+          )}
+          {chainLogoURI ? (
+            <Image
+              source={{ uri: chainLogoURI }}
+              style={{
+                width: 14,
+                height: 14,
+                borderRadius: 7,
+                position: "absolute",
+                top: 0,
+                left: -2,
+                borderWidth: 1.5,
+                borderColor: colors.surface_overlay,
+              }}
+            />
+          ) : null}
+        </View>
         <ChevronDown
           size={18}
           color={colors.secondary}

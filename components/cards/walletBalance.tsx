@@ -14,6 +14,7 @@ interface WalletBalanceProps {
   privyBalanceLabel?: string;
   onAssetPress?: () => void;
   onUseMaxPress?: () => void;
+  chainLogoURI?: string;
 }
 
 const WalletBalance: FunctionComponent<WalletBalanceProps> = ({
@@ -21,6 +22,7 @@ const WalletBalance: FunctionComponent<WalletBalanceProps> = ({
   privyBalanceLabel,
   onAssetPress,
   onUseMaxPress,
+  chainLogoURI,
 }) => {
   const colors = useThemeColors();
 
@@ -32,19 +34,36 @@ const WalletBalance: FunctionComponent<WalletBalanceProps> = ({
           onPress={onAssetPress}
           className="flex-row items-center"
         >
-          {selectedAsset?.logoURI ? (
-            <Image
-              source={{ uri: selectedAsset.logoURI }}
-              style={{ width: 40, height: 40, borderRadius: 20 }}
-            />
-          ) : (
-            <View
-              style={{ backgroundColor: colors.secondary }}
-              className="w-10 h-10 rounded-full items-center justify-center"
-            >
-              <Plus size={18} color={colors.text} />
-            </View>
-          )}
+          <View style={{ width: 40, height: 40 }}>
+            {selectedAsset?.logoURI ? (
+              <Image
+                source={{ uri: selectedAsset.logoURI }}
+                style={{ width: 40, height: 40, borderRadius: 20 }}
+              />
+            ) : (
+              <View
+                style={{ backgroundColor: colors.secondary }}
+                className="w-10 h-10 rounded-full items-center justify-center"
+              >
+                <Plus size={18} color={colors.text} />
+              </View>
+            )}
+            {chainLogoURI ? (
+              <Image
+                source={{ uri: chainLogoURI }}
+                style={{
+                  width: 16,
+                  height: 16,
+                  borderRadius: 8,
+                  position: "absolute",
+                  top: 0,
+                  left: -2,
+                  borderWidth: 1.5,
+                  borderColor: colors.surface_overlay,
+                }}
+              />
+            ) : null}
+          </View>
           <ChevronDown
             size={16}
             color={colors.secondary}
