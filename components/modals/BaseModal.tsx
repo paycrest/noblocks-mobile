@@ -6,17 +6,20 @@ interface Props {
   children: ReactNode;
   onClose: () => void;
   isVisible: boolean;
+  avoidKeyboard?: boolean;
 }
 
 const BaseModal: FunctionComponent<Props> = ({
   children,
   onClose,
   isVisible,
+  avoidKeyboard = true,
 }) => {
   return (
     <Modal
       onBackdropPress={onClose}
       isVisible={isVisible}
+      avoidKeyboard={avoidKeyboard}
       backdropOpacity={0.7}
       animationIn={"bounceIn"}
       animationInTiming={1000}
