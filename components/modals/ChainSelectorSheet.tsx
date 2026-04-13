@@ -1,17 +1,19 @@
 import { useThemeColors } from "@/hooks/useThemeColor";
 import { isPrivySupportedChain } from "@/utils/privy";
-import { BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import { Image } from "expo-image";
+import { Search, X } from "lucide-react-native";
 import React, { FunctionComponent, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
+  FlatList,
   TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
 
 import { ResponsiveUi } from "../ResponsiveUi";
-import BaseSheet from "./BottomSheet";
+import BackdropBlur from "./BackdropBlur";
+import BaseModal from "./BaseModal";
 
 const LIFI_API_BASE_URL = "https://li.quest/v1";
 const FEATURED_CHAIN_ORDER = [
@@ -21,6 +23,7 @@ const FEATURED_CHAIN_ORDER = [
   "Optimism",
   "Polygon",
 ];
+const MODAL_HEIGHT = "62%";
 
 export interface LifiChain {
   id: number;
@@ -41,6 +44,7 @@ interface ChainSelectorSheetProps {
   onClose: () => void;
   onSelect: (chain: LifiChain) => void;
   selectedChainId?: number;
+  includeTestnets?: boolean;
 }
 
 const ChainSelectorSheet: FunctionComponent<ChainSelectorSheetProps> = ({
@@ -48,6 +52,7 @@ const ChainSelectorSheet: FunctionComponent<ChainSelectorSheetProps> = ({
   onClose,
   onSelect,
   selectedChainId,
+  includeTestnets = false,
 }) => {
   const colors = useThemeColors();
   const [chains, setChains] = useState<LifiChain[]>([]);
@@ -79,7 +84,7 @@ const ChainSelectorSheet: FunctionComponent<ChainSelectorSheetProps> = ({
         const nextChains = (data.chains ?? [])
           .filter(
             (chain) =>
-              chain.mainnet &&
+              chain.mainnet === !includeTestnets &&
               chain.chainType === "EVM" &&
               isPrivySupportedChain(chain.key),
           )
@@ -115,7 +120,7 @@ const ChainSelectorSheet: FunctionComponent<ChainSelectorSheetProps> = ({
     return () => {
       abortController.abort();
     };
-  }, [isVisible]);
+  }, [includeTestnets, isVisible]);
 
   const filteredChains = useMemo(() => {
     const normalizedQuery = searchQuery.trim().toLowerCase();
@@ -178,64 +183,88 @@ const ChainSelectorSheet: FunctionComponent<ChainSelectorSheetProps> = ({
   };
 
   return (
-    <BaseSheet
-      isVisible={isVisible}
-      onVisibilityChange={(visible) => {
-        if (!visible) {
-          onClose();
-        }
-      }}
-      snapPoints={["75%"]}
-    >
-      <View className="flex-1 px-4 pt-2">
-        <ResponsiveUi.Text semiBold fontSize={18} tailwind="mb-4">
-          Select chain
-        </ResponsiveUi.Text>
+    <BaseModal isVisible={isVisible} onClose={onClose}>
+      <>
+        <BackdropBlur onClose={onClose} />
+        <View className="flex-1 items-center justify-center px-4">
+          <View
+            style={{
+              width: "100%",
+              height: MODAL_HEIGHT,
+              borderRadius: 28,
+              backgroundColor: colors.surface_overlay,
+              paddingHorizontal: 16,
+              paddingTop: 16,
+              paddingBottom: 8,
+            }}
+          >
+            <View className="flex-row items-center justify-between mb-4">
+              <ResponsiveUi.Text semiBold fontSize={18}>
+                {includeTestnets ? "Select testnet" : "Select chain"}
+              </ResponsiveUi.Text>
+              <TouchableOpacity activeOpacity={0.8} onPress={onClose}>
+                <X size={20} color={colors.secondary} />
+              </TouchableOpacity>
+            </View>
 
-        <TextInput
-          autoCapitalize="none"
-          autoCorrect={false}
-          onChangeText={setSearchQuery}
-          placeholder="Search chain"
-          placeholderTextColor={colors.secondary}
-          style={{
-            borderColor: colors.secondary,
-            borderWidth: 1,
-            borderRadius: 8,
-            color: colors.text,
-            backgroundColor: colors.background,
-            paddingHorizontal: 16,
-            paddingVertical: 14,
-            marginBottom: 16,
-          }}
-          value={searchQuery}
-        />
+            <View className="relative mb-4 justify-center">
+              <View className="absolute left-4 z-10">
+                <Search size={18} color={colors.secondary} />
+              </View>
+              <TextInput
+                autoCapitalize="none"
+                autoCorrect={false}
+                onChangeText={setSearchQuery}
+                placeholder="Search chain"
+                placeholderTextColor={colors.secondary}
+                style={{
+                  borderColor: colors.secondary,
+                  borderWidth: 1,
+                  borderRadius: 8,
+                  color: colors.text,
+                  backgroundColor: colors.background,
+                  paddingLeft: 44,
+                  paddingRight: 16,
+                  paddingVertical: 14,
+                }}
+                value={searchQuery}
+              />
+            </View>
 
-        {isLoading ? (
-          <View className="flex-1 items-center justify-center">
-            <ActivityIndicator color={colors.primary} />
-            <ResponsiveUi.Text fontSize={14} color={colors.secondary}>
-              Loading chains...
-            </ResponsiveUi.Text>
+            <View className="flex-1">
+              {isLoading ? (
+                <View className="flex-1 items-center justify-center">
+                  <ActivityIndicator color={colors.primary} />
+                  <ResponsiveUi.Text fontSize={14} color={colors.secondary}>
+                    Loading chains...
+                  </ResponsiveUi.Text>
+                </View>
+              ) : errorMessage ? (
+                <View className="flex-1 items-center justify-center px-6">
+                  <ResponsiveUi.Text
+                    center
+                    fontSize={14}
+                    color={colors.secondary}
+                  >
+                    {errorMessage}
+                  </ResponsiveUi.Text>
+                </View>
+              ) : (
+                <FlatList
+                  data={filteredChains}
+                  keyExtractor={(item) => String(item.id)}
+                  keyboardShouldPersistTaps="handled"
+                  renderItem={renderItem}
+                  showsVerticalScrollIndicator={false}
+                  contentContainerStyle={{ paddingBottom: 40 }}
+                  style={{ flex: 1 }}
+                />
+              )}
+            </View>
           </View>
-        ) : errorMessage ? (
-          <View className="flex-1 items-center justify-center px-6">
-            <ResponsiveUi.Text center fontSize={14} color={colors.secondary}>
-              {errorMessage}
-            </ResponsiveUi.Text>
-          </View>
-        ) : (
-          <BottomSheetFlatList
-            data={filteredChains}
-            keyExtractor={(item) => String(item.id)}
-            keyboardShouldPersistTaps="handled"
-            renderItem={renderItem}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: 40 }}
-          />
-        )}
-      </View>
-    </BaseSheet>
+        </View>
+      </>
+    </BaseModal>
   );
 };
 

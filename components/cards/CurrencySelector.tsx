@@ -1,15 +1,53 @@
 import { useThemeColors } from "@/hooks/useThemeColor";
-import { Plus } from "lucide-react-native";
+import { Image } from "expo-image";
+import { truncate } from "lodash";
+import { ChevronDown, Plus } from "lucide-react-native";
 import React, { FunctionComponent } from "react";
 import { TouchableOpacity, View } from "react-native";
 import { ResponsiveUi } from "../ResponsiveUi";
 
-const CurrencySelector: FunctionComponent = () => {
+interface CurrencySelectorProps {
+  selectedAsset?: {
+    symbol: string;
+    name: string;
+    logoURI?: string;
+  } | null;
+  onPress?: () => void;
+}
+
+const CurrencySelector: FunctionComponent<CurrencySelectorProps> = ({
+  selectedAsset,
+  onPress,
+}) => {
   const colors = useThemeColors();
   return (
-    <View className="mt-8 flex-row px-4 items-center">
-      <Plus size={30} color={colors.secondary} />
-      <View className="ml-8">
+    <View className="mt-8 flex-1 flex-row justify-between    items-center">
+      <TouchableOpacity
+        activeOpacity={0.8}
+        className="flex-row items-center"
+        onPress={onPress}
+      >
+        {selectedAsset?.logoURI ? (
+          <Image
+            source={{ uri: selectedAsset.logoURI }}
+            style={{ width: 32, height: 32, borderRadius: 16 }}
+          />
+        ) : (
+          <View
+            style={{ backgroundColor: colors.secondary }}
+            className="w-8 h-8 rounded-full items-center justify-center"
+          >
+            <Plus size={18} color={colors.secondary} />
+          </View>
+        )}
+        <ChevronDown
+          size={18}
+          color={colors.secondary}
+          style={{ marginLeft: 6 }}
+        />
+      </TouchableOpacity>
+
+      <View className="ml-8 w-1/3">
         <ResponsiveUi.Text medium fontSize={16}>
           Receive
         </ResponsiveUi.Text>
@@ -19,14 +57,14 @@ const CurrencySelector: FunctionComponent = () => {
           tailwind="mt-2"
           color={colors.secondary}
         >
-          Select Currency
+          {truncate(selectedAsset?.name ?? "Select Currency", { length: 15 })}
         </ResponsiveUi.Text>
       </View>
-      <TouchableOpacity className="ml-auto">
+      <View className="ml-auto w-1/3 flex items-end ">
         <ResponsiveUi.Text medium fontSize={18}>
-          Select
+          {truncate(selectedAsset?.symbol ?? "Select", { length: 15 })}
         </ResponsiveUi.Text>
-      </TouchableOpacity>
+      </View>
     </View>
   );
 };

@@ -1,20 +1,23 @@
 import { useThemeColors } from "@/hooks/useThemeColor";
 import { isPrivySupportedAsset } from "@/utils/privy";
-import { BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import { Image } from "expo-image";
+import { Search, X } from "lucide-react-native";
 import React, { FunctionComponent, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
+  FlatList,
   TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
 
 import { ResponsiveUi } from "../ResponsiveUi";
-import BaseSheet from "./BottomSheet";
+import BackdropBlur from "./BackdropBlur";
+import BaseModal from "./BaseModal";
 
 const LIFI_API_BASE_URL = "https://li.quest/v1";
 const FEATURED_SYMBOL_ORDER = ["ETH", "USDC", "USDT", "DAI", "WBTC"];
+const MODAL_HEIGHT = "62%";
 
 export interface LifiToken {
   chainId: number;
@@ -199,71 +202,97 @@ const AssetSelectorSheet: FunctionComponent<AssetSelectorSheetProps> = ({
   };
 
   return (
-    <BaseSheet
-      isVisible={isVisible}
-      onVisibilityChange={(visible) => {
-        if (!visible) {
-          onClose();
-        }
-      }}
-      snapPoints={["75%"]}
-    >
-      <View className="flex-1 px-4 pt-2">
-        <ResponsiveUi.Text semiBold fontSize={18} tailwind="mb-4">
-          Select asset
-        </ResponsiveUi.Text>
+    <BaseModal isVisible={isVisible} onClose={onClose}>
+      <>
+        <BackdropBlur onClose={onClose} />
+        <View className="flex-1 items-center justify-center px-4">
+          <View
+            style={{
+              width: "100%",
+              height: MODAL_HEIGHT,
+              borderRadius: 28,
+              backgroundColor: colors.surface_overlay,
+              paddingHorizontal: 16,
+              paddingTop: 16,
+              paddingBottom: 8,
+            }}
+          >
+            <View className="flex-row items-center justify-between mb-4">
+              <ResponsiveUi.Text semiBold fontSize={18}>
+                Select asset
+              </ResponsiveUi.Text>
+              <TouchableOpacity activeOpacity={0.8} onPress={onClose}>
+                <X size={20} color={colors.secondary} />
+              </TouchableOpacity>
+            </View>
 
-        <TextInput
-          autoCapitalize="none"
-          autoCorrect={false}
-          onChangeText={setSearchQuery}
-          placeholder="Search by token name or symbol"
-          placeholderTextColor={colors.secondary}
-          style={{
-            borderColor: colors.secondary,
-            borderWidth: 1,
-            borderRadius: 8,
-            color: colors.text,
-            backgroundColor: colors.background,
-            paddingHorizontal: 16,
-            paddingVertical: 14,
-            marginBottom: 16,
-          }}
-          value={searchQuery}
-        />
-
-        {isLoading ? (
-          <View className="flex-1 items-center justify-center">
-            <ActivityIndicator color={colors.primary} />
-            <ResponsiveUi.Text fontSize={14} color={colors.secondary}>
-              Loading assets...
-            </ResponsiveUi.Text>
-          </View>
-        ) : errorMessage ? (
-          <View className="flex-1 items-center justify-center px-6">
-            <ResponsiveUi.Text center fontSize={14} color={colors.secondary}>
-              {errorMessage}
-            </ResponsiveUi.Text>
-          </View>
-        ) : (
-          <BottomSheetFlatList
-            data={filteredAssets}
-            keyExtractor={(item) => `${item.chainId}:${item.address}`}
-            keyboardShouldPersistTaps="handled"
-            renderItem={renderItem}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: 24 }}
-            ListEmptyComponent={
-              <View className="items-center justify-center py-10">
-                <ResponsiveUi.Text color={colors.secondary} fontSize={14}>
-                  No assets match your search.
-                </ResponsiveUi.Text>
+            <View className="relative mb-4 justify-center">
+              <View className="absolute left-4 z-10">
+                <Search size={18} color={colors.secondary} />
               </View>
-            }
-          />
-        )}
-      </View>
-    </BaseSheet>
+              <TextInput
+                autoCapitalize="none"
+                autoCorrect={false}
+                onChangeText={setSearchQuery}
+                placeholder="Search token"
+                placeholderTextColor={colors.secondary}
+                style={{
+                  borderColor: colors.secondary,
+                  borderWidth: 0.5,
+                  borderRadius: 8,
+                  color: colors.text,
+                  backgroundColor: colors.background,
+                  paddingLeft: 44,
+                  paddingRight: 16,
+                  paddingVertical: 14,
+                  fontWeight: "500",
+                  fontSize: 15,
+                }}
+                value={searchQuery}
+              />
+            </View>
+
+            <View className="flex-1">
+              {isLoading ? (
+                <View className="flex-1 items-center justify-center">
+                  <ActivityIndicator color={colors.primary} />
+                  <ResponsiveUi.Text fontSize={14} color={colors.secondary}>
+                    Loading assets...
+                  </ResponsiveUi.Text>
+                </View>
+              ) : errorMessage ? (
+                <View className="flex-1 items-center justify-center px-6">
+                  <ResponsiveUi.Text
+                    center
+                    fontSize={14}
+                    color={colors.secondary}
+                  >
+                    {errorMessage}
+                  </ResponsiveUi.Text>
+                </View>
+              ) : (
+                <FlatList
+                  data={filteredAssets}
+                  keyExtractor={(item) => `${item.chainId}:${item.address}`}
+                  keyboardShouldPersistTaps="handled"
+                  renderItem={renderItem}
+                  showsVerticalScrollIndicator={false}
+                  contentContainerStyle={{ paddingBottom: 24 }}
+                  style={{ flex: 1 }}
+                  ListEmptyComponent={
+                    <View className="items-center justify-center py-10">
+                      <ResponsiveUi.Text color={colors.secondary} fontSize={14}>
+                        No assets match your search.
+                      </ResponsiveUi.Text>
+                    </View>
+                  }
+                />
+              )}
+            </View>
+          </View>
+        </View>
+      </>
+    </BaseModal>
   );
 };
 

@@ -1,5 +1,6 @@
 // BaseSheet.tsx
-import { BottomSheetModal, BottomSheetView } from "@gorhom/bottom-sheet";
+import { useThemeColors } from "@/hooks/useThemeColor";
+import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import React, { useCallback, useEffect, useRef } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 
@@ -7,13 +8,16 @@ interface BaseSheetProps {
   children?: React.ReactNode;
   isVisible?: boolean;
   onVisibilityChange?: (visible: boolean) => void;
+  snapPoints?: Array<string | number>;
 }
 
 const BaseSheet: React.FC<BaseSheetProps> = ({
   children,
   isVisible = false,
   onVisibilityChange,
+  snapPoints = ["50%"],
 }) => {
+  const colors = useThemeColors();
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
   useEffect(() => {
@@ -36,7 +40,7 @@ const BaseSheet: React.FC<BaseSheetProps> = ({
           onVisibilityChange?.(false);
           bottomSheetModalRef.current?.dismiss();
         }}
-        className=" absolute top-0 left-0 right-0 bottom-0"
+        style={styles.backdrop}
       />
     ),
     [onVisibilityChange],
@@ -46,13 +50,16 @@ const BaseSheet: React.FC<BaseSheetProps> = ({
     <BottomSheetModal
       ref={bottomSheetModalRef}
       onDismiss={() => onVisibilityChange?.(false)}
-      snapPoints={["50%"]}
+      snapPoints={snapPoints}
       style={{ flex: 1 }}
       backdropComponent={renderBackdrop}
+      enablePanDownToClose
+      enableOverDrag={false}
+      enableDynamicSizing={false}
+      backgroundStyle={{ backgroundColor: colors.surface_overlay }}
+      handleIndicatorStyle={{ backgroundColor: colors.secondary }}
     >
-      <BottomSheetView style={styles.contentContainer}>
-        <View className="flex-1">{children}</View>
-      </BottomSheetView>
+      <View style={styles.contentContainer}>{children}</View>
     </BottomSheetModal>
   );
 };
@@ -60,8 +67,12 @@ const BaseSheet: React.FC<BaseSheetProps> = ({
 const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: "stretch",
+    justifyContent: "flex-start",
+  },
+  backdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0, 0, 0, 0.45)",
   },
 });
 
