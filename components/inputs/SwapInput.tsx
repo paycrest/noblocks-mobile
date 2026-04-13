@@ -5,16 +5,21 @@ import { ResponsiveUi } from "../ResponsiveUi";
 
 interface SwapInputProps {
   value: string;
+  selectedAssetSymbol?: string;
   onFocus: () => void;
 }
 
-const SwapInput: FunctionComponent<SwapInputProps> = ({ value, onFocus }) => {
+const SwapInput: FunctionComponent<SwapInputProps> = ({
+  value,
+  selectedAssetSymbol,
+  onFocus,
+}) => {
   const colors = useThemeColors();
   return (
     <View className="mt-8">
       <View className="flex-row items-center justify-between">
         <ResponsiveUi.Text medium fontSize={18}>
-          USDC 38.56
+          {selectedAssetSymbol ? `${selectedAssetSymbol} amount` : "Amount"}
         </ResponsiveUi.Text>
         <TextInput
           placeholder="0.00"
