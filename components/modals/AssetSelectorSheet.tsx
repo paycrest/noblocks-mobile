@@ -5,6 +5,7 @@ import { Search, X } from "lucide-react-native";
 import React, { FunctionComponent, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
+  Dimensions,
   FlatList,
   TextInput,
   TouchableOpacity,
@@ -17,7 +18,7 @@ import BaseModal from "./BaseModal";
 
 const LIFI_API_BASE_URL = "https://li.quest/v1";
 const FEATURED_SYMBOL_ORDER = ["ETH", "USDC", "USDT", "DAI", "WBTC"];
-const MODAL_HEIGHT = "62%";
+const MODAL_HEIGHT = Math.min(420, Dimensions.get("screen").height * 0.4);
 
 export interface LifiToken {
   chainId: number;
@@ -213,7 +214,7 @@ const AssetSelectorSheet: FunctionComponent<AssetSelectorSheetProps> = ({
               borderRadius: 28,
               backgroundColor: colors.surface_overlay,
               paddingHorizontal: 16,
-              paddingTop: 16,
+              paddingTop: 28,
               paddingBottom: 8,
             }}
           >

@@ -5,6 +5,7 @@ import { Search, X } from "lucide-react-native";
 import React, { FunctionComponent, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
+  Dimensions,
   FlatList,
   TextInput,
   TouchableOpacity,
@@ -23,7 +24,7 @@ const FEATURED_CHAIN_ORDER = [
   "Optimism",
   "Polygon",
 ];
-const MODAL_HEIGHT = "62%";
+const MODAL_HEIGHT = Math.min(420, Dimensions.get("screen").height * 0.46);
 
 export interface LifiChain {
   id: number;
