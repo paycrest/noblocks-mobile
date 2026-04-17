@@ -3,7 +3,7 @@ import { Image } from "expo-image";
 import { truncate } from "lodash";
 import { ChevronDown, Plus } from "lucide-react-native";
 import React, { FunctionComponent } from "react";
-import { TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, TouchableOpacity, View } from "react-native";
 import { ResponsiveUi } from "../ResponsiveUi";
 
 interface CurrencySelectorProps {
@@ -12,44 +12,57 @@ interface CurrencySelectorProps {
     name: string;
     logoURI?: string;
   } | null;
+  label?: string;
+  subtitle?: string;
+  rightValue?: string;
+  isLoading?: boolean;
   onPress?: () => void;
   chainLogoURI?: string;
 }
 
 const CurrencySelector: FunctionComponent<CurrencySelectorProps> = ({
   selectedAsset,
+  label,
+  subtitle,
+  rightValue,
+  isLoading = false,
   onPress,
   chainLogoURI,
 }) => {
   const colors = useThemeColors();
+  const parsedRightValue = (rightValue ?? "").replace(/[^\d.,-]/g, "").trim();
+  const displayRightValue = parsedRightValue || "0";
+
   return (
-    <View className="mt-8 flex-1 flex-row justify-between    items-center">
+    <View className="mt-8 flex-1 flex-row justify-between items-center">
       <TouchableOpacity
         activeOpacity={0.8}
         className="flex-row items-center"
         onPress={onPress}
       >
-        <View style={{ width: 32, height: 32 }}>
+        <View style={{ width: 40, height: 40 }}>
           {selectedAsset?.logoURI ? (
             <Image
               source={{ uri: selectedAsset.logoURI }}
-              style={{ width: 32, height: 32, borderRadius: 16 }}
+              contentFit="fill"
+              style={{ width: 40, height: 40, borderRadius: 20 }}
             />
           ) : (
             <View
               style={{ backgroundColor: colors.secondary }}
-              className="w-8 h-8 rounded-full items-center justify-center"
+              className="w-10 h-10 rounded-full items-center justify-center"
             >
-              <Plus size={18} color={colors.secondary} />
+              <Plus size={18} color={colors.text} />
             </View>
           )}
           {chainLogoURI ? (
             <Image
               source={{ uri: chainLogoURI }}
+              contentFit="contain"
               style={{
-                width: 14,
-                height: 14,
-                borderRadius: 7,
+                width: 16,
+                height: 16,
+                borderRadius: 8,
                 position: "absolute",
                 top: 0,
                 left: -2,
@@ -60,15 +73,15 @@ const CurrencySelector: FunctionComponent<CurrencySelectorProps> = ({
           ) : null}
         </View>
         <ChevronDown
-          size={18}
+          size={16}
           color={colors.secondary}
           style={{ marginLeft: 6 }}
         />
       </TouchableOpacity>
 
-      <View className="ml-8 w-1/3">
+      <View className="ml-4 ">
         <ResponsiveUi.Text medium fontSize={16}>
-          Receive
+          {label ?? "Receive"}
         </ResponsiveUi.Text>
         <ResponsiveUi.Text
           medium
@@ -76,13 +89,21 @@ const CurrencySelector: FunctionComponent<CurrencySelectorProps> = ({
           tailwind="mt-2"
           color={colors.secondary}
         >
-          {truncate(selectedAsset?.name ?? "Select Currency", { length: 15 })}
+          {truncate(subtitle ?? selectedAsset?.name ?? "Select Currency", {
+            length: 15,
+          })}
         </ResponsiveUi.Text>
       </View>
       <View className="ml-auto w-1/3 flex items-end ">
-        <ResponsiveUi.Text medium fontSize={18}>
-          {truncate(selectedAsset?.symbol ?? "Select", { length: 15 })}
-        </ResponsiveUi.Text>
+        {isLoading ? (
+          <ActivityIndicator size="small" color={colors.primary} />
+        ) : (
+          <ResponsiveUi.Text medium fontSize={18}>
+            {truncate(displayRightValue, {
+              length: 15,
+            })}
+          </ResponsiveUi.Text>
+        )}
       </View>
     </View>
   );
