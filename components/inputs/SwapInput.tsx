@@ -33,38 +33,52 @@ const SwapInput: FunctionComponent<SwapInputProps> = ({
   return (
     <View className="mt-8">
       <View className="flex-row items-center justify-between">
-        <ResponsiveUi.Text medium fontSize={18}>
+        <ResponsiveUi.Text
+          medium
+          fontSize={18}
+          tailwind="flex-1 mr-3"
+          numberOfLines={1}
+        >
           {selectedAssetSymbol
             ? `${selectedAssetSymbol} ${formattedAmount}`
             : "Amount"}
         </ResponsiveUi.Text>
-        <TextInput
-          placeholder="0.00"
-          placeholderTextColor={colors.place_holder}
-          value={value}
-          editable={!isDisabled}
-          keyboardType="numeric"
-          showSoftInputOnFocus={false}
-          cursorColor={colors.primary}
-          selectionColor={colors.primary}
-          onFocus={() => {
-            if (isDisabled) {
-              return;
-            }
+        <View className="flex-row items-center flex-shrink-0">
+          <ResponsiveUi.Text
+            medium
+            fontSize={30}
+            style={{ color: colors.text }}
+          >
+            $
+          </ResponsiveUi.Text>
+          <TextInput
+            placeholder="0.00"
+            placeholderTextColor={colors.place_holder}
+            value={value}
+            editable={!isDisabled}
+            keyboardType="numeric"
+            showSoftInputOnFocus={false}
+            cursorColor={colors.primary}
+            selectionColor={colors.primary}
+            onFocus={() => {
+              if (isDisabled) {
+                return;
+              }
 
-            onFocus();
-          }}
-          onPressIn={() => {
-            if (isDisabled) {
-              return;
-            }
+              onFocus();
+            }}
+            onPressIn={() => {
+              if (isDisabled) {
+                return;
+              }
 
-            onFocus();
-          }}
-          caretHidden={false}
-          className="text-3xl w-32"
-          style={{ color: colors.text }}
-        />
+              onFocus();
+            }}
+            caretHidden={false}
+            className="text-3xl"
+            style={{ color: colors.text, minWidth: 48, maxWidth: 180 }}
+          />
+        </View>
       </View>
     </View>
   );
