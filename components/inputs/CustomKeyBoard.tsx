@@ -80,14 +80,14 @@ const CustomKeyBoard: FunctionComponent<CustomKeyBoardProps> = ({
       style={{ paddingBottom: insets.bottom + 4 }}
       className={`w-full z-50 px-4 items-center  ${className ?? ""}`}
     >
-      <View className="justify-center py-4">
+      <View className="justify-center py-2">
         {inputs.map((row, rowIndex) => (
           <View key={rowIndex} className="flex-row justify-center gap-16 mb-4">
             {row.map((key) => (
               <TouchableOpacity
                 onPress={() => handleKeyPress(key)}
                 key={key}
-                className="w-16 h-16 bg-gray-200 rounded-full items-center justify-center"
+                className="w-16 h-14 bg-gray-200 rounded-full items-center justify-center"
               >
                 <ResponsiveUi.Text bold fontSize={28}>
                   {key === "<" ? "⌫" : key}
