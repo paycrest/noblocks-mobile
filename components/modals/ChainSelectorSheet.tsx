@@ -259,6 +259,15 @@ const ChainSelectorSheet: FunctionComponent<ChainSelectorSheetProps> = ({
                   showsVerticalScrollIndicator={false}
                   contentContainerStyle={{ paddingBottom: 40 }}
                   style={{ flex: 1 }}
+                  ListEmptyComponent={
+                    <View className="items-center justify-center py-10 px-6">
+                      <ResponsiveUi.Text color={colors.secondary} fontSize={14}>
+                        {searchQuery.trim()
+                          ? "No chains match your search."
+                          : "No chains available right now."}
+                      </ResponsiveUi.Text>
+                    </View>
+                  }
                 />
               )}
             </View>
