@@ -9,6 +9,9 @@ interface BaseSheetProps {
   isVisible?: boolean;
   onVisibilityChange?: (visible: boolean) => void;
   snapPoints?: Array<string | number>;
+  isDismissible?: boolean;
+  showBackdrop?: boolean;
+  hideHandle?: boolean;
 }
 
 const BaseSheet: React.FC<BaseSheetProps> = ({
@@ -16,6 +19,9 @@ const BaseSheet: React.FC<BaseSheetProps> = ({
   isVisible = false,
   onVisibilityChange,
   snapPoints = ["50%"],
+  isDismissible = true,
+  showBackdrop = true,
+  hideHandle = false,
 }) => {
   const colors = useThemeColors();
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
@@ -37,13 +43,17 @@ const BaseSheet: React.FC<BaseSheetProps> = ({
     () => (
       <Pressable
         onPress={() => {
+          if (!isDismissible) {
+            return;
+          }
+
           onVisibilityChange?.(false);
           bottomSheetModalRef.current?.dismiss();
         }}
         style={styles.backdrop}
       />
     ),
-    [onVisibilityChange],
+    [isDismissible, onVisibilityChange],
   );
 
   return (
@@ -52,12 +62,14 @@ const BaseSheet: React.FC<BaseSheetProps> = ({
       onDismiss={() => onVisibilityChange?.(false)}
       snapPoints={snapPoints}
       style={{ flex: 1 }}
-      backdropComponent={renderBackdrop}
-      enablePanDownToClose
+      backdropComponent={showBackdrop ? renderBackdrop : undefined}
+      enablePanDownToClose={isDismissible}
       enableOverDrag={false}
       enableDynamicSizing={false}
       backgroundStyle={{ backgroundColor: colors.surface_overlay }}
-      handleIndicatorStyle={{ backgroundColor: colors.secondary }}
+      handleIndicatorStyle={
+        hideHandle ? { display: "none" } : { backgroundColor: colors.secondary }
+      }
     >
       <View style={styles.contentContainer}>{children}</View>
     </BottomSheetModal>
