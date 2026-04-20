@@ -14,6 +14,7 @@ interface CustomKeyBoardProps {
   allowDecimal?: boolean;
   maxLength?: number;
   submitLabel?: string;
+  submitDisabled?: boolean;
   className?: string;
 }
 
@@ -27,6 +28,7 @@ const CustomKeyBoard: FunctionComponent<CustomKeyBoardProps> = ({
   allowDecimal = true,
   maxLength,
   submitLabel = "Continue",
+  submitDisabled = false,
   className,
 }) => {
   const insets = useSafeAreaInsets();
@@ -99,6 +101,7 @@ const CustomKeyBoard: FunctionComponent<CustomKeyBoardProps> = ({
         <ResponsiveUi.Button
           title={submitLabel ?? "Continue"}
           action={handleSubmit}
+          disabled={submitDisabled}
           small
         />
       </View>
