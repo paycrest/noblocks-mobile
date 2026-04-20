@@ -2,6 +2,7 @@ import {
   fetchPaycrestInstitutions,
   type PaycrestInstitution,
 } from "@/api/queryFns";
+import { QUERY_STALE_TIME_MS } from "@/api/queryConstants";
 import { useThemeColors } from "@/hooks/useThemeColor";
 import { useQuery } from "@tanstack/react-query";
 import { CheckCircle2, Search, X } from "lucide-react-native";
@@ -44,7 +45,7 @@ const InstitutionSelectorModal: FunctionComponent<
     queryKey: ["paycrest", "institutions", currencyCode.toUpperCase()],
     enabled: isVisible && Boolean(currencyCode),
     queryFn: () => fetchPaycrestInstitutions(currencyCode),
-    staleTime: 5 * 60 * 1000,
+    staleTime: QUERY_STALE_TIME_MS,
   });
 
   const errorMessage = error instanceof Error ? error.message : null;

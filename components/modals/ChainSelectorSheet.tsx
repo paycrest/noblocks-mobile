@@ -1,4 +1,5 @@
 import { fetchLifiChains, type LifiChain } from "@/api/queryFns";
+import { QUERY_STALE_TIME_MS } from "@/api/queryConstants";
 import { useThemeColors } from "@/hooks/useThemeColor";
 import { isPrivySupportedChain } from "@/utils/privy";
 import { useQuery } from "@tanstack/react-query";
@@ -54,7 +55,7 @@ const ChainSelectorSheet: FunctionComponent<ChainSelectorSheetProps> = ({
     queryKey: ["lifi", "chains", includeTestnets ? "testnet" : "mainnet"],
     enabled: isVisible,
     queryFn: () => fetchLifiChains(includeTestnets),
-    staleTime: 5 * 60 * 1000,
+    staleTime: QUERY_STALE_TIME_MS,
   });
 
   const errorMessage = error instanceof Error ? error.message : null;
