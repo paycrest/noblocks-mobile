@@ -1,8 +1,10 @@
+import { fetchLifiTokens, type LifiToken } from "@/api/queryFns";
 import { useThemeColors } from "@/hooks/useThemeColor";
 import { isPrivySupportedAsset } from "@/utils/privy";
+import { useQuery } from "@tanstack/react-query";
 import { Image } from "expo-image";
-import { Search, X } from "lucide-react-native";
-import React, { FunctionComponent, useEffect, useMemo, useState } from "react";
+import { CheckCircle2, Search, X } from "lucide-react-native";
+import React, { FunctionComponent, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Dimensions,
@@ -16,24 +18,9 @@ import { ResponsiveUi } from "../ResponsiveUi";
 import BackdropBlur from "./BackdropBlur";
 import BaseModal from "./BaseModal";
 
-const LIFI_API_BASE_URL = "https://li.quest/v1";
 const FEATURED_SYMBOL_ORDER = ["ETH", "USDC", "USDT", "DAI", "WBTC"];
 const MODAL_HEIGHT = Math.min(420, Dimensions.get("screen").height * 0.4);
-
-export interface LifiToken {
-  chainId: number;
-  address: string;
-  symbol: string;
-  name: string;
-  decimals: number;
-  logoURI?: string;
-  priceUSD?: string;
-  coinKey?: string;
-}
-
-interface LifiTokensResponse {
-  tokens: Record<string, LifiToken[]>;
-}
+export type { LifiToken };
 
 interface AssetSelectorSheetProps {
   chainId: number;
@@ -57,85 +44,20 @@ const AssetSelectorSheet: FunctionComponent<AssetSelectorSheetProps> = ({
   chainLogoURI,
 }) => {
   const colors = useThemeColors();
-  const [assets, setAssets] = useState<LifiToken[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
-  useEffect(() => {
-    if (!isVisible) {
-      return;
-    }
+  const {
+    data: assets = [],
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["lifi", "tokens", chainId],
+    enabled: isVisible,
+    queryFn: () => fetchLifiTokens(chainId),
+    staleTime: 5 * 60 * 1000,
+  });
 
-    const abortController = new AbortController();
-
-    const fetchAssets = async () => {
-      setIsLoading(true);
-      setErrorMessage(null);
-
-      try {
-        const response = await fetch(
-          `${LIFI_API_BASE_URL}/tokens?chains=${chainId}`,
-          {
-            signal: abortController.signal,
-          },
-        );
-
-        if (!response.ok) {
-          throw new Error(`Failed to fetch assets (${response.status})`);
-        }
-
-        const data = (await response.json()) as LifiTokensResponse;
-        const nextAssets = (data.tokens?.[String(chainId)] ?? [])
-          .filter(
-            (asset) =>
-              asset.symbol && asset.name && isPrivySupportedAsset(asset.symbol),
-          )
-          .sort((left, right) => {
-            const leftFeaturedIndex = FEATURED_SYMBOL_ORDER.indexOf(
-              left.symbol,
-            );
-            const rightFeaturedIndex = FEATURED_SYMBOL_ORDER.indexOf(
-              right.symbol,
-            );
-
-            if (leftFeaturedIndex !== -1 || rightFeaturedIndex !== -1) {
-              if (leftFeaturedIndex === -1) return 1;
-              if (rightFeaturedIndex === -1) return -1;
-              return leftFeaturedIndex - rightFeaturedIndex;
-            }
-
-            const leftPrice = Number(left.priceUSD ?? 0);
-            const rightPrice = Number(right.priceUSD ?? 0);
-
-            if (leftPrice !== rightPrice) {
-              return rightPrice - leftPrice;
-            }
-
-            return left.symbol.localeCompare(right.symbol);
-          })
-          .slice(0, 80);
-
-        setAssets(nextAssets);
-      } catch (error) {
-        if (abortController.signal.aborted) {
-          return;
-        }
-
-        setErrorMessage("Could not load assets right now.");
-      } finally {
-        if (!abortController.signal.aborted) {
-          setIsLoading(false);
-        }
-      }
-    };
-
-    fetchAssets();
-
-    return () => {
-      abortController.abort();
-    };
-  }, [chainId, isVisible]);
+  const errorMessage = error instanceof Error ? error.message : null;
 
   const filteredAssets = useMemo(() => {
     const normalizedQuery = searchQuery.trim().toLowerCase();
@@ -216,9 +138,7 @@ const AssetSelectorSheet: FunctionComponent<AssetSelectorSheetProps> = ({
             </ResponsiveUi.Text>
           ) : null}
           {isSelected ? (
-            <ResponsiveUi.Text fontSize={10} color={colors.primary} bold>
-              Selected
-            </ResponsiveUi.Text>
+            <CheckCircle2 size={18} color={colors.primary} />
           ) : null}
         </View>
       </TouchableOpacity>
