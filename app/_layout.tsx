@@ -7,9 +7,11 @@ import {
   ThemeProvider,
 } from "@react-navigation/native";
 
+import { queryClient } from "@/api/queryClient";
 import useCustomFonts from "@/hooks/useCustomFonts";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { PrivyProvider } from "@privy-io/expo"; // Uncomment now
+import { QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -29,21 +31,23 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <PrivyProvider appId={app_id ?? ""} clientId={client_id ?? ""}>
-        <ThemeProvider value={appTheme === "dark" ? DarkTheme : DefaultTheme}>
-          <BottomSheetModalProvider>
-            <PaperProvider>
-              <StatusBar style="dark" />
-              <Stack screenOptions={{ headerShown: false }}>
-                <Stack.Screen name="(onboarding)/index" />
-                <Stack.Screen name="(auth)/login" />
-                <Stack.Screen name="(tabs)" />
-                <Stack.Screen name="+not-found" />
-              </Stack>
-            </PaperProvider>
-          </BottomSheetModalProvider>
-        </ThemeProvider>
-      </PrivyProvider>
+      <QueryClientProvider client={queryClient}>
+        <PrivyProvider appId={app_id ?? ""} clientId={client_id ?? ""}>
+          <ThemeProvider value={appTheme === "dark" ? DarkTheme : DefaultTheme}>
+            <BottomSheetModalProvider>
+              <PaperProvider>
+                <StatusBar style="dark" />
+                <Stack screenOptions={{ headerShown: false }}>
+                  <Stack.Screen name="(onboarding)/index" />
+                  <Stack.Screen name="(auth)/login" />
+                  <Stack.Screen name="(tabs)" />
+                  <Stack.Screen name="+not-found" />
+                </Stack>
+              </PaperProvider>
+            </BottomSheetModalProvider>
+          </ThemeProvider>
+        </PrivyProvider>
+      </QueryClientProvider>
     </GestureHandlerRootView>
   );
 }
