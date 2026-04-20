@@ -1,4 +1,5 @@
 import { fetchLifiTokens, type LifiToken } from "@/api/queryFns";
+import { QUERY_STALE_TIME_MS } from "@/api/queryConstants";
 import { useThemeColors } from "@/hooks/useThemeColor";
 import { isPrivySupportedAsset } from "@/utils/privy";
 import { useQuery } from "@tanstack/react-query";
@@ -54,7 +55,7 @@ const AssetSelectorSheet: FunctionComponent<AssetSelectorSheetProps> = ({
     queryKey: ["lifi", "tokens", chainId],
     enabled: isVisible,
     queryFn: () => fetchLifiTokens(chainId),
-    staleTime: 5 * 60 * 1000,
+    staleTime: QUERY_STALE_TIME_MS,
   });
 
   const errorMessage = error instanceof Error ? error.message : null;
