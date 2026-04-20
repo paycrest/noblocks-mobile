@@ -2811,6 +2811,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tanstack/query-core@npm:5.99.2":
+  version: 5.99.2
+  resolution: "@tanstack/query-core@npm:5.99.2"
+  checksum: 5cd60e3ccec1b29fa44b47c8db0d6eb28952834cdc2246c43f18e75eb31444df70c6823733cdfff11f727df339a811a0551d6313f5f0770fae5d5df9786070a5
+  languageName: node
+  linkType: hard
+
+"@tanstack/react-query@npm:^5.99.2":
+  version: 5.99.2
+  resolution: "@tanstack/react-query@npm:5.99.2"
+  dependencies:
+    "@tanstack/query-core": 5.99.2
+  peerDependencies:
+    react: ^18 || ^19
+  checksum: 07530650bffe3da641b3e905f3c5b539f22b7cdb335c7cd286c67cd821c76c18fbd6b56711e736058139e6c8e7dc80f96732c8b712f65aae0cb8f12fceb2d6e0
+  languageName: node
+  linkType: hard
+
 "@types/babel__core@npm:^7.1.14":
   version: 7.20.5
   resolution: "@types/babel__core@npm:7.20.5"
@@ -3003,6 +3021,21 @@ __metadata:
     zod:
       optional: true
   checksum: 55f724d038a60cc5e4ce4913298f912f0c34c53e13240cd3b97b272f4122bdf4c84541d85d1e3bb36f6e8dab6685f232c69600718fad62ccc389bea3f63ed7e4
+  languageName: node
+  linkType: hard
+
+"abitype@npm:1.2.3, abitype@npm:^1.2.3":
+  version: 1.2.3
+  resolution: "abitype@npm:1.2.3"
+  peerDependencies:
+    typescript: ">=5.0.4"
+    zod: ^3.22.0 || ^4.0.0
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+    zod:
+      optional: true
+  checksum: b5b5620f8e55a6dd7ae829630c0ded02b30f589f0f8f5ca931cdfcf6d7daa8154e30e3fe3593b3f6c4872a955ac55d447ccc2f801fd6a6aa698bdad966e3fe2e
   languageName: node
   linkType: hard
 
@@ -7005,6 +7038,7 @@ __metadata:
     "@react-navigation/native": ^7.1.6
     "@smile_identity/react-native": ^11.1.7
     "@smile_identity/react-native-expo": ^11.2.8
+    "@tanstack/react-query": ^5.99.2
     "@types/lodash": ^4.17.20
     "@types/react": ~19.0.10
     axios: ^1.12.1
@@ -7066,6 +7100,7 @@ __metadata:
     tailwindcss: 3.3.2
     twrnc: ^4.9.1
     typescript: ~5.8.3
+    viem: ^2.47.6
     yup: ^1.7.0
     zustand: ^5.0.8
   languageName: unknown
@@ -7291,6 +7326,27 @@ __metadata:
     strip-ansi: ^5.2.0
     wcwidth: ^1.0.1
   checksum: f1f8e7f290b766276dcd19ddf2159a1971b1ec37eec4a5556b8f5e4afbe513a965ed65c183d38956724263b6a20989b3d8fb71b95ac4a2d6a01db2f1ed8899e4
+  languageName: node
+  linkType: hard
+
+"ox@npm:0.14.7":
+  version: 0.14.7
+  resolution: "ox@npm:0.14.7"
+  dependencies:
+    "@adraffy/ens-normalize": ^1.11.0
+    "@noble/ciphers": ^1.3.0
+    "@noble/curves": 1.9.1
+    "@noble/hashes": ^1.8.0
+    "@scure/bip32": ^1.7.0
+    "@scure/bip39": ^1.6.0
+    abitype: ^1.2.3
+    eventemitter3: 5.0.1
+  peerDependencies:
+    typescript: ">=5.4.0"
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+  checksum: 072768caa20419f6fba739aa28cca3896789b37e59e33d811d7a265a6c1044b4a03ff6abd82613f3da0e3965c517994b4841afa36da2c1bbf545fcf16680e885
   languageName: node
   linkType: hard
 
@@ -9606,6 +9662,27 @@ __metadata:
     typescript:
       optional: true
   checksum: 07f282375733511ab31eda2f3b7cc21cc9386c5468a6295c5dc250d7ddb6a9dbdc927d9aa6d88cef04e9b36c351e0b24000000fc4807e44a91c83a5cf6a5c38b
+  languageName: node
+  linkType: hard
+
+"viem@npm:^2.47.6":
+  version: 2.47.6
+  resolution: "viem@npm:2.47.6"
+  dependencies:
+    "@noble/curves": 1.9.1
+    "@noble/hashes": 1.8.0
+    "@scure/bip32": 1.7.0
+    "@scure/bip39": 1.6.0
+    abitype: 1.2.3
+    isows: 1.0.7
+    ox: 0.14.7
+    ws: 8.18.3
+  peerDependencies:
+    typescript: ">=5.0.4"
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+  checksum: 3aefa1edc74598affb715f2b2c325db0fad2330e193a94fa7ff0293acd4b24b8a9ea3d082d78dc40c763e051b07853320074a69b1e72621ac339ccb1995ac92b
   languageName: node
   linkType: hard
 
