@@ -5,6 +5,7 @@ if (__DEV__) {
 import WalletBalance from "@/components/cards/walletBalance";
 import "../../global.css";
 
+import { RATE_QUERY_STALE_TIME_MS } from "@/api/queryConstants";
 import { fetchPaycrestRate, type PaycrestRateResponse } from "@/api/queryFns";
 import { useSelector } from "@/app/store/Store";
 import CurrencySelector from "@/components/cards/CurrencySelector";
@@ -225,7 +226,7 @@ export default function HomeScreen() {
         selectedRateFiat!,
       );
     },
-    staleTime: 60 * 1000,
+    staleTime: RATE_QUERY_STALE_TIME_MS,
   });
 
   const activeRate = useMemo(() => {
