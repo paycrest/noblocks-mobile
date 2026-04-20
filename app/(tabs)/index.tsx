@@ -5,7 +5,8 @@ if (__DEV__) {
 import WalletBalance from "@/components/cards/walletBalance";
 import "../../global.css";
 
-import { get } from "@/api/apiClient";
+import { fetchPaycrestRate, type PaycrestRateResponse } from "@/api/queryFns";
+import { useSelector } from "@/app/store/Store";
 import CurrencySelector from "@/components/cards/CurrencySelector";
 import CustomKeyBoard from "@/components/inputs/CustomKeyBoard";
 import SwapInput from "@/components/inputs/SwapInput";
@@ -19,14 +20,18 @@ import ChainSelectorSheet, {
 } from "@/components/modals/ChainSelectorSheet";
 import FiatCurrencySelectorModal from "@/components/modals/FiatCurrencySelectorModal";
 import { ResponsiveUi } from "@/components/ResponsiveUi";
+import WalletIcon from "@/components/svgs/wallet";
 import { Colors } from "@/constants/Colors";
 import useCustomFonts from "@/hooks/useCustomFonts";
 import useFiatCurrencies from "@/hooks/useFiatCurrencies";
 import { useThemeColors } from "@/hooks/useThemeColor";
 import useWallet from "@/hooks/useWallet";
 import { isPrivySupportedAsset, isPrivySupportedChain } from "@/utils/privy";
+import { useIsFocused } from "@react-navigation/native";
+import { useQuery } from "@tanstack/react-query";
 import { Image } from "expo-image";
-import { ChevronDown } from "lucide-react-native";
+import { router } from "expo-router";
+import { ChevronDown, X } from "lucide-react-native";
 import React, { useEffect, useMemo, useState } from "react";
 import { Alert, Keyboard, Switch, TouchableOpacity, View } from "react-native";
 import ArrowDataTransfer from "../../components/svgs/arrow-data-transfer";
@@ -80,22 +85,26 @@ const DEFAULT_TESTNET_CHAIN: LifiChain = {
     "https://raw.githubusercontent.com/lifinance/types/main/src/assets/icons/chains/base.svg",
 };
 
-interface PaycrestRateResponse {
-  status: string;
-  message: string;
-  data?: {
-    buy?: {
-      rate?: string;
-    };
-  };
-}
-
 const SUPPORTED_RATE_NETWORKS: Record<string, string> = {
   base: "base",
 };
 const ACTIVE_FIAT_CODES = new Set(["KES", "NGN"]);
 
 export default function HomeScreen() {
+  const isFocused = useIsFocused();
+  const {
+    _hasHydrated,
+    swapDraftAmount,
+    swapDraftAsset,
+    setSwapDraftAmount,
+    setSwapDraftAsset,
+  } = useSelector([
+    "_hasHydrated",
+    "swapDraftAmount",
+    "swapDraftAsset",
+    "setSwapDraftAmount",
+    "setSwapDraftAsset",
+  ]);
   const colors = useThemeColors();
   const { loaded } = useCustomFonts();
   const {
@@ -104,7 +113,7 @@ export default function HomeScreen() {
     error: fiatError,
     refresh: refreshFiatCurrencies,
   } = useFiatCurrencies();
-  const [amount, setAmount] = useState("");
+  const [amount, setAmount] = useState(swapDraftAmount || "");
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(true);
   const [isNativeKeyboardVisible, setIsNativeKeyboardVisible] = useState(false);
   const [isAssetSheetVisible, setIsAssetSheetVisible] = useState(false);
@@ -112,14 +121,22 @@ export default function HomeScreen() {
   const [isFiatModalVisible, setIsFiatModalVisible] = useState(false);
   const [isTestnetMode, setIsTestnetMode] = useState(false);
   const [fiatEstimate, setFiatEstimate] = useState<string>("0");
-  const [activeRate, setActiveRate] = useState<number | null>(null);
-  const [isRateLoading, setIsRateLoading] = useState(false);
   const [selectedChain, setSelectedChain] = useState<LifiChain>(DEFAULT_CHAIN);
   const [selectedFromAsset, setSelectedFromAsset] = useState<LifiToken | null>(
-    DEFAULT_ASSET,
+    swapDraftAsset
+      ? {
+          chainId: swapDraftAsset.chainId,
+          address: swapDraftAsset.address,
+          symbol: swapDraftAsset.symbol,
+          name: swapDraftAsset.name,
+          decimals: swapDraftAsset.decimals,
+          logoURI: swapDraftAsset.logoURI,
+        }
+      : DEFAULT_ASSET,
   );
   const [selectedFiatCurrency, setSelectedFiatCurrency] =
     useState<string>("NGN");
+  const [didRestoreDraft, setDidRestoreDraft] = useState(false);
   const { walletBalance } = useWallet({
     chain: selectedChain.key,
     asset: selectedFromAsset?.symbol?.toLowerCase() ?? "eth",
@@ -186,13 +203,129 @@ export default function HomeScreen() {
     );
   }, [selectedFiatCurrency, fiatCurrencies]);
 
+  const selectedRateNetwork = SUPPORTED_RATE_NETWORKS[selectedChain.key];
+  const selectedRateToken = selectedFromAsset?.symbol?.toLowerCase();
+  const selectedRateFiat = selectedFiatOption?.code;
+
+  const { data: rateResponse, isLoading: isRateLoading } = useQuery({
+    queryKey: [
+      "paycrest",
+      "rate",
+      selectedRateNetwork,
+      selectedRateToken,
+      selectedRateFiat,
+    ],
+    enabled: Boolean(
+      selectedRateNetwork && selectedRateToken && selectedRateFiat,
+    ),
+    queryFn: async () => {
+      return fetchPaycrestRate(
+        selectedRateNetwork!,
+        selectedRateToken!,
+        selectedRateFiat!,
+      );
+    },
+    staleTime: 60 * 1000,
+  });
+
+  const activeRate = useMemo(() => {
+    const parsedRate = Number(rateResponse?.data?.buy?.rate ?? 0);
+    if (!Number.isFinite(parsedRate) || parsedRate <= 0) {
+      return null;
+    }
+
+    return parsedRate;
+  }, [rateResponse?.data?.buy?.rate]);
+
+  const isAmountZeroOrEmpty = useMemo(() => {
+    const normalizedAmount = amount.trim();
+    if (!normalizedAmount) {
+      return true;
+    }
+
+    const parsedAmount = Number(normalizedAmount);
+    if (!Number.isFinite(parsedAmount)) {
+      return true;
+    }
+
+    return parsedAmount <= 0;
+  }, [amount]);
+
+  useEffect(() => {
+    if (isFocused) {
+      setIsKeyboardVisible(true);
+      return;
+    }
+
+    setIsKeyboardVisible(false);
+  }, [isFocused]);
+
+  useEffect(() => {
+    if (!_hasHydrated || didRestoreDraft) {
+      return;
+    }
+
+    if (swapDraftAmount) {
+      setAmount(swapDraftAmount);
+    }
+
+    if (swapDraftAsset) {
+      setSelectedFromAsset({
+        chainId: swapDraftAsset.chainId,
+        address: swapDraftAsset.address,
+        symbol: swapDraftAsset.symbol,
+        name: swapDraftAsset.name,
+        decimals: swapDraftAsset.decimals,
+        logoURI: swapDraftAsset.logoURI,
+      });
+    }
+
+    setDidRestoreDraft(true);
+  }, [_hasHydrated, didRestoreDraft, swapDraftAmount, swapDraftAsset]);
+
+  useEffect(() => {
+    if (!_hasHydrated || !didRestoreDraft) {
+      return;
+    }
+
+    setSwapDraftAmount(amount);
+  }, [_hasHydrated, didRestoreDraft, amount, setSwapDraftAmount]);
+
+  useEffect(() => {
+    if (!_hasHydrated || !didRestoreDraft) {
+      return;
+    }
+
+    if (!selectedFromAsset) {
+      setSwapDraftAsset(null);
+      return;
+    }
+
+    setSwapDraftAsset({
+      chainId: selectedFromAsset.chainId,
+      address: selectedFromAsset.address,
+      symbol: selectedFromAsset.symbol,
+      name: selectedFromAsset.name,
+      decimals: selectedFromAsset.decimals,
+      logoURI: selectedFromAsset.logoURI ?? "",
+    });
+  }, [_hasHydrated, didRestoreDraft, selectedFromAsset, setSwapDraftAsset]);
+
   useEffect(() => {
     const showSubscription = Keyboard.addListener("keyboardDidShow", () => {
+      if (!isFocused) {
+        return;
+      }
+
       setIsNativeKeyboardVisible(true);
       setIsKeyboardVisible(false);
     });
 
     const hideSubscription = Keyboard.addListener("keyboardDidHide", () => {
+      if (!isFocused) {
+        return;
+      }
+
       setIsNativeKeyboardVisible(false);
       setIsKeyboardVisible(true);
     });
@@ -201,57 +334,7 @@ export default function HomeScreen() {
       showSubscription.remove();
       hideSubscription.remove();
     };
-  }, []);
-
-  useEffect(() => {
-    const network = SUPPORTED_RATE_NETWORKS[selectedChain.key];
-    const token = selectedFromAsset?.symbol?.toLowerCase();
-    const fiat = selectedFiatOption?.code;
-
-    if (!network || !token || !fiat) {
-      setActiveRate(null);
-      setIsRateLoading(false);
-      return;
-    }
-
-    let cancelled = false;
-
-    const fetchRate = async () => {
-      setIsRateLoading(true);
-      try {
-        const response = await get<PaycrestRateResponse>(
-          `/rates/${network}/${token}/1/${fiat}`,
-        );
-        if (cancelled) {
-          return;
-        }
-
-        const parsedRate = Number(response.data?.buy?.rate ?? 0);
-        if (!Number.isFinite(parsedRate) || parsedRate <= 0) {
-          setActiveRate(null);
-          return;
-        }
-
-        setActiveRate(parsedRate);
-      } catch {
-        if (cancelled) {
-          return;
-        }
-
-        setActiveRate(null);
-      } finally {
-        if (!cancelled) {
-          setIsRateLoading(false);
-        }
-      }
-    };
-
-    fetchRate();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [selectedChain.key, selectedFromAsset?.symbol, selectedFiatOption?.code]);
+  }, [isFocused]);
 
   useEffect(() => {
     const normalizedAmount = amount.trim();
@@ -282,14 +365,19 @@ export default function HomeScreen() {
   return (
     <>
       <AppLayout>
-        <View className="flex-row items-center justify-center self-center">
-          <ResponsiveUi.Text bold color={Colors.primary}>
-            Details
-          </ResponsiveUi.Text>
-          <View className="ml-4 flex-row">
-            <View className="border rounded-full w-3 h-3 border-primary" />
-            <View className="border rounded-full w-3 h-3 ml-2 border-primary" />
-            <View className="border rounded-full w-3 h-3 ml-2 border-primary" />
+        <View className="flex-row items-center justify-between ">
+          <View className="flex-row items-center  ">
+            <ResponsiveUi.Text bold color={Colors.primary}>
+              Details
+            </ResponsiveUi.Text>
+            <View className="ml-8 flex-row">
+              <View className="border rounded-full w-3 h-3 border-primary" />
+              <View className="border rounded-full w-3 h-3 ml-2 border-primary" />
+            </View>
+          </View>
+          <View className="flex-row items-center  ">
+            <WalletIcon className="mr-8" />
+            <X color={colors.secondary} />
           </View>
         </View>
         <View className="flex-row mt-8 justify-between">
@@ -426,6 +514,8 @@ export default function HomeScreen() {
           }
 
           setSelectedFromAsset(asset);
+          setIsAssetSheetVisible(false);
+          setIsKeyboardVisible(true);
         }}
         selectedAssetAddress={selectedFromAsset?.address}
         chainLogoURI={selectedChain.logoURI}
@@ -495,12 +585,35 @@ export default function HomeScreen() {
             }
           }}
           onSubmit={() => {
+            if (isAmountZeroOrEmpty) {
+              return;
+            }
+
             if (isNativeKeyboardVisible) {
               setIsKeyboardVisible(false);
             }
+            router.push({
+              pathname: "/(home)/swapRecipient",
+              params: {
+                amount,
+                fromChainKey: selectedChain.key,
+                fromChainName: selectedChain.name,
+                fromChainId: String(selectedChain.id),
+                fromChainLogoUri: selectedChain.logoURI ?? "",
+                fromAssetAddress: selectedFromAsset?.address ?? "",
+                fromAssetUri: selectedFromAsset?.logoURI ?? "",
+                fromAssetSymbol: selectedFromAsset?.symbol ?? "",
+                fromAssetName: selectedFromAsset?.name ?? "",
+                toFiatCode: selectedFiatOption?.code ?? "",
+                toFiatUri: selectedFiatOption?.logoURI ?? "",
+                rate: activeRate !== null ? String(activeRate) : "",
+                fiatEstimate,
+              },
+            });
           }}
           visible={isKeyboardVisible}
           submitLabel="Continue"
+          submitDisabled={isAmountZeroOrEmpty}
         />
       </BaseSheet>
     </>
