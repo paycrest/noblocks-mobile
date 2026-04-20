@@ -1,6 +1,6 @@
 import { useThemeColors } from "@/hooks/useThemeColor";
 import { Image } from "expo-image";
-import { Search, X } from "lucide-react-native";
+import { CheckCircle2, Search, X } from "lucide-react-native";
 import React, { FunctionComponent, useMemo, useState } from "react";
 import {
   ActivityIndicator,
@@ -121,9 +121,7 @@ const FiatCurrencySelectorModal: FunctionComponent<
         </View>
 
         {isSelected ? (
-          <ResponsiveUi.Text medium color={colors.primary} fontSize={13}>
-            Selected
-          </ResponsiveUi.Text>
+          <CheckCircle2 size={20} color={colors.primary} />
         ) : !isActive ? (
           <ResponsiveUi.Text fontSize={12} color={colors.secondary}>
             Unavailable

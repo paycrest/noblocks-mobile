@@ -1,8 +1,10 @@
+import { fetchLifiChains, type LifiChain } from "@/api/queryFns";
 import { useThemeColors } from "@/hooks/useThemeColor";
 import { isPrivySupportedChain } from "@/utils/privy";
+import { useQuery } from "@tanstack/react-query";
 import { Image } from "expo-image";
-import { Search, X } from "lucide-react-native";
-import React, { FunctionComponent, useEffect, useMemo, useState } from "react";
+import { CheckCircle2, Search, X } from "lucide-react-native";
+import React, { FunctionComponent, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Dimensions,
@@ -16,7 +18,6 @@ import { ResponsiveUi } from "../ResponsiveUi";
 import BackdropBlur from "./BackdropBlur";
 import BaseModal from "./BaseModal";
 
-const LIFI_API_BASE_URL = "https://li.quest/v1";
 const FEATURED_CHAIN_ORDER = [
   "Base",
   "Ethereum",
@@ -25,20 +26,7 @@ const FEATURED_CHAIN_ORDER = [
   "Polygon",
 ];
 const MODAL_HEIGHT = Math.min(420, Dimensions.get("screen").height * 0.46);
-
-export interface LifiChain {
-  id: number;
-  key: string;
-  name: string;
-  coin: string;
-  logoURI?: string;
-  mainnet: boolean;
-  chainType: string;
-}
-
-interface LifiChainsResponse {
-  chains: LifiChain[];
-}
+export type { LifiChain };
 
 interface ChainSelectorSheetProps {
   isVisible: boolean;
@@ -56,72 +44,20 @@ const ChainSelectorSheet: FunctionComponent<ChainSelectorSheetProps> = ({
   includeTestnets = false,
 }) => {
   const colors = useThemeColors();
-  const [chains, setChains] = useState<LifiChain[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
-  useEffect(() => {
-    if (!isVisible) {
-      return;
-    }
+  const {
+    data: chains = [],
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["lifi", "chains", includeTestnets ? "testnet" : "mainnet"],
+    enabled: isVisible,
+    queryFn: () => fetchLifiChains(includeTestnets),
+    staleTime: 5 * 60 * 1000,
+  });
 
-    const abortController = new AbortController();
-
-    const fetchChains = async () => {
-      setIsLoading(true);
-      setErrorMessage(null);
-
-      try {
-        const response = await fetch(`${LIFI_API_BASE_URL}/chains`, {
-          signal: abortController.signal,
-        });
-
-        if (!response.ok) {
-          throw new Error(`Failed to fetch chains (${response.status})`);
-        }
-
-        const data = (await response.json()) as LifiChainsResponse;
-        const nextChains = (data.chains ?? [])
-          .filter(
-            (chain) =>
-              chain.mainnet === !includeTestnets &&
-              chain.chainType === "EVM" &&
-              isPrivySupportedChain(chain.key),
-          )
-          .sort((left, right) => {
-            const leftFeaturedIndex = FEATURED_CHAIN_ORDER.indexOf(left.name);
-            const rightFeaturedIndex = FEATURED_CHAIN_ORDER.indexOf(right.name);
-
-            if (leftFeaturedIndex !== -1 || rightFeaturedIndex !== -1) {
-              if (leftFeaturedIndex === -1) return 1;
-              if (rightFeaturedIndex === -1) return -1;
-              return leftFeaturedIndex - rightFeaturedIndex;
-            }
-
-            return left.name.localeCompare(right.name);
-          });
-
-        setChains(nextChains);
-      } catch (error) {
-        if (abortController.signal.aborted) {
-          return;
-        }
-
-        setErrorMessage("Could not load chains right now.");
-      } finally {
-        if (!abortController.signal.aborted) {
-          setIsLoading(false);
-        }
-      }
-    };
-
-    fetchChains();
-
-    return () => {
-      abortController.abort();
-    };
-  }, [includeTestnets, isVisible]);
+  const errorMessage = error instanceof Error ? error.message : null;
 
   const filteredChains = useMemo(() => {
     const normalizedQuery = searchQuery.trim().toLowerCase();
@@ -174,11 +110,7 @@ const ChainSelectorSheet: FunctionComponent<ChainSelectorSheetProps> = ({
           </ResponsiveUi.Text>
         </View>
 
-        {isSelected ? (
-          <ResponsiveUi.Text fontSize={13} color={colors.primary} medium>
-            Selected
-          </ResponsiveUi.Text>
-        ) : null}
+        {isSelected ? <CheckCircle2 size={20} color={colors.primary} /> : null}
       </TouchableOpacity>
     );
   };
