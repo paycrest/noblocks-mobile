@@ -2,6 +2,7 @@ export const QUERY_STALE_TIME_MS = 5 * 60 * 1000;
 export const RATE_QUERY_STALE_TIME_MS = 60 * 1000;
 
 export const LIFI_API_BASE_URL = "https://li.quest/v1";
+export const NIGERIAN_BANKS_API_URL = "https://nigerianbanks.xyz";
 export const PRIVY_BASE_URL = process.env.EXPO_PUBLIC_PRIVY_BASE_URL;
 export const PRIVY_APP_ID = process.env.EXPO_PUBLIC_PRIVY_APP_ID!;
 export const PRIVY_APP_SECRET = process.env.EXPO_PUBLIC_PRIVY_APP_SECRET!;
