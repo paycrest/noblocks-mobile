@@ -1,35 +1,10 @@
+import { fetchPrivyWalletBalance, type PrivyBalance } from "@/api/queryFns";
 import { normalizePrivyAsset, normalizePrivyChain } from "@/utils/privy";
 import { useEmbeddedEthereumWallet, usePrivy } from "@privy-io/expo";
-import { useEffect, useMemo, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useMemo } from "react";
 
-const PRIVY_BASE_URL = process.env.EXPO_PUBLIC_PRIVY_BASE_URL;
-const PRIVY_APP_ID = process.env.EXPO_PUBLIC_PRIVY_APP_ID!;
-const PRIVY_APP_SECRET = process.env.EXPO_PUBLIC_PRIVY_APP_SECRET!;
 const DEFAULT_PRIVY_BALANCE_ASSET = "eth";
-
-function privyAuthHeader() {
-  const encoded = btoa(`${PRIVY_APP_ID}:${PRIVY_APP_SECRET}`);
-  return {
-    Authorization: `Basic ${encoded}`,
-    "privy-app-id": PRIVY_APP_ID,
-  };
-}
-
-export interface PrivyBalance {
-  chain: string; // e.g. "base"
-  asset: string; // e.g. "eth"
-  raw_value: string; // e.g. "1000000000000000000"
-  raw_value_decimals: number; // e.g. 18
-  display_values?: {
-    eth?: string;
-    usd?: string;
-    [symbol: string]: string | undefined;
-  };
-}
-
-export interface GetBalanceResponse {
-  balances: PrivyBalance[];
-}
 
 export interface UseWalletOptions {
   chain?: string;
@@ -40,6 +15,7 @@ const useWallet = ({
   chain = "base",
   asset = DEFAULT_PRIVY_BALANCE_ASSET,
 }: UseWalletOptions = {}) => {
+  const queryClient = useQueryClient();
   const { wallets } = useEmbeddedEthereumWallet();
   const { user } = usePrivy();
   const walletAddress = wallets?.[0]?.address;
@@ -66,68 +42,48 @@ const useWallet = ({
 
     return linkedWallet.id ?? null;
   }, [user?.linked_accounts, walletAddress]);
-  const [walletBalance, setWalletBalance] = useState<PrivyBalance[] | null>(
-    null,
-  );
   const resolvedChain = useMemo(() => normalizePrivyChain(chain), [chain]);
   const resolvedAsset = useMemo(() => normalizePrivyAsset(asset), [asset]);
 
-  wallets?.[0]?.getProvider()?.then((provider) => {
-    provider.on("accountsChanged", (accounts: string[]) => {
-      if (accounts.length > 0) {
-        setWalletBalance(null);
-      }
+  useEffect(() => {
+    let cleanup: (() => void) | undefined;
+
+    wallets?.[0]?.getProvider()?.then((provider) => {
+      const handleAccountsChanged = (accounts: string[]) => {
+        if (accounts.length > 0) {
+          void queryClient.invalidateQueries({ queryKey: ["privy", "wallet"] });
+        }
+      };
+
+      provider.on("accountsChanged", handleAccountsChanged);
+      cleanup = () => {
+        if (typeof provider.removeListener === "function") {
+          provider.removeListener("accountsChanged", handleAccountsChanged);
+        }
+      };
     });
+
+    return () => {
+      cleanup?.();
+    };
+  }, [queryClient, wallets]);
+
+  const { data } = useQuery({
+    queryKey: ["privy", "wallet", walletId, resolvedChain, resolvedAsset],
+    queryFn: async () => {
+      if (!walletId || !resolvedChain || !resolvedAsset) {
+        return null;
+      }
+
+      return fetchPrivyWalletBalance(walletId, {
+        chain: resolvedChain,
+        asset: resolvedAsset,
+      });
+    },
+    enabled: Boolean(walletId && resolvedChain && resolvedAsset),
   });
 
-  useEffect(() => {
-    if (!walletId) {
-      setWalletBalance(null);
-      return;
-    }
-
-    if (!resolvedChain) {
-      setWalletBalance(null);
-      return;
-    }
-
-    if (!resolvedAsset) {
-      setWalletBalance(null);
-      return;
-    }
-
-    getWalletBalance(walletId, { chain: resolvedChain, asset: resolvedAsset })
-      .then((res) => {
-        setWalletBalance(res.balances);
-      })
-      .catch((err) => {
-        console.error("Failed to fetch wallet balance", err);
-      });
-  }, [resolvedAsset, resolvedChain, walletChain, walletId]);
-
-  const getWalletBalance = async (
-    walletId: string,
-    balanceOptions: Required<UseWalletOptions>,
-  ): Promise<GetBalanceResponse> => {
-    const params = new URLSearchParams({
-      chain: balanceOptions.chain,
-      asset: balanceOptions.asset,
-    });
-    const url = `${PRIVY_BASE_URL}/wallets/${walletId}/balance?${params.toString()}`;
-
-    const res = await fetch(url, {
-      method: "GET",
-      headers: {
-        ...privyAuthHeader(),
-      },
-    });
-
-    if (!res.ok) {
-      const text = await res.text().catch(() => "");
-      throw new Error(`Privy get balance failed (${res.status}): ${text}`);
-    }
-    return (await res.json()) as GetBalanceResponse;
-  };
+  const walletBalance = data?.balances ?? null;
 
   return {
     asset: resolvedAsset ?? asset,
