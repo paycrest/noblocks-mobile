@@ -40,12 +40,21 @@ export interface PaycrestInstitution {
   name: string;
   code: string;
   type: string;
+  logoURI?: string;
 }
 
 export interface InstitutionsApiResponse {
   status: string;
   message: string;
-  data: PaycrestInstitution[];
+  data: Omit<PaycrestInstitution, "logoURI">[];
+}
+
+export interface NigerianBank {
+  name: string;
+  slug: string;
+  code: string;
+  ussd: string;
+  logo: string;
 }
 
 export interface LifiChain {
@@ -84,6 +93,28 @@ export interface PaycrestRateResponse {
     buy?: {
       rate?: string;
     };
+  };
+}
+
+export interface CreateSenderOrderParams {
+  amount: string;
+  token: string;
+  network: string;
+  fiatCurrency: string;
+  institution: string;
+  accountIdentifier: string;
+  refundAddress?: string;
+  accountName?: string;
+  memo?: string;
+  rate?: string;
+}
+
+export interface CreateSenderOrderResponse {
+  status: string;
+  message: string;
+  data?: {
+    id?: string;
+    [key: string]: unknown;
   };
 }
 
