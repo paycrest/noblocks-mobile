@@ -5,13 +5,12 @@ import { FormInput } from "@/components/inputs/FormInput";
 import AppLayout from "@/components/layouts/AppLayout";
 import { ResponsiveUi } from "@/components/ResponsiveUi";
 import Logo from "@/components/svgs/logo";
-import { Colors } from "@/constants/Colors";
-import { useColorScheme } from "@/hooks/useColorScheme.web";
+import { useThemeColors } from "@/hooks/useThemeColor";
 import { router } from "expo-router";
 import { View } from "react-native";
 
 const CreatePassword: FunctionComponent = () => {
-  const colorScheme = useColorScheme();
+  const colors = useThemeColors();
   const [password, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [passwordStrength, setPasswordStrength] = useState<{
@@ -40,23 +39,12 @@ const CreatePassword: FunctionComponent = () => {
     <View className="flex-row items-center mr-1">
       {met ? (
         <CheckCircle2
-          fill={Colors.slate}
-          stroke={
-            colorScheme === "dark"
-              ? Colors.dark.background
-              : Colors.light.background
-          }
+          fill={colors.slate}
+          stroke={colors.background}
           size={16}
         />
       ) : (
-        <Circle
-          color={
-            colorScheme === "dark"
-              ? Colors.dark.secondary
-              : Colors.light.secondary
-          }
-          size={16}
-        />
+        <Circle color={colors.secondary} size={16} />
       )}
     </View>
   );

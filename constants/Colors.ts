@@ -43,52 +43,85 @@ export type ThemePalette = ThemeColors & GenericColors;
 
 import { useSelector } from "@/app/store/Store";
 
-const tintColorLight = "#0a7ea4";
-const tintColorDark = "#fff";
-
-export const genericColors: GenericColors = {
-  destructive: "#F53D6B",
+// ─── Raw palette ─────────────────────────────────────────────────────────────
+// Single source of truth for every hex value in the app.
+const palette = {
+  primary: "#8B85F4",
   slate: "#5D5DC9",
-  black: "rgba(255, 255, 255, 0.1)",
   white: "white",
-  disabled: "#5D5DC9",
+  black: "rgba(255, 255, 255, 0.1)",
+  destructive: "#F53D6B",
   yellow: "#F2C71C",
   olive: "#61500B",
   olive2: "#917711",
-  red: "#F53D6B",
   orange: "#FF7D52",
   green: "#39C65D",
   teal: "#20BA90",
-  primary: "#8B85F4",
+  gray: "rgba(255, 255, 255, 0.10)",
+  // light theme
+  tintLight: "#0a7ea4",
+  textLight: "black",
+  backgroundLight: "#ffff",
+  placeholderLight: "#A9A9BC",
+  grayHoverLight: "#EBEBEF",
+  secondaryLight: "#6C6C89",
+  neutralLight: "#F9FAFB",
+  surfaceOverlayLight: "#ffff",
+  // dark theme
+  tintDark: "#fff",
+  textDark: "#ffff",
+  backgroundDark: "#141414",
+  placeholderDark: "#FFFFFF33",
+  grayHoverDark: "#FFFFFF33",
+  secondaryDark: "#FFFFFF80",
+  surfaceOverlayDark: "#202020",
+} as const;
+
+// ─── Values shared by both themes ────────────────────────────────────────────
+const sharedTheme = {
+  slate: palette.slate,
+  white: palette.white,
+  primary: palette.primary,
+  gray: palette.gray,
+} as const;
+
+export const genericColors: GenericColors = {
+  destructive: palette.destructive,
+  slate: palette.slate,
+  black: palette.black,
+  white: palette.white,
+  disabled: palette.slate,
+  yellow: palette.yellow,
+  olive: palette.olive,
+  olive2: palette.olive2,
+  red: palette.destructive,
+  orange: palette.orange,
+  green: palette.green,
+  teal: palette.teal,
+  primary: palette.primary,
 };
 
 export const Colors: ColorsInterface = {
   light: {
-    text: "black",
-    background: "#ffff",
-    place_holder: "#A9A9BC",
-    gray_hover: "#EBEBEF",
-    secondary: "#6C6C89",
-    neutral: "#F9FAFB",
-    slate: "#5D5DC9",
-    white: "white",
-    surface_overlay: "#ffff",
-    gray: "rgba(255, 255, 255, 0.10)",
-    tint: tintColorLight,
-    primary: "#8B85F4",
+    ...sharedTheme,
+    text: palette.textLight,
+    background: palette.backgroundLight,
+    place_holder: palette.placeholderLight,
+    gray_hover: palette.grayHoverLight,
+    secondary: palette.secondaryLight,
+    neutral: palette.neutralLight,
+    surface_overlay: palette.surfaceOverlayLight,
+    tint: palette.tintLight,
   },
   dark: {
-    text: "#ffff",
-    secondary: "#FFFFFF80",
-    background: "#141414",
-    gray_hover: "#FFFFFF33",
-    place_holder: "#FFFFFF33",
-    slate: "#5D5DC9",
-    white: "white",
-    surface_overlay: "#202020",
-    tint: tintColorDark,
-    gray: "rgba(255, 255, 255, 0.10)",
-    primary: "#8B85F4",
+    ...sharedTheme,
+    text: palette.textDark,
+    background: palette.backgroundDark,
+    place_holder: palette.placeholderDark,
+    gray_hover: palette.grayHoverDark,
+    secondary: palette.secondaryDark,
+    surface_overlay: palette.surfaceOverlayDark,
+    tint: palette.tintDark,
   },
   ...genericColors,
 };

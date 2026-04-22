@@ -2,8 +2,6 @@ import HomeIcon from "@/components/svgs/home-icon";
 import SettingsIcon from "@/components/svgs/settings-icon";
 import WalletIcon from "@/components/svgs/wallet-icon";
 import TabBarBackground from "@/components/ui/TabBarBackground";
-import { Colors } from "@/constants/Colors";
-import { useColorScheme } from "@/hooks/useColorScheme";
 import { useThemeColors } from "@/hooks/useThemeColor";
 import { Tabs } from "expo-router";
 import { Clock } from "lucide-react-native";
@@ -11,13 +9,12 @@ import React from "react";
 import { Platform } from "react-native";
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
   const colors = useThemeColors();
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors.slate,
+        tabBarActiveTintColor: colors.slate,
         headerShown: false,
         tabBarBackground: TabBarBackground,
         tabBarIconStyle: {

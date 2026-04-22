@@ -6,7 +6,7 @@ import GradientText from "@/components/GradientText";
 import AppLayout from "@/components/layouts/AppLayout";
 import { ResponsiveUi } from "@/components/ResponsiveUi";
 import TropicalIndigo from "@/components/svgs/tropical-indigo";
-import { Colors } from "@/constants/Colors";
+import { useThemeColors } from "@/hooks/useThemeColor";
 import { biometricKYCParams, smile_id_config } from "@/utils/constants";
 import {
   initialize,
@@ -16,6 +16,7 @@ import { router } from "expo-router";
 import { FileText } from "lucide-react-native";
 
 const Kyc: FunctionComponent = () => {
+  const colors = useThemeColors();
   // const { acceptTermsOfService } = useAuth();
   initialize(false, true, smile_id_config);
   const [showKyc, setShowKyc] = useState(false);
@@ -105,10 +106,10 @@ const Kyc: FunctionComponent = () => {
               ))}
             </View>
             <View className="flex-row mt-4 justify-start mr-4 items-center">
-              <FileText color={Colors.slate} />
+              <FileText color={colors.slate} />
               <ResponsiveUi.Text
                 style={{
-                  color: Colors.slate,
+                  color: colors.slate,
                   marginLeft: 10,
                 }}
               >

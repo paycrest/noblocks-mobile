@@ -8,7 +8,7 @@ import {
   View,
 } from "react-native";
 
-import { Colors } from "@/constants/Colors";
+import { Colors, genericColors } from "@/constants/Colors";
 import { useThemeColors } from "@/hooks/useThemeColor";
 import { useAppDimensions } from "../hooks/useAppDimensions";
 import { cn } from "../utils/general";
@@ -223,7 +223,7 @@ const styles = StyleSheet.create({
     height: 52,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: Colors.slate,
+    backgroundColor: genericColors.slate,
     width: "100%",
   },
   textWhite: {
@@ -233,6 +233,6 @@ const styles = StyleSheet.create({
     color: Colors.dark.text,
   },
   dangerText: {
-    color: Colors.destructive,
+    color: genericColors.destructive,
   },
 });

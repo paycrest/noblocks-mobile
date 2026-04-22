@@ -19,10 +19,9 @@ import {
   ViewStyle,
 } from "react-native";
 
-import { Colors } from "@/constants/Colors";
 import { Radius } from "@/constants/Size";
-import { useAppColorScheme } from "@/hooks/useAppColorScheme";
 import { useAppDimensions } from "@/hooks/useAppDimensions";
+import { useThemeColors } from "@/hooks/useThemeColor";
 import { SvgProps } from "react-native-svg";
 
 interface FormInputProps {
@@ -82,7 +81,7 @@ export const FormInput = ({
   isProtected,
   inputComponent: _InputComponent,
 }: FormInputProps) => {
-  const scheme = useAppColorScheme();
+  const colors = useThemeColors();
   const { fontPercentageToDP, wp, hp } = useAppDimensions();
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const [showError, setShowError] = useState<boolean>(false);
@@ -128,19 +127,16 @@ export const FormInput = ({
           " flex-row items-center px-2.5 max-h-12   rounded-lg border-[0.5px] border-black",
           isFocused && "border border-gray-hover dark:bg-dark-gray-hover",
           showError && "border border-red",
-          inputClassName
+          inputClassName,
         )}
         style={[
           containerStyle,
           {
-            backgroundColor:
-              scheme === "dark"
-                ? "rgba(255, 255, 255, 0.1)"
-                : Colors.light.neutral,
+            backgroundColor: colors.neutral ?? colors.black,
             borderRadius: Radius.large,
             paddingHorizontal: 12,
             borderWidth: 1,
-            borderColor: Colors.light.gray_hover,
+            borderColor: colors.gray_hover,
           },
         ]}
       >
@@ -152,18 +148,14 @@ export const FormInput = ({
               fontSize: fontPercentageToDP(3),
 
               width: "100%",
-              color: scheme === "dark" ? Colors.dark.text : Colors.light.text,
+              color: colors.text,
               height: hp(Platform.OS === "android" ? 5.4 : 5),
             },
             inputProps?.style,
           ]}
           keyboardType={keyboardType}
           placeholder={placeholder || "Enter " + _.lowerCase(label)}
-          placeholderTextColor={
-            scheme === "dark"
-              ? Colors.dark.place_holder
-              : Colors.light.place_holder
-          }
+          placeholderTextColor={colors.place_holder}
           value={
             inputType === "phone"
               ? formatPhoneNumber(value || "") || ""
@@ -190,9 +182,7 @@ export const FormInput = ({
           autoCapitalize="none"
           allowFontScaling={false}
           clearButtonMode="never"
-          selectionColor={
-            scheme === "dark" ? Colors.dark.tint : Colors.light.tint
-          }
+          selectionColor={colors.tint}
           secureTextEntry={isSecuredEntry}
           {...omit(inputProps, ["style", "isSecuredEntry"])}
           autoFocus={autoFocus}
@@ -214,17 +204,9 @@ export const FormInput = ({
             }}
           >
             {!isSecuredEntry ? (
-              <EyeIcon
-                width={wp(5)}
-                height={wp(5)}
-                color={scheme === "dark" ? Colors.dark.text : Colors.light.text}
-              />
+              <EyeIcon width={wp(5)} height={wp(5)} color={colors.text} />
             ) : (
-              <EyeClosedIcon
-                width={wp(5)}
-                height={wp(5)}
-                color={scheme === "dark" ? Colors.dark.text : Colors.light.text}
-              />
+              <EyeClosedIcon width={wp(5)} height={wp(5)} color={colors.text} />
             )}
           </TouchableOpacity>
         )}

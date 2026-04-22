@@ -6,7 +6,7 @@ import WalletBalance from "@/components/cards/walletBalance";
 import "../../global.css";
 
 import { RATE_QUERY_STALE_TIME_MS } from "@/api/queryConstants";
-import { fetchPaycrestRate, type PaycrestRateResponse } from "@/api/queryFns";
+import { fetchPaycrestRate } from "@/api/queryFns";
 import { useSelector } from "@/app/store/Store";
 import CurrencySelector from "@/components/cards/CurrencySelector";
 import CustomKeyBoard from "@/components/inputs/CustomKeyBoard";
@@ -22,7 +22,6 @@ import ChainSelectorSheet, {
 import FiatCurrencySelectorModal from "@/components/modals/FiatCurrencySelectorModal";
 import { ResponsiveUi } from "@/components/ResponsiveUi";
 import WalletIcon from "@/components/svgs/wallet";
-import { Colors } from "@/constants/Colors";
 import useCustomFonts from "@/hooks/useCustomFonts";
 import useFiatCurrencies from "@/hooks/useFiatCurrencies";
 import { useThemeColors } from "@/hooks/useThemeColor";
@@ -88,6 +87,15 @@ const DEFAULT_TESTNET_CHAIN: LifiChain = {
 
 const SUPPORTED_RATE_NETWORKS: Record<string, string> = {
   base: "base",
+  base_sepolia: "base",
+  eth: "ethereum",
+  ethereum: "ethereum",
+  arb: "arbitrum",
+  arbitrum: "arbitrum",
+  opt: "optimism",
+  optimism: "optimism",
+  pol: "polygon",
+  polygon: "polygon",
 };
 const ACTIVE_FIAT_CODES = new Set(["KES", "NGN"]);
 
@@ -368,7 +376,7 @@ export default function HomeScreen() {
       <AppLayout>
         <View className="flex-row items-center justify-between ">
           <View className="flex-row items-center  ">
-            <ResponsiveUi.Text bold color={Colors.primary}>
+            <ResponsiveUi.Text bold color={colors.primary}>
               Details
             </ResponsiveUi.Text>
             <View className="ml-8 flex-row">
@@ -408,7 +416,7 @@ export default function HomeScreen() {
               {selectedChain.name}
             </ResponsiveUi.Text>
             <ChevronDown
-              color={Colors.primary}
+              color={colors.primary}
               size={16}
               style={{ marginLeft: 6 }}
             />

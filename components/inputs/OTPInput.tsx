@@ -1,8 +1,8 @@
 import React, { FunctionComponent } from "react";
-import { StyleSheet, useColorScheme } from "react-native";
+import { StyleSheet } from "react-native";
 
-import { Colors } from "@/constants/Colors";
 import { Radius } from "@/constants/Size";
+import { useThemeColors } from "@/hooks/useThemeColor";
 import { OtpInput } from "react-native-otp-entry";
 
 interface Props {
@@ -11,12 +11,30 @@ interface Props {
 }
 
 const OTPInput: FunctionComponent<Props> = ({ onTextChange, onFilled }) => {
-  const scheme = useColorScheme();
-  const styles = scheme === "dark" ? darkStyles : lightStyles;
+  const colors = useThemeColors();
+  const styles = StyleSheet.create({
+    pinCodeContainer: {
+      borderRadius: Radius.large,
+      backgroundColor: colors.surface_overlay,
+      borderWidth: 0.5,
+      height: 48,
+      borderColor: colors.place_holder,
+    },
+    pinCodeText: {
+      color: colors.text,
+      fontSize: 16,
+    },
+    container: {},
+    focusStick: {},
+    activePinCodeContainer: {},
+    placeholderText: {},
+    filledPinCodeContainer: {},
+    disabledPinCodeContainer: {},
+  });
   return (
     <OtpInput
       numberOfDigits={6}
-      focusColor={Colors.slate}
+      focusColor={colors.slate}
       autoFocus={false}
       hideStick={false}
       placeholder=""
@@ -50,45 +68,5 @@ const OTPInput: FunctionComponent<Props> = ({ onTextChange, onFilled }) => {
     />
   );
 };
-
-const lightStyles = StyleSheet.create({
-  pinCodeContainer: {
-    borderRadius: Radius.large,
-    backgroundColor: Colors.light.surface_overlay,
-    borderWidth: 0.5,
-    height: 48,
-    borderColor: Colors.light.place_holder,
-  },
-  pinCodeText: {
-    color: "black",
-    fontSize: 16,
-  },
-  container: {},
-  focusStick: {},
-  activePinCodeContainer: {},
-  placeholderText: {},
-  filledPinCodeContainer: {},
-  disabledPinCodeContainer: {},
-});
-
-const darkStyles = StyleSheet.create({
-  pinCodeContainer: {
-    borderRadius: Radius.large,
-    backgroundColor: Colors.dark.secondary,
-    borderWidth: 1,
-    borderColor: Colors.dark.gray_hover,
-    height: 48,
-  },
-  pinCodeText: {
-    color: "white",
-    fontSize: 16,
-  },
-  container: {},
-  focusStick: {},
-  activePinCodeContainer: {},
-  placeholderText: {},
-  filledPinCodeContainer: {},
-  disabledPinCodeContainer: {},
-});
 
 export default OTPInput;
