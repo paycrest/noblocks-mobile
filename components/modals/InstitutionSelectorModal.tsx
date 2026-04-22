@@ -1,10 +1,11 @@
+import { QUERY_STALE_TIME_MS } from "@/api/queryConstants";
 import {
   fetchPaycrestInstitutions,
   type PaycrestInstitution,
 } from "@/api/queryFns";
-import { QUERY_STALE_TIME_MS } from "@/api/queryConstants";
 import { useThemeColors } from "@/hooks/useThemeColor";
 import { useQuery } from "@tanstack/react-query";
+import { Image } from "expo-image";
 import { CheckCircle2, Search, X } from "lucide-react-native";
 import React, { FunctionComponent, useMemo, useState } from "react";
 import {
@@ -66,6 +67,7 @@ const InstitutionSelectorModal: FunctionComponent<
 
   const renderItem = ({ item }: { item: PaycrestInstitution }) => {
     const isSelected = item.code === selectedCode;
+    const firstCharacter = item.name.trim().charAt(0).toUpperCase();
 
     return (
       <TouchableOpacity
@@ -77,6 +79,29 @@ const InstitutionSelectorModal: FunctionComponent<
           setSearchQuery("");
         }}
       >
+        {item.logoURI ? (
+          <Image
+            source={{ uri: item.logoURI }}
+            style={{ width: 26, height: 26, borderRadius: 13, marginRight: 10 }}
+            contentFit="cover"
+          />
+        ) : (
+          <View
+            className="items-center justify-center mr-3"
+            style={{
+              width: 26,
+              height: 26,
+              borderRadius: 13,
+              borderWidth: 1,
+              borderColor: colors.gray,
+              backgroundColor: colors.background,
+            }}
+          >
+            <ResponsiveUi.Text fontSize={11} semiBold color={colors.secondary}>
+              {firstCharacter || "B"}
+            </ResponsiveUi.Text>
+          </View>
+        )}
         <View className="flex-1">
           <ResponsiveUi.Text medium fontSize={17}>
             {item.name}
