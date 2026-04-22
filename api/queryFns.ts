@@ -1,16 +1,17 @@
 import { get, post } from "@/api/apiClient";
-import axios from "axios";
-import { isPrivySupportedAsset, isPrivySupportedChain } from "@/utils/privy";
 import {
   CURRENCY_FLAG_MAP,
   FEATURED_CHAIN_ORDER,
   FEATURED_SYMBOL_ORDER,
   LIFI_API_BASE_URL,
+  NIGERIAN_BANKS_API_URL,
   PRIVY_APP_ID,
   PRIVY_APP_SECRET,
   PRIVY_BASE_URL,
 } from "@/api/queryConstants";
 import type {
+  CreateSenderOrderParams,
+  CreateSenderOrderResponse,
   CurrenciesApiResponse,
   GetBalanceResponse,
   InstitutionsApiResponse,
@@ -18,6 +19,7 @@ import type {
   LifiChainsResponse,
   LifiToken,
   LifiTokensResponse,
+  NigerianBank,
   PaycrestCurrency,
   PaycrestInstitution,
   PaycrestRateResponse,
@@ -28,7 +30,14 @@ import type {
   VerifyAccountResponse,
   WalletBalanceOptions,
 } from "@/api/queryTypes";
+import { isPrivySupportedAsset, isPrivySupportedChain } from "@/utils/privy";
+import axios from "axios";
 
+let nigerianBankLogoMapPromise: Promise<Record<string, string>> | null = null;
+
+/**
+ * Builds the Basic auth headers required by Privy REST endpoints.
+ */
 function privyAuthHeader() {
   const encoded = btoa(`${PRIVY_APP_ID}:${PRIVY_APP_SECRET}`);
   return {
@@ -38,6 +47,8 @@ function privyAuthHeader() {
 }
 
 export type {
+  CreateSenderOrderParams,
+  CreateSenderOrderResponse,
   GetBalanceResponse,
   LifiChain,
   LifiToken,
@@ -51,12 +62,65 @@ export type {
   WalletBalanceOptions,
 };
 
+/**
+ * Returns a flag image URL for a fiat currency code.
+ * @param currencyCode The fiat currency code, for example NGN or KES.
+ */
 export const getFlagURI = (currencyCode: string) => {
   const countryCode = CURRENCY_FLAG_MAP[currencyCode.toUpperCase()];
   if (!countryCode) return undefined;
   return `https://flagcdn.com/w80/${countryCode}.png`;
 };
 
+/**
+ * Normalizes names into a simple lowercase key used for fuzzy lookups.
+ * @param value Raw institution name to normalize.
+ */
+function normalizeName(value: string) {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+/**
+ * Fetches and memoizes Nigerian bank logos, keyed by code and normalized name.
+ */
+async function fetchNigerianBankLogoMap() {
+  if (!nigerianBankLogoMapPromise) {
+    nigerianBankLogoMapPromise = fetch(NIGERIAN_BANKS_API_URL)
+      .then(async (response) => {
+        if (!response.ok) {
+          throw new Error(
+            `Failed to fetch Nigerian bank logos (${response.status})`,
+          );
+        }
+
+        const banks = (await response.json()) as NigerianBank[];
+        const map: Record<string, string> = {};
+
+        banks.forEach((bank) => {
+          if (!bank.logo || bank.logo.includes("default-image.png")) {
+            return;
+          }
+
+          map[bank.code.trim()] = bank.logo;
+          map[`name:${normalizeName(bank.name)}`] = bank.logo;
+        });
+
+        return map;
+      })
+      .catch(() => {
+        return {};
+      });
+  }
+
+  return nigerianBankLogoMapPromise;
+}
+
+/**
+ * Fetches supported Paycrest fiat currencies and enriches each with a flag URL.
+ */
 export async function fetchPaycrestCurrencies(): Promise<PaycrestCurrency[]> {
   const response = await get<CurrenciesApiResponse>("/currencies");
   return (response.data ?? []).map((currency) => ({
@@ -65,6 +129,11 @@ export async function fetchPaycrestCurrencies(): Promise<PaycrestCurrency[]> {
   }));
 }
 
+/**
+ * Fetches wallet balances from Privy for a specific wallet and asset scope.
+ * @param walletId Privy wallet identifier to query.
+ * @param balanceOptions Query options where chain is the network key and asset is the token symbol.
+ */
 export async function fetchPrivyWalletBalance(
   walletId: string,
   balanceOptions: WalletBalanceOptions,
@@ -90,6 +159,10 @@ export async function fetchPrivyWalletBalance(
   return (await res.json()) as GetBalanceResponse;
 }
 
+/**
+ * Fetches recipient institutions for a fiat currency.
+ * @param currencyCode Fiat code used by Paycrest, for example NGN.
+ */
 export async function fetchPaycrestInstitutions(
   currencyCode: string,
 ): Promise<PaycrestInstitution[]> {
@@ -97,9 +170,30 @@ export async function fetchPaycrestInstitutions(
     `/institutions/${currencyCode.toUpperCase()}`,
   );
 
-  return response.data ?? [];
+  const institutions = response.data ?? [];
+
+  if (currencyCode.toUpperCase() !== "NGN") {
+    return institutions;
+  }
+
+  const logoMap = await fetchNigerianBankLogoMap();
+
+  return institutions.map((institution) => {
+    const logoURI =
+      logoMap[institution.code.trim()] ??
+      logoMap[`name:${normalizeName(institution.name)}`];
+
+    return {
+      ...institution,
+      ...(logoURI ? { logoURI } : {}),
+    };
+  });
 }
 
+/**
+ * Fetches supported EVM chains from LiFi and returns a sorted, filtered list.
+ * @param includeTestnets When true, returns testnets; otherwise returns mainnets.
+ */
 export async function fetchLifiChains(
   includeTestnets = false,
 ): Promise<LifiChain[]> {
@@ -132,6 +226,10 @@ export async function fetchLifiChains(
     });
 }
 
+/**
+ * Fetches assets for a specific chain from LiFi.
+ * @param chainId Numeric chain id used by LiFi token endpoint.
+ */
 export async function fetchLifiTokens(chainId: number): Promise<LifiToken[]> {
   const response = await fetch(`${LIFI_API_BASE_URL}/tokens?chains=${chainId}`);
 
@@ -168,6 +266,12 @@ export async function fetchLifiTokens(chainId: number): Promise<LifiToken[]> {
     .slice(0, 80);
 }
 
+/**
+ * Fetches conversion rate between a crypto token and fiat currency on Paycrest.
+ * @param network Paycrest network key, for example base.
+ * @param token Token symbol used by Paycrest rate endpoint, usually lowercase.
+ * @param fiat Fiat currency code, for example NGN.
+ */
 export async function fetchPaycrestRate(
   network: string,
   token: string,
@@ -176,6 +280,11 @@ export async function fetchPaycrestRate(
   return get<PaycrestRateResponse>(`/rates/${network}/${token}/1/${fiat}`);
 }
 
+/**
+ * Resolves account details for a recipient bank account.
+ * @param params.institution Institution code from the selected recipient bank.
+ * @param params.accountIdentifier Account number or recipient identifier to verify.
+ */
 export async function verifyPaycrestAccount(params: {
   institution: string;
   accountIdentifier: string;
@@ -183,6 +292,67 @@ export async function verifyPaycrestAccount(params: {
   return post<VerifyAccountResponse>("/verify-account", params);
 }
 
+/**
+ * Creates a sender order on Paycrest using crypto source and fiat destination details.
+ * @param params.amount Amount to send in source currency units.
+ * @param params.token Source crypto symbol, for example USDT.
+ * @param params.network Source network key, for example base.
+ * @param params.fiatCurrency Destination fiat code, for example NGN.
+ * @param params.institution Recipient bank institution code.
+ * @param params.accountIdentifier Recipient account number or identifier.
+ * @param params.refundAddress Optional refund address for source-chain refunds.
+ * @param params.accountName Optional verified recipient account name.
+ * @param params.memo Optional transfer note.
+ * @param params.rate Optional pre-fetched quote rate.
+ */
+export async function createPaycrestSenderOrder(
+  params: CreateSenderOrderParams,
+): Promise<CreateSenderOrderResponse> {
+  const apiKey = process.env.EXPO_PUBLIC_API_KEY;
+
+  return post<CreateSenderOrderResponse>(
+    "/sender/orders",
+    {
+      amount: params.amount,
+      source: {
+        type: "crypto",
+        currency: params.token,
+        network: params.network,
+        ...(params.refundAddress
+          ? { refundAddress: params.refundAddress }
+          : {}),
+      },
+      destination: {
+        type: "fiat",
+        currency: params.fiatCurrency,
+        recipient: {
+          institution: params.institution,
+          accountIdentifier: params.accountIdentifier,
+          ...(params.accountName ? { accountName: params.accountName } : {}),
+          ...(params.memo ? { memo: params.memo } : {}),
+        },
+      },
+      ...(params.rate ? { rate: params.rate } : {}),
+    },
+    apiKey
+      ? {
+          headers: {
+            "API-Key": apiKey,
+          },
+        }
+      : undefined,
+  );
+}
+
+/**
+ * Starts a Privy swap action for an embedded wallet.
+ * @param params.request Swap payload including chain, token pair, and amount.
+ * @param params.auth Optional overrides for app credentials and idempotency/signature values.
+ * @param params.embeddedWalletId Fallback wallet id when request.walletId is not provided.
+ * @param params.appId Optional app id fallback used when auth.appId is not provided.
+ * @param params.appSecret Optional app secret fallback used when auth.appSecret is not provided.
+ * @param params.generateAuthorizationSignature Callback used to sign the request when no signature is supplied.
+ */
 export async function startPrivySwap(params: {
   request: StartSwapParams;
   auth?: Partial<StartSwapAuth>;
