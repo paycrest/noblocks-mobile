@@ -18,16 +18,19 @@ interface ThemeColors {
   primary: string;
 }
 
-interface GenericColors {
+export interface GenericColors {
   destructive: string;
   slate: string;
   black: string;
   white: string;
   disabled: string;
   yellow: string;
+  olive: string;
+  olive2: string;
   red: string;
   orange: string;
   green: string;
+  teal: string;
   primary: string;
 }
 
@@ -36,21 +39,26 @@ export interface ColorsInterface extends GenericColors {
   dark: ThemeColors;
 }
 
+export type ThemePalette = ThemeColors & GenericColors;
+
 import { useSelector } from "@/app/store/Store";
 
 const tintColorLight = "#0a7ea4";
 const tintColorDark = "#fff";
 
-const genericColors = {
+export const genericColors: GenericColors = {
   destructive: "#F53D6B",
   slate: "#5D5DC9",
   black: "rgba(255, 255, 255, 0.1)",
   white: "white",
   disabled: "#5D5DC9",
   yellow: "#F2C71C",
+  olive: "#61500B",
+  olive2: "#917711",
   red: "#F53D6B",
   orange: "#FF7D52",
   green: "#39C65D",
+  teal: "#20BA90",
   primary: "#8B85F4",
 };
 
