@@ -65,8 +65,11 @@ const client: AxiosInstance = axios.create({
 
 client.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
+    const existingAuthorization =
+      config.headers.get("Authorization") ??
+      config.headers.get("authorization");
     const token = _getToken?.();
-    if (token) {
+    if (token && !existingAuthorization) {
       config.headers.set("Authorization", `Bearer ${token}`);
     }
 
@@ -99,16 +102,12 @@ client.interceptors.request.use(
 client.interceptors.response.use(
   (response: AxiosResponse) => {
     if (__DEV__) {
-      console.log(
-        `[API] ← ${response.status} ${response.config.url}`,
-        response.data,
-      );
     }
     return response;
   },
   (error: AxiosError) => {
     if (__DEV__) {
-      console.error(
+      console.log(
         `[API] ← ERROR ${error.response?.status ?? "network"} ${error.config?.url}`,
         error.response?.data ?? error.message,
       );
