@@ -7077,10 +7077,12 @@ __metadata:
     react-dom: 19.0.0
     react-hook-form: ^7.62.0
     react-native: 0.79.6
+    react-native-circular-progress: ^1.4.1
     react-native-dashed-line: ^1.1.0
     react-native-gesture-handler: ~2.24.0
     react-native-get-random-values: ^1.11.0
     react-native-gradient-texts: ^0.1.0
+    react-native-indicators: ^0.17.0
     react-native-keyboard-aware-scroll-view: ^0.9.5
     react-native-linear-gradient: ^2.8.3
     react-native-modal: ^14.0.0-rc.1
@@ -7092,7 +7094,7 @@ __metadata:
     react-native-reanimated: ~3.17.4
     react-native-safe-area-context: ^5.6.1
     react-native-screens: ~4.11.1
-    react-native-svg: ^15.13.0
+    react-native-svg: ^15.15.4
     react-native-web: ~0.20.0
     react-native-webview: 13.13.5
     reactotron-react-native: ^5.1.15
@@ -7857,7 +7859,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prop-types@npm:^15.6.2, prop-types@npm:^15.8.0, prop-types@npm:^15.8.1":
+"prop-types@npm:^15.5.10, prop-types@npm:^15.6.2, prop-types@npm:^15.8.0, prop-types@npm:^15.8.1":
   version: 15.8.1
   resolution: "prop-types@npm:15.8.1"
   dependencies:
@@ -8036,6 +8038,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-native-circular-progress@npm:^1.4.1":
+  version: 1.4.1
+  resolution: "react-native-circular-progress@npm:1.4.1"
+  dependencies:
+    prop-types: ^15.8.1
+  peerDependencies:
+    react: ">=16.0.0"
+    react-native: ">=0.50.0"
+    react-native-svg: ">=7.0.0"
+  checksum: bc25797a9b82c48452a22152883514080be091c68d635ac406a52b7fc39e2ab0497f1334e067b06e4b72ccff5941afbfc841b3d61164bc50a0d8b13507c27d18
+  languageName: node
+  linkType: hard
+
 "react-native-dashed-line@npm:^1.1.0":
   version: 1.1.0
   resolution: "react-native-dashed-line@npm:1.1.0"
@@ -8084,6 +8099,18 @@ __metadata:
   dependencies:
     react-native-svg: ^13.1.0
   checksum: e0e470bb15585a4d105063275c27f55244b85a79b6bc1d03dacf3d20ef90b4ac9864d4aeffc2d922d79de464c7e62d8351a8158d49d9851e40a66aef53ca82ab
+  languageName: node
+  linkType: hard
+
+"react-native-indicators@npm:^0.17.0":
+  version: 0.17.0
+  resolution: "react-native-indicators@npm:0.17.0"
+  dependencies:
+    prop-types: ^15.5.10
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: 69d0d485b6a4d81f2daaa98ca9029d0ed760470a5ae9c5cce2b81132224b5116ea9bd6829c6bc0d7b0203db4c43e876020005122c306f1a5734c4629c4bb7933
   languageName: node
   linkType: hard
 
@@ -8272,9 +8299,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-svg@npm:^15.13.0":
-  version: 15.13.0
-  resolution: "react-native-svg@npm:15.13.0"
+"react-native-svg@npm:^15.15.4":
+  version: 15.15.4
+  resolution: "react-native-svg@npm:15.15.4"
   dependencies:
     css-select: ^5.1.0
     css-tree: ^1.1.3
@@ -8282,7 +8309,7 @@ __metadata:
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: c20a95029630a1ff6d79caa9d01e9e3ad988afaa6787f306b1057369b8ce4ac1f2f0b3cf3367bac7e529e5f2ed03ce85236542ecfcf29f5827ab77dfd0921bb2
+  checksum: 6438a3e05e6da7891d9170a3e4bb4c75efa48270b2af926eb0dbf0c8f64bea659c28e008f1ceafefd157213344b54fb6b007fbce6817feed7fb9f550f015189e
   languageName: node
   linkType: hard
 
