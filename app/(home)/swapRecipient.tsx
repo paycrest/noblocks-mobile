@@ -26,6 +26,8 @@ import {
   View,
 } from "react-native";
 
+import PersonIcon from "@/components/svgs/person-icon";
+
 const ACCOUNT_NUMBER_LENGTH = 10;
 const ACCOUNT_VERIFICATION_DELAY_MS = 500;
 
@@ -43,6 +45,15 @@ const getVerifiedAccountName = (response: VerifyAccountResponse) => {
 };
 
 const getAccountVerificationErrorMessage = (error: unknown) => {
+  if (
+    error &&
+    typeof error === "object" &&
+    "statusCode" in error &&
+    (error as { statusCode?: number }).statusCode === 504
+  ) {
+    return "Account not found, check the account details";
+  }
+
   return error instanceof Error
     ? error.message
     : "Account verification failed. Please try again.";
@@ -191,13 +202,13 @@ const SwapDetails: FunctionComponent = () => {
   return (
     <AppLayout>
       <View className="flex-row items-center justify-between ">
-        <View className="flex-row items-center  ">
-          <ResponsiveUi.Text bold color={colors.primary}>
-            Details
+        <View className="flex-row w-1/2 justify-between items-center">
+          <View className="border rounded-full w-3 h-3 border-primary" />
+          <ResponsiveUi.Text fontSize={14} bold color={colors.primary}>
+            Recipient
           </ResponsiveUi.Text>
-          <View className="ml-8 flex-row">
+          <View className="flex-row">
             <View className="border rounded-full w-3 h-3 border-primary" />
-            <View className="border rounded-full w-3 h-3 ml-2 border-primary" />
           </View>
         </View>
         <View className="flex-row items-center  ">
@@ -264,7 +275,7 @@ const SwapDetails: FunctionComponent = () => {
           </ResponsiveUi.Text>
         </View>
       </View>
-      <View className="mt-8 items-center">
+      <View className="mt-16 items-center">
         <ResponsiveUi.Text
           semiBold
           tailwind="ml-8"
@@ -278,15 +289,29 @@ const SwapDetails: FunctionComponent = () => {
           activeOpacity={0.85}
           onPress={() => setIsInstitutionModalVisible(true)}
         >
-          <ResponsiveUi.Text
-            color={selectedInstitution ? colors.text : colors.secondary}
-            fontSize={18}
-          >
-            {selectedInstitution?.name ?? "Select bank"}
-          </ResponsiveUi.Text>
+          <View className="flex-row items-center">
+            {selectedInstitution?.logoURI ? (
+              <Image
+                source={{ uri: selectedInstitution.logoURI }}
+                style={{
+                  width: 20,
+                  height: 20,
+                  borderRadius: 10,
+                  marginRight: 8,
+                }}
+                contentFit="cover"
+              />
+            ) : null}
+            <ResponsiveUi.Text
+              color={selectedInstitution ? colors.text : colors.secondary}
+              fontSize={18}
+            >
+              {selectedInstitution?.name ?? "Select bank"}
+            </ResponsiveUi.Text>
+          </View>
           <ChevronDown color={colors.secondary} />
         </TouchableOpacity>
-        <View className="w-full mt-8 justify-center items-center">
+        <View className="w-full mt-12 justify-center items-center">
           <TextInput
             placeholder="Account number"
             placeholderTextColor={colors.place_holder}
@@ -309,8 +334,12 @@ const SwapDetails: FunctionComponent = () => {
             keyboardType="numeric"
           />
 
+          <View className="mt-12">
+            <PersonIcon />
+          </View>
+
           {isVerifyingAccount ? (
-            <View className="w-4/5 mt-3 flex-row items-center">
+            <View className="w-4/5 mt-12 flex-row items-center">
               <ActivityIndicator size="small" color={colors.primary} />
               <ResponsiveUi.Text
                 fontSize={13}
@@ -323,8 +352,8 @@ const SwapDetails: FunctionComponent = () => {
           ) : null}
 
           {!isVerifyingAccount && resolvedAccountName ? (
-            <View className="w-4/5 mt-3">
-              <ResponsiveUi.Text fontSize={13} color={colors.primary}>
+            <View className="w-4/5 mt-12">
+              <ResponsiveUi.Text fontSize={16} medium color={colors.text}>
                 {resolvedAccountName}
               </ResponsiveUi.Text>
             </View>
@@ -341,7 +370,31 @@ const SwapDetails: FunctionComponent = () => {
       </View>
       <View className="flex-1 justify-end">
         <ResponsiveUi.Button
-          action={() => {}}
+          action={() =>
+            router.push({
+              pathname: "/(home)/reviewTransaction",
+              params: {
+                amount,
+                fromChainKey,
+                fromChainName,
+                fromChainId,
+                fromChainLogoUri,
+                fromAssetAddress,
+                fromAssetUri,
+                fromAssetSymbol,
+                fromAssetName,
+                toFiatCode,
+                toFiatUri,
+                rate,
+                fiatEstimate,
+                recipientInstitutionCode: selectedInstitution?.code,
+                recipientInstitutionName: selectedInstitution?.name,
+                recipientAccountNumber: normalizedAccountIdentifier,
+                recipientAccountName: resolvedAccountName,
+              },
+            })
+          }
+          disabled={!resolvedAccountName}
           className="mt-12 w-full"
           title="Continue"
         />
