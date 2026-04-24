@@ -142,6 +142,8 @@ const FiatCurrencySelectorModal: FunctionComponent<
               height: MODAL_HEIGHT,
               borderRadius: 36,
               backgroundColor: colors.surface_overlay,
+              borderWidth: 0.5,
+              borderColor: colors.secondary,
               paddingHorizontal: 18,
               paddingTop: 22,
               paddingBottom: 14,
@@ -182,57 +184,58 @@ const FiatCurrencySelectorModal: FunctionComponent<
               />
             </View>
 
-            <FlatList
-              data={filteredCurrencies}
-              keyExtractor={(item) => item.code}
-              renderItem={renderItem}
-              showsVerticalScrollIndicator
-              keyboardShouldPersistTaps="handled"
-              contentContainerStyle={{ paddingBottom: 24 }}
-              ListEmptyComponent={
-                <View className="items-center py-8">
-                  {isLoading ? (
-                    <>
-                      <ActivityIndicator color={colors.primary} />
-                      <ResponsiveUi.Text
-                        fontSize={14}
-                        color={colors.secondary}
-                        tailwind="mt-3"
-                      >
-                        Loading currencies...
-                      </ResponsiveUi.Text>
-                    </>
-                  ) : (
-                    <ResponsiveUi.Text color={colors.secondary} fontSize={14}>
-                      No currency matches your search.
-                    </ResponsiveUi.Text>
-                  )}
+            <View className="flex-1">
+              {isLoading ? (
+                <View className="flex-1 items-center justify-center py-8">
+                  <ActivityIndicator color={colors.primary} />
+                  <ResponsiveUi.Text
+                    fontSize={14}
+                    color={colors.secondary}
+                    tailwind="mt-3"
+                  >
+                    Loading currencies...
+                  </ResponsiveUi.Text>
                 </View>
-              }
-            />
-            {!isLoading && error ? (
-              <View className="absolute inset-0 items-center justify-center px-6">
-                <ResponsiveUi.Text
-                  center
-                  fontSize={14}
-                  color={colors.secondary}
-                  tailwind="mb-4"
-                >
-                  {error}
-                </ResponsiveUi.Text>
-                {onRetry ? (
-                  <TouchableOpacity activeOpacity={0.8} onPress={onRetry}>
-                    <ResponsiveUi.Text
-                      medium
-                      fontSize={14}
-                      color={colors.primary}
-                    >
-                      Try again
-                    </ResponsiveUi.Text>
-                  </TouchableOpacity>
-                ) : null}
-              </View>
-            ) : null}
+              ) : error ? (
+                <View className="flex-1 items-center justify-center px-6">
+                  <ResponsiveUi.Text
+                    center
+                    fontSize={14}
+                    color={colors.secondary}
+                    tailwind="mb-4"
+                  >
+                    {error}
+                  </ResponsiveUi.Text>
+                  {onRetry ? (
+                    <TouchableOpacity activeOpacity={0.8} onPress={onRetry}>
+                      <ResponsiveUi.Text
+                        medium
+                        fontSize={14}
+                        color={colors.primary}
+                      >
+                        Try again
+                      </ResponsiveUi.Text>
+                    </TouchableOpacity>
+                  ) : null}
+                </View>
+              ) : (
+                <FlatList
+                  data={filteredCurrencies}
+                  keyExtractor={(item) => item.code}
+                  renderItem={renderItem}
+                  showsVerticalScrollIndicator
+                  keyboardShouldPersistTaps="handled"
+                  contentContainerStyle={{ paddingBottom: 24, flexGrow: 1 }}
+                  ListEmptyComponent={
+                    <View className="flex-1 items-center justify-center py-8">
+                      <ResponsiveUi.Text color={colors.secondary} fontSize={14}>
+                        No currency matches your search.
+                      </ResponsiveUi.Text>
+                    </View>
+                  }
+                />
+              )}
+            </View>
           </View>
         </View>
       </>
