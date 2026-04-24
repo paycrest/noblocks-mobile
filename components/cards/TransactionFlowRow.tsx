@@ -1,16 +1,18 @@
 import { ResponsiveUi } from "@/components/ResponsiveUi";
 import _ from "lodash";
-import React from "react";
-import { Animated, LayoutChangeEvent, View } from "react-native";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Animated, Easing, View } from "react-native";
+
+export const TRANSACTION_FLOW_ROW_CONNECTOR_DOT_COUNT = 12;
+export const TRANSACTION_FLOW_ROW_MOVING_DOT_SIZE = 10;
 
 interface TransactionFlowRowProps {
   amountLabel: string;
   tokenInitial: string;
   recipientLabel: string;
-  connectorDotCount: number;
-  movingDotSize: number;
-  connectorTranslateX: Animated.AnimatedInterpolation<string | number>;
-  onConnectorLayout: (event: LayoutChangeEvent) => void;
+  connectorDotCount?: number;
+  movingDotSize?: number;
+  connectorProgress?: Animated.Value;
   colors: {
     teal: string;
     text: string;
@@ -22,12 +24,47 @@ const TransactionFlowRow: React.FC<TransactionFlowRowProps> = ({
   amountLabel,
   tokenInitial,
   recipientLabel,
-  connectorDotCount,
-  movingDotSize,
-  connectorTranslateX,
-  onConnectorLayout,
+  connectorDotCount = TRANSACTION_FLOW_ROW_CONNECTOR_DOT_COUNT,
+  movingDotSize = TRANSACTION_FLOW_ROW_MOVING_DOT_SIZE,
+  connectorProgress,
   colors,
 }) => {
+  const staticConnectorProgress = useRef(new Animated.Value(0)).current;
+  const resolvedConnectorProgress =
+    connectorProgress ?? staticConnectorProgress;
+  const [connectorWidth, setConnectorWidth] = useState(0);
+
+  useEffect(() => {
+    if (connectorProgress) {
+      return;
+    }
+
+    const animation = Animated.loop(
+      Animated.timing(staticConnectorProgress, {
+        toValue: 1,
+        duration: 1400,
+        easing: Easing.inOut(Easing.sin),
+        useNativeDriver: true,
+      }),
+    );
+
+    animation.start();
+
+    return () => {
+      animation.stop();
+      staticConnectorProgress.setValue(0);
+    };
+  }, [connectorProgress, staticConnectorProgress]);
+
+  const connectorTranslateX = useMemo(() => {
+    const maxTranslate = Math.max(connectorWidth - movingDotSize, 0);
+
+    return resolvedConnectorProgress.interpolate({
+      inputRange: [0, 1],
+      outputRange: [0, maxTranslate],
+    });
+  }, [connectorWidth, movingDotSize, resolvedConnectorProgress]);
+
   return (
     <View className="mt-8 w-full flex-row items-center">
       <View className="px-4 py-3 rounded-full flex-row items-center">
@@ -51,7 +88,7 @@ const TransactionFlowRow: React.FC<TransactionFlowRowProps> = ({
 
       <View
         className="flex-1 mx-3 h-6 justify-center"
-        onLayout={onConnectorLayout}
+        onLayout={(event) => setConnectorWidth(event.nativeEvent.layout.width)}
       >
         <View className="absolute inset-0 flex-row items-center justify-between px-2">
           {Array.from({ length: connectorDotCount }).map((_, index) => (
