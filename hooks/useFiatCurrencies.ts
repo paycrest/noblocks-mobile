@@ -5,6 +5,7 @@ import {
   type PaycrestCurrency,
 } from "@/api/queryFns";
 import { useQuery } from "@tanstack/react-query";
+import { useCallback } from "react";
 
 // ---------------------------------------------------------------------------
 // Country code map — used to resolve a flag image URI from CDN
@@ -27,9 +28,9 @@ const useFiatCurrencies = (): UseFiatCurrenciesResult => {
     retry: false,
   });
 
-  const refresh = () => {
+  const refresh = useCallback(() => {
     void refetch();
-  };
+  }, [refetch]);
 
   return {
     currencies: data ?? [],

@@ -181,6 +181,20 @@ export const ResponsiveUi = {
       ...rest
     }: ResponsiveUiButtonProps) => {
       const themColors = useThemeColors();
+      const shouldUseDefaultSmallSize =
+        rest.fontSize == null &&
+        !rest.xl &&
+        !rest.h1 &&
+        !rest.h2 &&
+        !rest.h3 &&
+        !rest.h4 &&
+        !rest.h5 &&
+        !rest.h6 &&
+        !rest.paragraph &&
+        !rest.span &&
+        !rest.small &&
+        !rest.xs &&
+        !rest.xxs;
 
       return (
         <TouchableOpacity
@@ -200,7 +214,7 @@ export const ResponsiveUi = {
             <View className="flex-1 flex-row justify-center items-center">
               {iconMiddle ?? <View />}
               <ResponsiveUi.Text
-                small
+                small={shouldUseDefaultSmallSize}
                 semiBold={!rest?.bold}
                 tailwind="mx-4"
                 {...rest}

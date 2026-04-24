@@ -2,14 +2,11 @@ import TransactionFlowRow from "@/components/cards/TransactionFlowRow";
 import AppLayout from "@/components/layouts/AppLayout";
 import BaseSheet from "@/components/modals/BottomSheet";
 import { ResponsiveUi } from "@/components/ResponsiveUi";
-import HeartIcon from "@/components/svgs/heart-icon";
-import WarpcastIcon from "@/components/svgs/warpcast-icon";
-import XIcon from "@/components/svgs/x-icon";
 import { useThemeColors } from "@/hooks/useThemeColor";
 import { router, useLocalSearchParams } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import _ from "lodash";
-import { CheckCircle2, X } from "lucide-react-native";
+import { X, XCircle } from "lucide-react-native";
 import React, { FunctionComponent, useMemo } from "react";
 import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -34,20 +31,26 @@ const DetailRow: React.FC<DetailRowProps> = ({
       <ResponsiveUi.Text fontSize={14} color={labelColor}>
         {label}
       </ResponsiveUi.Text>
-      <ResponsiveUi.Text fontSize={14} color={valueColor} bold={valueBold}>
+      <ResponsiveUi.Text
+        fontSize={14}
+        color={valueColor}
+        tailwind=""
+        bold={valueBold}
+      >
         {value}
       </ResponsiveUi.Text>
     </View>
   );
 };
 
-const TransactionSuccess: FunctionComponent = () => {
+const TransactionFailed: FunctionComponent = () => {
   const colors = useThemeColors();
   const insets = useSafeAreaInsets();
-  const { amount, token, recipientName } = useLocalSearchParams<{
+  const { amount, token, recipientName, failureReason } = useLocalSearchParams<{
     amount?: string;
     token?: string;
     recipientName?: string;
+    failureReason?: string;
   }>();
 
   const amountLabel = useMemo(() => {
@@ -67,13 +70,23 @@ const TransactionSuccess: FunctionComponent = () => {
 
   const recipientLabel = useMemo(() => {
     const trimmed = recipientName?.trim();
-    return _.startCase(_.toLower(trimmed || "Chukwuemeka"));
+    return _.startCase(_.toLower(trimmed || "Chukwuemeka David Okafor"));
   }, [recipientName]);
 
   const tokenInitial = useMemo(() => {
     const first = token?.trim()?.charAt(0);
     return first ? first.toUpperCase() : "T";
   }, [token]);
+
+  const reasonText = useMemo(() => {
+    const trimmed = failureReason?.trim();
+
+    if (trimmed) {
+      return trimmed;
+    }
+
+    return "The node was acting up and we couldn’t get it to concentrate on the transaction. So sorry man!";
+  }, [failureReason]);
 
   return (
     <AppLayout
@@ -85,7 +98,7 @@ const TransactionSuccess: FunctionComponent = () => {
       <View className="flex-1">
         <View
           style={{
-            backgroundColor: "#39C65D",
+            backgroundColor: colors.destructive,
             position: "absolute",
             left: 0,
             right: 0,
@@ -114,14 +127,14 @@ const TransactionSuccess: FunctionComponent = () => {
             />
 
             <View className="mt-12">
-              <CheckCircle2 color={colors.teal} size={30} />
+              <XCircle size={30} color={colors.destructive} />
               <ResponsiveUi.Text
+                medium
                 fontSize={20}
-                bold
                 tailwind="mt-5"
                 color={colors.text}
               >
-                Transaction successful
+                Oops! Transaction failed
               </ResponsiveUi.Text>
             </View>
 
@@ -130,7 +143,7 @@ const TransactionSuccess: FunctionComponent = () => {
               tokenInitial={tokenInitial}
               recipientLabel={recipientLabel}
               colors={{
-                teal: colors.teal,
+                teal: colors.green,
                 text: colors.text,
                 white: colors.white,
               }}
@@ -150,20 +163,42 @@ const TransactionSuccess: FunctionComponent = () => {
               <ResponsiveUi.Text color={colors.text} fontSize={14} medium>
                 {amountLabel}
               </ResponsiveUi.Text>{" "}
-              to {recipientLabel} has been completed successfully.
+              to {recipientLabel} was unsuccessful.
             </ResponsiveUi.Text>
 
+            <ResponsiveUi.Text
+              fontSize={14}
+              tailwind="mt-6"
+              color={colors.secondary}
+            >
+              Token will be refunded to your account.
+            </ResponsiveUi.Text>
+
+            <View className="mt-6 rounded-3xl px-5 py-5">
+              <ResponsiveUi.Text fontSize={14} bold color={colors.text}>
+                Reason for failure
+              </ResponsiveUi.Text>
+              <ResponsiveUi.Text
+                fontSize={14}
+                tailwind="mt-5"
+                color={colors.secondary}
+                style={{ lineHeight: 20 }}
+              >
+                {reasonText}
+              </ResponsiveUi.Text>
+            </View>
+
             <View
-              className="mt-5"
+              className="mt-6"
               style={{ borderTopWidth: 1, borderTopColor: colors.gray }}
             />
 
             <View className="mt-5" style={{ gap: 16 }}>
               <DetailRow
                 label="Transaction status"
-                value="Completed"
+                value="Failed"
                 labelColor={colors.secondary}
-                valueColor={colors.success}
+                valueColor={colors.destructive}
                 valueBold
               />
               <DetailRow
@@ -186,83 +221,14 @@ const TransactionSuccess: FunctionComponent = () => {
               />
             </View>
 
-            <View
-              className="mt-5"
-              style={{ borderTopWidth: 1, borderTopColor: colors.gray }}
-            />
-
-            <ResponsiveUi.Text
-              fontSize={14}
-              tailwind="mt-5"
-              color={colors.secondary}
-            >
-              Help spread the word
-            </ResponsiveUi.Text>
-
-            <View className="mt-4 rounded-2xl px-4 py-4 flex-row items-start">
-              <HeartIcon width={26} height={26} />
-              <ResponsiveUi.Text
-                fontSize={14}
-                tailwind="ml-3 flex-1"
-                color={colors.secondary}
-              >
-                Yay! I just sent crypto to a bank account in 12 sec on
-                noblocks.xyz
-              </ResponsiveUi.Text>
-            </View>
-
-            <View className="w-[80%] pt-6 flex-row" style={{ gap: 14 }}>
+            <View className="mt-auto pt-8">
               <ResponsiveUi.Button
-                title="X (Twitter)"
-                action={() => {}}
-                bold
-                color={colors.text}
-                backgroundColor={colors.subtle_surface}
-                iconLeft={<XIcon width={16} height={16} />}
-                style={{ width: "50%", height: 40 }}
-                tailwind="w-full ml-8"
-              />
-              <ResponsiveUi.Button
-                title="Warpcast"
-                action={() => {}}
-                bold
-                color={colors.text}
-                backgroundColor={colors.subtle_surface}
-                iconLeft={<WarpcastIcon width={16} height={16} />}
-                style={{ width: "48%", height: 40 }}
-                tailwind="w-full ml-8"
-              />
-            </View>
-
-            <View className="mt-auto pt-6 flex-row" style={{ gap: 14 }}>
-              <ResponsiveUi.Button
-                title="Get receipt"
-                action={() => {}}
-                bold
-                color={colors.text}
-                backgroundColor={colors.subtle_surface}
-                style={{ flex: 1 }}
-                tailwind="w-full"
-              />
-              <ResponsiveUi.Button
-                title="New payment"
-                action={() =>
-                  router.push({
-                    pathname: "/(home)/transactionFailed",
-                    params: {
-                      amount: amount?.trim() ?? "",
-                      token: token?.trim() ?? "",
-                      recipientName: recipientName?.trim() ?? "",
-                      failureReason:
-                        "The node was acting up and we couldn’t get it to concentrate on the transaction. So sorry man!",
-                    },
-                  })
-                }
+                title="Retry transaction"
+                action={() => router.back()}
                 bold
                 color={colors.white}
                 backgroundColor={colors.slate}
-                style={{ flex: 1, width: "100%" }}
-                tailwind="w-full"
+                fontSize={18}
               />
             </View>
           </View>
@@ -272,4 +238,4 @@ const TransactionSuccess: FunctionComponent = () => {
   );
 };
 
-export default TransactionSuccess;
+export default TransactionFailed;
