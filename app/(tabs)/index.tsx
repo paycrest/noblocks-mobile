@@ -33,7 +33,7 @@ import { Image } from "expo-image";
 import { router } from "expo-router";
 import { ChevronDown, X } from "lucide-react-native";
 import React, { useEffect, useMemo, useState } from "react";
-import { Alert, Keyboard, Switch, TouchableOpacity, View } from "react-native";
+import { Alert, Switch, TouchableOpacity, View } from "react-native";
 import ArrowDataTransfer from "../../components/svgs/arrow-data-transfer";
 
 const toDecimalString = (rawValue: string, decimals: number) => {
@@ -124,7 +124,6 @@ export default function HomeScreen() {
   } = useFiatCurrencies();
   const [amount, setAmount] = useState(swapDraftAmount || "");
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(true);
-  const [isNativeKeyboardVisible, setIsNativeKeyboardVisible] = useState(false);
   const [isAssetSheetVisible, setIsAssetSheetVisible] = useState(false);
   const [isChainSheetVisible, setIsChainSheetVisible] = useState(false);
   const [isFiatModalVisible, setIsFiatModalVisible] = useState(false);
@@ -260,14 +259,12 @@ export default function HomeScreen() {
     return parsedAmount <= 0;
   }, [amount]);
 
-  useEffect(() => {
-    if (isFocused) {
-      setIsKeyboardVisible(true);
-      return;
-    }
+  const isAnyModalOpen =
+    isAssetSheetVisible || isChainSheetVisible || isFiatModalVisible;
 
-    setIsKeyboardVisible(false);
-  }, [isFocused]);
+  useEffect(() => {
+    setIsKeyboardVisible(isFocused && !isAnyModalOpen);
+  }, [isAnyModalOpen, isFocused]);
 
   useEffect(() => {
     if (!_hasHydrated || didRestoreDraft) {
@@ -321,31 +318,6 @@ export default function HomeScreen() {
   }, [_hasHydrated, didRestoreDraft, selectedFromAsset, setSwapDraftAsset]);
 
   useEffect(() => {
-    const showSubscription = Keyboard.addListener("keyboardDidShow", () => {
-      if (!isFocused) {
-        return;
-      }
-
-      setIsNativeKeyboardVisible(true);
-      setIsKeyboardVisible(false);
-    });
-
-    const hideSubscription = Keyboard.addListener("keyboardDidHide", () => {
-      if (!isFocused) {
-        return;
-      }
-
-      setIsNativeKeyboardVisible(false);
-      setIsKeyboardVisible(true);
-    });
-
-    return () => {
-      showSubscription.remove();
-      hideSubscription.remove();
-    };
-  }, [isFocused]);
-
-  useEffect(() => {
     const normalizedAmount = amount.trim();
     const numericAmount = Number(normalizedAmount);
 
@@ -363,10 +335,12 @@ export default function HomeScreen() {
   }, [amount, activeRate, selectedFiatOption?.decimals]);
 
   useEffect(() => {
-    if (isAssetSheetVisible || isChainSheetVisible || isFiatModalVisible) {
-      setIsKeyboardVisible(false);
+    if (!isFiatModalVisible) {
+      return;
     }
-  }, [isAssetSheetVisible, isChainSheetVisible, isFiatModalVisible]);
+
+    refreshFiatCurrencies();
+  }, [isFiatModalVisible, refreshFiatCurrencies]);
 
   if (!loaded) {
     return null;
@@ -397,7 +371,6 @@ export default function HomeScreen() {
             activeOpacity={0.8}
             className="flex-row items-center"
             onPress={() => {
-              setIsKeyboardVisible(false);
               setIsChainSheetVisible(true);
             }}
           >
@@ -455,7 +428,6 @@ export default function HomeScreen() {
               setAmount(maxSendAmount);
             }}
             onAssetPress={() => {
-              setIsKeyboardVisible(false);
               setIsAssetSheetVisible(true);
             }}
           />
@@ -486,7 +458,6 @@ export default function HomeScreen() {
             rightValue={fiatEstimate}
             isLoading={isRateLoading}
             onPress={() => {
-              setIsKeyboardVisible(false);
               setIsFiatModalVisible(true);
             }}
           />
@@ -573,34 +544,19 @@ export default function HomeScreen() {
         snapPoints={["46%"]}
         showBackdrop={false}
         hideHandle
-        isDismissible={isNativeKeyboardVisible}
-        onVisibilityChange={(visible) => {
-          if (visible) {
-            setIsKeyboardVisible(true);
-            return;
-          }
-
-          if (isNativeKeyboardVisible) {
-            setIsKeyboardVisible(false);
-          }
-        }}
+        isDismissible={false}
       >
         <CustomKeyBoard
           value={amount}
           onChangeText={setAmount}
-          onDismiss={() => {
-            if (isNativeKeyboardVisible) {
-              setIsKeyboardVisible(false);
-            }
-          }}
           onSubmit={() => {
             if (isAmountZeroOrEmpty) {
               return;
             }
-
-            if (isNativeKeyboardVisible) {
-              setIsKeyboardVisible(false);
+            if (!selectedFiatOption) {
+              return;
             }
+
             router.push({
               pathname: "/(home)/swapRecipient",
               params: {
@@ -622,7 +578,9 @@ export default function HomeScreen() {
           }}
           visible={isKeyboardVisible}
           submitLabel="Continue"
-          submitDisabled={isAmountZeroOrEmpty}
+          submitDisabled={
+            isAmountZeroOrEmpty || !selectedFiatOption || !selectedChain
+          }
         />
       </BaseSheet>
     </>
