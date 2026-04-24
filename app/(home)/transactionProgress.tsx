@@ -2,6 +2,7 @@ import AppLayout from "@/components/layouts/AppLayout";
 import { ResponsiveUi } from "@/components/ResponsiveUi";
 import { useThemeColors } from "@/hooks/useThemeColor";
 import { useLocalSearchParams } from "expo-router";
+import _ from "lodash";
 import React, {
   FunctionComponent,
   useEffect,
@@ -21,8 +22,8 @@ const ActivityIndicator =
     count?: number;
   }>;
 
-const CONNECTOR_DOT_COUNT = 8;
-const MOVING_DOT_SIZE = 16;
+const CONNECTOR_DOT_COUNT = 12;
+const MOVING_DOT_SIZE = 10;
 
 const TransactionProgress: FunctionComponent = () => {
   const colors = useThemeColors();
@@ -92,11 +93,11 @@ const TransactionProgress: FunctionComponent = () => {
 
   return (
     <AppLayout>
-      <View className="justify-center items-center mt-20">
+      <View className="justify-center items-center mt-8">
         <AnimatedCircularProgress
           size={230}
           width={40}
-          fill={20}
+          fill={90}
           tintColor={colors.teal}
           lineCap="round"
           fillLineCap="round"
@@ -120,7 +121,25 @@ const TransactionProgress: FunctionComponent = () => {
         </AnimatedCircularProgress>
       </View>
 
-      <View className="mt-12 w-full flex-row items-center">
+      <View className="flex-row rounded-lg w-32 mt-16 px-2 py-1">
+        <ActivityIndicator color={colors.olive2} size={16} count={8} />
+        <ResponsiveUi.Text fontSize={16} tailwind="ml-5" color={colors.olive}>
+          indexing
+        </ResponsiveUi.Text>
+      </View>
+
+      <View>
+        <ResponsiveUi.Text
+          fontSize={18}
+          tailwind="ml-5 mt-8"
+          color={colors.text}
+          medium
+        >
+          Indexing by aggregator...
+        </ResponsiveUi.Text>
+      </View>
+
+      <View className="mt-8 w-full flex-row items-center">
         <View className="px-4 py-3 rounded-full flex-row items-center">
           <View
             className="w-6 h-6 rounded-full items-center justify-center"
@@ -178,19 +197,14 @@ const TransactionProgress: FunctionComponent = () => {
         </View>
       </View>
 
-      <View className="mt-10  py-2  rounded-xl">
-        <View className="flex-row rounded-lg w-32 px-2 py-1">
-          <ActivityIndicator color={colors.olive2} size={16} count={8} />
-          <ResponsiveUi.Text fontSize={16} tailwind="ml-5" color={colors.olive}>
-            indexing
-          </ResponsiveUi.Text>
-        </View>
+      <View className="mt-2  py-2  rounded-xl">
         <ResponsiveUi.Text
           fontSize={16}
           tailwind="ml-5 mt-8"
           color={colors.text}
         >
-          Indexing by aggregator...
+          Processing payment to {_.startCase(_.toLower(recipientLabel))}. Hang
+          on, this will only take a few seconds
         </ResponsiveUi.Text>
       </View>
     </AppLayout>
