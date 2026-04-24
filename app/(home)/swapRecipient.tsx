@@ -2,7 +2,11 @@ import {
   verifyPaycrestAccount,
   type VerifyAccountResponse,
 } from "@/api/queryFns";
+import AddBeneficiaryCard from "@/components/cards/AddBeneficiaryCard";
 import AppLayout from "@/components/layouts/AppLayout";
+import BeneficiarySelectorModal, {
+  type BeneficiaryItem,
+} from "@/components/modals/BeneficiarySelectorModal";
 import InstitutionSelectorModal, {
   PaycrestInstitution,
 } from "@/components/modals/InstitutionSelectorModal";
@@ -63,6 +67,8 @@ const getAccountVerificationErrorMessage = (error: unknown) => {
 const SwapDetails: FunctionComponent = () => {
   const colors = useThemeColors();
   const [isInstitutionModalVisible, setIsInstitutionModalVisible] =
+    useState(false);
+  const [isBeneficiaryModalVisible, setIsBeneficiaryModalVisible] =
     useState(false);
   const [selectedInstitution, setSelectedInstitution] =
     useState<PaycrestInstitution | null>(null);
@@ -168,6 +174,14 @@ const SwapDetails: FunctionComponent = () => {
       }
     },
     [verifyAccount],
+  );
+
+  const handleSelectBeneficiary = useCallback(
+    (beneficiary: BeneficiaryItem) => {
+      setResolvedAccountName(beneficiary.name);
+      setAccountVerificationError(null);
+    },
+    [],
   );
 
   useEffect(() => {
@@ -276,7 +290,7 @@ const SwapDetails: FunctionComponent = () => {
           </ResponsiveUi.Text>
         </View>
       </View>
-      <View className="mt-16 items-center">
+      <View className="mt-12 items-center">
         <ResponsiveUi.Text
           semiBold
           tailwind="ml-8"
@@ -286,7 +300,8 @@ const SwapDetails: FunctionComponent = () => {
           Add recipient
         </ResponsiveUi.Text>
         <TouchableOpacity
-          className="mt-12 w-4/5 border-[0.5px] border-secondary bg-subtle_surface p-4 rounded-lg flex-row items-center justify-between"
+          className="mt-12 w-4/5 border-[0.5px] border-secondary bg-subtle_surface rounded-2xl flex-row items-center justify-between"
+          style={{ height: 55, paddingHorizontal: 10 }}
           activeOpacity={0.85}
           onPress={() => setIsInstitutionModalVisible(true)}
         >
@@ -331,7 +346,6 @@ const SwapDetails: FunctionComponent = () => {
               lineHeight: 22,
               height: 55,
               width: "80%",
-              padding: 6,
               paddingHorizontal: 10,
               backgroundColor: colors.subtle_surface,
             }}
@@ -343,12 +357,13 @@ const SwapDetails: FunctionComponent = () => {
           </View>
 
           {isVerifyingAccount ? (
-            <View className="w-4/5 mt-12 flex-row items-center">
+            <View className="w-4/5 mt-4 justify-center flex-row items-center">
               <ActivityIndicator size="small" color={colors.primary} />
               <ResponsiveUi.Text
                 fontSize={13}
                 color={colors.secondary}
                 tailwind="ml-2"
+                center
               >
                 Verifying account details...
               </ResponsiveUi.Text>
@@ -356,13 +371,23 @@ const SwapDetails: FunctionComponent = () => {
           ) : null}
 
           {!isVerifyingAccount && resolvedAccountName ? (
-            <View className="w-4/5 mt-12">
-              <ResponsiveUi.Text fontSize={16} medium color={colors.text}>
+            <View className="w-4/5 mt-4">
+              <ResponsiveUi.Text
+                fontSize={16}
+                medium
+                center
+                color={colors.text}
+              >
                 {_.startCase(_.toLower(resolvedAccountName))}
               </ResponsiveUi.Text>
             </View>
           ) : null}
 
+          <View className="mt-12">
+            <AddBeneficiaryCard
+              onPress={() => setIsBeneficiaryModalVisible(true)}
+            />
+          </View>
           {!isVerifyingAccount && accountVerificationError ? (
             <View className="w-4/5 mt-3">
               <ResponsiveUi.Text fontSize={13} color={colors.secondary}>
@@ -399,7 +424,7 @@ const SwapDetails: FunctionComponent = () => {
             })
           }
           disabled={!resolvedAccountName}
-          className="mt-12 w-full"
+          className="mt-8 w-full"
           title="Continue"
         />
       </View>
@@ -409,6 +434,11 @@ const SwapDetails: FunctionComponent = () => {
         currencyCode={recipientCurrencyCode}
         selectedCode={selectedInstitution?.code}
         onSelect={setSelectedInstitution}
+      />
+      <BeneficiarySelectorModal
+        isVisible={isBeneficiaryModalVisible}
+        onClose={() => setIsBeneficiaryModalVisible(false)}
+        onSelect={handleSelectBeneficiary}
       />
     </AppLayout>
   );
