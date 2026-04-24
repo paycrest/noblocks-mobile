@@ -19,12 +19,26 @@ interface UseFiatCurrenciesResult {
   refresh: () => void;
 }
 
-const useFiatCurrencies = (): UseFiatCurrenciesResult => {
+interface UseFiatCurrenciesOptions {
+  enabled?: boolean;
+}
+
+function getFiatCurrenciesErrorMessage(error: unknown) {
+  if (!error) {
+    return null;
+  }
+  return "Unable to load currencies right now. Please try again.";
+}
+
+const useFiatCurrencies = ({
+  enabled = false,
+}: UseFiatCurrenciesOptions = {}): UseFiatCurrenciesResult => {
   const { data, isLoading, isFetching, error, refetch } = useQuery({
     queryKey: ["paycrest", "currencies"],
     queryFn: fetchPaycrestCurrencies,
-    enabled: false,
+    enabled,
     staleTime: QUERY_STALE_TIME_MS,
+    gcTime: QUERY_STALE_TIME_MS,
     retry: false,
   });
 
@@ -35,7 +49,7 @@ const useFiatCurrencies = (): UseFiatCurrenciesResult => {
   return {
     currencies: data ?? [],
     isLoading: isLoading || isFetching,
-    error: error instanceof Error ? error.message : null,
+    error: getFiatCurrenciesErrorMessage(error),
     refresh,
   };
 };
