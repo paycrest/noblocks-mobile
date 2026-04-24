@@ -1,7 +1,6 @@
-import { fetchLifiTokens, type LifiToken } from "@/api/queryFns";
 import { QUERY_STALE_TIME_MS } from "@/api/queryConstants";
+import { fetchLifiTokens, type LifiToken } from "@/api/queryFns";
 import { useThemeColors } from "@/hooks/useThemeColor";
-import { isPrivySupportedAsset } from "@/utils/privy";
 import { useQuery } from "@tanstack/react-query";
 import { Image } from "expo-image";
 import { CheckCircle2, Search, X } from "lucide-react-native";
@@ -50,12 +49,15 @@ const AssetSelectorSheet: FunctionComponent<AssetSelectorSheetProps> = ({
   const {
     data: assets = [],
     isLoading,
+    isFetching,
     error,
+    refetch,
   } = useQuery({
     queryKey: ["lifi", "tokens", chainId],
     enabled: isVisible,
     queryFn: () => fetchLifiTokens(chainId),
     staleTime: QUERY_STALE_TIME_MS,
+    retry: false,
   });
 
   const errorMessage = error instanceof Error ? error.message : null;
@@ -214,6 +216,26 @@ const AssetSelectorSheet: FunctionComponent<AssetSelectorSheetProps> = ({
                   >
                     {errorMessage}
                   </ResponsiveUi.Text>
+                  <TouchableOpacity
+                    activeOpacity={0.85}
+                    className="mt-4 px-4 py-2 rounded-full"
+                    style={{ backgroundColor: colors.primary }}
+                    onPress={() => {
+                      void refetch();
+                    }}
+                  >
+                    {isFetching ? (
+                      <ActivityIndicator color={colors.white} size="small" />
+                    ) : (
+                      <ResponsiveUi.Text
+                        fontSize={14}
+                        semiBold
+                        color={colors.white}
+                      >
+                        Try again
+                      </ResponsiveUi.Text>
+                    )}
+                  </TouchableOpacity>
                 </View>
               ) : (
                 <FlatList
