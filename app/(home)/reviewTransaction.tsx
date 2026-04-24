@@ -6,6 +6,7 @@ import { useEmbeddedEthereumWallet } from "@privy-io/expo";
 import { useMutation } from "@tanstack/react-query";
 import { Image } from "expo-image";
 import { router, useLocalSearchParams } from "expo-router";
+import _ from "lodash";
 import { WalletIcon, X } from "lucide-react-native";
 import React, { FunctionComponent, useCallback, useMemo } from "react";
 import { Alert, View } from "react-native";
@@ -253,7 +254,10 @@ const ReviewTransaction: FunctionComponent = () => {
         />
         <DetailRow label="Fees" value={feeValue} />
         <DetailRow label="Total Value (fiat)" value={totalFiatValue} />
-        <DetailRow label="Recipient" value={recipientValue} />
+        <DetailRow
+          label="Recipient"
+          value={_.startCase(_.toLower(recipientAccountName))}
+        />
         <DetailRow label="Account" value={accountValue} />
         <DetailRow label="Memo" value={memoValue} />
       </View>

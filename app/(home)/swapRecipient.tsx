@@ -27,6 +27,7 @@ import {
 } from "react-native";
 
 import PersonIcon from "@/components/svgs/person-icon";
+import _ from "lodash";
 
 const ACCOUNT_NUMBER_LENGTH = 10;
 const ACCOUNT_VERIFICATION_DELAY_MS = 500;
@@ -354,7 +355,7 @@ const SwapDetails: FunctionComponent = () => {
           {!isVerifyingAccount && resolvedAccountName ? (
             <View className="w-4/5 mt-12">
               <ResponsiveUi.Text fontSize={16} medium color={colors.text}>
-                {resolvedAccountName}
+                {_.startCase(_.toLower(resolvedAccountName))}
               </ResponsiveUi.Text>
             </View>
           ) : null}
