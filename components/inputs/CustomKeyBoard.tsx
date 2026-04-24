@@ -74,7 +74,6 @@ const CustomKeyBoard: FunctionComponent<CustomKeyBoardProps> = ({
 
   const handleSubmit = () => {
     onSubmit?.();
-    onDismiss?.();
   };
 
   return (
