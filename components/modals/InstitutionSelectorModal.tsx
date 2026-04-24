@@ -42,14 +42,18 @@ const InstitutionSelectorModal: FunctionComponent<
     data: institutions = [],
     isLoading,
     error,
+    refetch,
   } = useQuery({
     queryKey: ["paycrest", "institutions", currencyCode.toUpperCase()],
     enabled: isVisible && Boolean(currencyCode),
     queryFn: () => fetchPaycrestInstitutions(currencyCode),
     staleTime: QUERY_STALE_TIME_MS,
+    retry: false,
   });
 
-  const errorMessage = error instanceof Error ? error.message : null;
+  const errorMessage = error
+    ? "Unable to load institutions right now. Please try again."
+    : null;
 
   const filteredInstitutions = useMemo(() => {
     const normalizedQuery = searchQuery.trim().toLowerCase();
@@ -204,9 +208,24 @@ const InstitutionSelectorModal: FunctionComponent<
                     center
                     fontSize={14}
                     color={colors.secondary}
+                    tailwind="mb-4"
                   >
                     {errorMessage}
                   </ResponsiveUi.Text>
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={() => {
+                      void refetch();
+                    }}
+                  >
+                    <ResponsiveUi.Text
+                      medium
+                      fontSize={14}
+                      color={colors.primary}
+                    >
+                      Try again
+                    </ResponsiveUi.Text>
+                  </TouchableOpacity>
                 </View>
               ) : null}
             </View>
