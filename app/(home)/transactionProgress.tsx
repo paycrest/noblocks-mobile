@@ -8,14 +8,8 @@ import { router, useLocalSearchParams } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import _ from "lodash";
 import { X } from "lucide-react-native";
-import React, {
-  FunctionComponent,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import { Animated, Easing, LayoutChangeEvent, View } from "react-native";
+import React, { FunctionComponent, useEffect, useMemo, useRef } from "react";
+import { Animated, Easing, View } from "react-native";
 import { AnimatedCircularProgress } from "react-native-circular-progress";
 import { UIActivityIndicator } from "react-native-indicators";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -28,9 +22,6 @@ const ActivityIndicator =
     count?: number;
   }>;
 
-const CONNECTOR_DOT_COUNT = 12;
-const MOVING_DOT_SIZE = 10;
-
 const TransactionProgress: FunctionComponent = () => {
   const colors = useThemeColors();
   const insets = useSafeAreaInsets();
@@ -40,7 +31,6 @@ const TransactionProgress: FunctionComponent = () => {
     recipientName?: string;
   }>();
   const connectorProgress = useRef(new Animated.Value(0)).current;
-  const [connectorWidth, setConnectorWidth] = useState(0);
 
   const amountLabel = useMemo(() => {
     const trimmedAmount = amount?.trim();
@@ -85,18 +75,20 @@ const TransactionProgress: FunctionComponent = () => {
     };
   }, [connectorProgress]);
 
-  const connectorTranslateX = useMemo(() => {
-    const maxTranslate = Math.max(connectorWidth - MOVING_DOT_SIZE, 0);
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      router.replace({
+        pathname: "/(home)/transactionSuccess",
+        params: {
+          amount: amount?.trim() ?? "",
+          token: token?.trim() ?? "",
+          recipientName: recipientName?.trim() ?? "",
+        },
+      });
+    }, 3500);
 
-    return connectorProgress.interpolate({
-      inputRange: [0, 1],
-      outputRange: [0, maxTranslate],
-    });
-  }, [connectorProgress, connectorWidth]);
-
-  const handleConnectorLayout = (event: LayoutChangeEvent) => {
-    setConnectorWidth(event.nativeEvent.layout.width);
-  };
+    return () => clearTimeout(timeout);
+  }, [amount, token, recipientName]);
 
   return (
     <AppLayout
@@ -188,10 +180,7 @@ const TransactionProgress: FunctionComponent = () => {
               amountLabel={amountLabel}
               tokenInitial={tokenInitial}
               recipientLabel={recipientLabel}
-              connectorDotCount={CONNECTOR_DOT_COUNT}
-              movingDotSize={MOVING_DOT_SIZE}
-              connectorTranslateX={connectorTranslateX}
-              onConnectorLayout={handleConnectorLayout}
+              connectorProgress={connectorProgress}
               colors={{
                 teal: colors.teal,
                 text: colors.text,
