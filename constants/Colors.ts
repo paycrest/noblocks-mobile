@@ -8,6 +8,7 @@ interface ThemeColors {
   background: string;
   place_holder: string;
   gray_hover: string;
+  subtle_surface: string;
   secondary: string;
   neutral?: string; // only exists in light
   slate: string;
@@ -64,6 +65,7 @@ const palette = {
   backgroundLight: "#ffff",
   placeholderLight: "#A9A9BC",
   grayHoverLight: "#EBEBEF",
+  subtleSurfaceLight: "#FFFFFF1A",
   secondaryLight: "#6C6C89",
   neutralLight: "#F9FAFB",
   surfaceOverlayLight: "#ffff",
@@ -73,6 +75,7 @@ const palette = {
   backgroundDark: "#141414",
   placeholderDark: "#FFFFFF33",
   grayHoverDark: "#FFFFFF33",
+  subtleSurfaceDark: "#FFFFFF1A",
   secondaryDark: "#FFFFFF80",
   surfaceOverlayDark: "#202020",
 } as const;
@@ -108,6 +111,7 @@ export const Colors: ColorsInterface = {
     background: palette.backgroundLight,
     place_holder: palette.placeholderLight,
     gray_hover: palette.grayHoverLight,
+    subtle_surface: palette.subtleSurfaceLight,
     secondary: palette.secondaryLight,
     neutral: palette.neutralLight,
     surface_overlay: palette.surfaceOverlayLight,
@@ -119,6 +123,7 @@ export const Colors: ColorsInterface = {
     background: palette.backgroundDark,
     place_holder: palette.placeholderDark,
     gray_hover: palette.grayHoverDark,
+    subtle_surface: palette.subtleSurfaceDark,
     secondary: palette.secondaryDark,
     surface_overlay: palette.surfaceOverlayDark,
     tint: palette.tintDark,
