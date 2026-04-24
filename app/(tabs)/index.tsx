@@ -116,17 +116,17 @@ export default function HomeScreen() {
   ]);
   const colors = useThemeColors();
   const { loaded } = useCustomFonts();
-  const {
-    currencies: fiatCurrencies,
-    isLoading: isFiatLoading,
-    error: fiatError,
-    refresh: refreshFiatCurrencies,
-  } = useFiatCurrencies();
   const [amount, setAmount] = useState(swapDraftAmount || "");
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(true);
   const [isAssetSheetVisible, setIsAssetSheetVisible] = useState(false);
   const [isChainSheetVisible, setIsChainSheetVisible] = useState(false);
   const [isFiatModalVisible, setIsFiatModalVisible] = useState(false);
+  const {
+    currencies: fiatCurrencies,
+    isLoading: isFiatLoading,
+    error: fiatError,
+    refresh: refreshFiatCurrencies,
+  } = useFiatCurrencies({ enabled: isFiatModalVisible });
   const [isTestnetMode, setIsTestnetMode] = useState(false);
   const [fiatEstimate, setFiatEstimate] = useState<string>("0");
   const [selectedChain, setSelectedChain] = useState<LifiChain>(DEFAULT_CHAIN);
@@ -333,14 +333,6 @@ export default function HomeScreen() {
       }),
     );
   }, [amount, activeRate, selectedFiatOption?.decimals]);
-
-  useEffect(() => {
-    if (!isFiatModalVisible) {
-      return;
-    }
-
-    refreshFiatCurrencies();
-  }, [isFiatModalVisible, refreshFiatCurrencies]);
 
   if (!loaded) {
     return null;
