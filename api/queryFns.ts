@@ -123,8 +123,16 @@ async function fetchNigerianBankLogoMap() {
  */
 export async function fetchPaycrestCurrencies(): Promise<PaycrestCurrency[]> {
   const response = await get<CurrenciesApiResponse>("/currencies");
-  return (response.data ?? []).map((currency) => ({
+
+  const rawCurrencies = Array.isArray(response)
+    ? response
+    : Array.isArray(response.data)
+      ? response.data
+      : [];
+
+  return rawCurrencies.map((currency) => ({
     ...currency,
+    shortName: currency.shortName ?? currency.code,
     logoURI: getFlagURI(currency.code),
   }));
 }
@@ -231,10 +239,27 @@ export async function fetchLifiChains(
  * @param chainId Numeric chain id used by LiFi token endpoint.
  */
 export async function fetchLifiTokens(chainId: number): Promise<LifiToken[]> {
-  const response = await fetch(`${LIFI_API_BASE_URL}/tokens?chains=${chainId}`);
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 30_000);
+
+  let response: Response;
+
+  try {
+    response = await fetch(`${LIFI_API_BASE_URL}/tokens?chains=${chainId}`, {
+      signal: controller.signal,
+    });
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") {
+      throw new Error("Fetching assets timed out. Try again.");
+    }
+
+    throw new Error("Failed to fetch assets. Try again.");
+  } finally {
+    clearTimeout(timeoutId);
+  }
 
   if (!response.ok) {
-    throw new Error(`Failed to fetch assets (${response.status})`);
+    throw new Error(`Failed to fetch assets (${response.status}). Try again.`);
   }
 
   const data = (await response.json()) as LifiTokensResponse;
