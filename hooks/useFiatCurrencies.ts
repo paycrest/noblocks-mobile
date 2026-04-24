@@ -1,9 +1,9 @@
+import { QUERY_STALE_TIME_MS } from "@/api/queryConstants";
 import {
   fetchPaycrestCurrencies,
   getFlagURI,
   type PaycrestCurrency,
 } from "@/api/queryFns";
-import { QUERY_STALE_TIME_MS } from "@/api/queryConstants";
 import { useQuery } from "@tanstack/react-query";
 
 // ---------------------------------------------------------------------------
@@ -19,10 +19,12 @@ interface UseFiatCurrenciesResult {
 }
 
 const useFiatCurrencies = (): UseFiatCurrenciesResult => {
-  const { data, isLoading, error, refetch } = useQuery({
+  const { data, isLoading, isFetching, error, refetch } = useQuery({
     queryKey: ["paycrest", "currencies"],
     queryFn: fetchPaycrestCurrencies,
+    enabled: false,
     staleTime: QUERY_STALE_TIME_MS,
+    retry: false,
   });
 
   const refresh = () => {
@@ -31,7 +33,7 @@ const useFiatCurrencies = (): UseFiatCurrenciesResult => {
 
   return {
     currencies: data ?? [],
-    isLoading,
+    isLoading: isLoading || isFetching,
     error: error instanceof Error ? error.message : null,
     refresh,
   };
