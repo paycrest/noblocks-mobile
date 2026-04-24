@@ -31,6 +31,7 @@ export interface GenericColors {
   red: string;
   orange: string;
   green: string;
+  success: string;
   teal: string;
   primary: string;
 }
@@ -57,6 +58,7 @@ const palette = {
   olive2: "#917711",
   orange: "#FF7D52",
   green: "#39C65D",
+  success: "#227738",
   teal: "#20BA90",
   gray: "rgba(255, 255, 255, 0.10)",
   // light theme
@@ -100,6 +102,7 @@ export const genericColors: GenericColors = {
   red: palette.destructive,
   orange: palette.orange,
   green: palette.green,
+  success: palette.success,
   teal: palette.teal,
   primary: palette.primary,
 };
