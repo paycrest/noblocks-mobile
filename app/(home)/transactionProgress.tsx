@@ -1,8 +1,13 @@
+import TransactionFlowRow from "@/components/cards/TransactionFlowRow";
 import AppLayout from "@/components/layouts/AppLayout";
+import BaseSheet from "@/components/modals/BottomSheet";
 import { ResponsiveUi } from "@/components/ResponsiveUi";
 import { useThemeColors } from "@/hooks/useThemeColor";
-import { useLocalSearchParams } from "expo-router";
+import { LinearGradient } from "expo-linear-gradient";
+import { router, useLocalSearchParams } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 import _ from "lodash";
+import { X } from "lucide-react-native";
 import React, {
   FunctionComponent,
   useEffect,
@@ -13,6 +18,7 @@ import React, {
 import { Animated, Easing, LayoutChangeEvent, View } from "react-native";
 import { AnimatedCircularProgress } from "react-native-circular-progress";
 import { UIActivityIndicator } from "react-native-indicators";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Circle } from "react-native-svg";
 
 const ActivityIndicator =
@@ -27,6 +33,7 @@ const MOVING_DOT_SIZE = 10;
 
 const TransactionProgress: FunctionComponent = () => {
   const colors = useThemeColors();
+  const insets = useSafeAreaInsets();
   const { amount, token, recipientName } = useLocalSearchParams<{
     amount?: string;
     token?: string;
@@ -92,120 +99,118 @@ const TransactionProgress: FunctionComponent = () => {
   };
 
   return (
-    <AppLayout>
-      <View className="justify-center items-center mt-8">
-        <AnimatedCircularProgress
-          size={230}
-          width={40}
-          fill={90}
-          tintColor={colors.teal}
-          lineCap="round"
-          fillLineCap="round"
-          rotation={150}
-          onAnimationComplete={() => console.log("onAnimationComplete")}
-          backgroundColor={colors.background}
-          renderCap={({ center }) => (
-            <Circle cx={center.x} cy={center.y} r="4" fill="white" />
-          )}
+    <AppLayout
+      scrollable={false}
+      directChild
+      statusBarBackgroundColor="transparent"
+    >
+      <StatusBar style="light" translucent backgroundColor="transparent" />
+      <View className="flex-1">
+        <LinearGradient
+          colors={["#6B7A20", "#2C4E77", "#0B0D13", "#090B10"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0.72 }}
+          style={{
+            position: "absolute",
+            left: 0,
+            right: 0,
+            bottom: 0,
+            top: -insets.top,
+          }}
+        />
+
+        <BaseSheet
+          isVisible
+          snapPoints={["92%"]}
+          topCornerRadius={40}
+          isDismissible={false}
+          showBackdrop={false}
+          hideHandle
         >
-          {(fill: number) => (
-            <>
-              <ResponsiveUi.Text fontSize={35} bold color={colors.text}>
-                {fill}
+          <View className="flex-1 px-4 pt-2">
+            <X
+              size={28}
+              color={colors.text}
+              style={{ position: "absolute", right: 18, top: 18 }}
+              onPress={() => router.back()}
+            />
+            <View className="justify-center items-center mt-20">
+              <AnimatedCircularProgress
+                size={230}
+                width={40}
+                fill={90}
+                tintColor={colors.teal}
+                lineCap="round"
+                fillLineCap="round"
+                rotation={150}
+                onAnimationComplete={() => console.log("onAnimationComplete")}
+                backgroundColor={colors.background}
+                renderCap={({ center }) => (
+                  <Circle cx={center.x} cy={center.y} r="4" fill="white" />
+                )}
+              >
+                {(fill: number) => (
+                  <>
+                    <ResponsiveUi.Text fontSize={35} bold color={colors.text}>
+                      {fill}
+                    </ResponsiveUi.Text>
+                    <ResponsiveUi.Text fontSize={15} medium color={colors.text}>
+                      Sec
+                    </ResponsiveUi.Text>
+                  </>
+                )}
+              </AnimatedCircularProgress>
+            </View>
+
+            <View className="flex-row rounded-lg w-32 mt-16 px-2 py-1">
+              <ActivityIndicator color={colors.olive2} size={16} count={8} />
+              <ResponsiveUi.Text
+                fontSize={16}
+                tailwind="ml-5"
+                color={colors.olive}
+              >
+                indexing
               </ResponsiveUi.Text>
-              <ResponsiveUi.Text fontSize={15} medium color={colors.text}>
-                Sec
+            </View>
+
+            <View>
+              <ResponsiveUi.Text
+                fontSize={18}
+                tailwind="ml-5 mt-8"
+                color={colors.text}
+                medium
+              >
+                Indexing by aggregator...
               </ResponsiveUi.Text>
-            </>
-          )}
-        </AnimatedCircularProgress>
-      </View>
+            </View>
 
-      <View className="flex-row rounded-lg w-32 mt-16 px-2 py-1">
-        <ActivityIndicator color={colors.olive2} size={16} count={8} />
-        <ResponsiveUi.Text fontSize={16} tailwind="ml-5" color={colors.olive}>
-          indexing
-        </ResponsiveUi.Text>
-      </View>
+            <TransactionFlowRow
+              amountLabel={amountLabel}
+              tokenInitial={tokenInitial}
+              recipientLabel={recipientLabel}
+              connectorDotCount={CONNECTOR_DOT_COUNT}
+              movingDotSize={MOVING_DOT_SIZE}
+              connectorTranslateX={connectorTranslateX}
+              onConnectorLayout={handleConnectorLayout}
+              colors={{
+                teal: colors.teal,
+                text: colors.text,
+                white: colors.white,
+              }}
+            />
 
-      <View>
-        <ResponsiveUi.Text
-          fontSize={18}
-          tailwind="ml-5 mt-8"
-          color={colors.text}
-          medium
-        >
-          Indexing by aggregator...
-        </ResponsiveUi.Text>
-      </View>
-
-      <View className="mt-8 w-full flex-row items-center">
-        <View className="px-4 py-3 rounded-full flex-row items-center">
-          <View
-            className="w-6 h-6 rounded-full items-center justify-center"
-            style={{ backgroundColor: colors.teal }}
-          >
-            <ResponsiveUi.Text color={colors.white} bold fontSize={14}>
-              {tokenInitial}
-            </ResponsiveUi.Text>
+            <View className="mt-2 py-2 rounded-xl">
+              <ResponsiveUi.Text
+                fontSize={14}
+                tailwind="ml-5 mt-8"
+                color={colors.secondary}
+              >
+                Processing payment to {_.startCase(_.toLower(recipientLabel))}.
+                Hang on, this will only take a few seconds
+              </ResponsiveUi.Text>
+            </View>
           </View>
-          <ResponsiveUi.Text
-            fontSize={18}
-            medium
-            tailwind="ml-2"
-            color={colors.text}
-          >
-            {amountLabel}
-          </ResponsiveUi.Text>
-        </View>
-
-        <View
-          className="flex-1 mx-3 h-6 justify-center"
-          onLayout={handleConnectorLayout}
-        >
-          <View className="absolute inset-0 flex-row items-center justify-between px-2">
-            {Array.from({ length: CONNECTOR_DOT_COUNT }).map((_, index) => (
-              <View
-                key={`connector-dot-${index}`}
-                className="w-1.5 h-1.5 rounded-full"
-                style={{ backgroundColor: colors.teal, opacity: 0.45 }}
-              />
-            ))}
-          </View>
-
-          <Animated.View
-            className="absolute"
-            style={{
-              transform: [{ translateX: connectorTranslateX }],
-              width: MOVING_DOT_SIZE,
-              height: MOVING_DOT_SIZE,
-              borderRadius: MOVING_DOT_SIZE / 1.5,
-              backgroundColor: colors.teal,
-              shadowColor: colors.text,
-              shadowOpacity: 0.15,
-              shadowRadius: 4,
-              shadowOffset: { width: 0, height: 2 },
-              elevation: 2,
-            }}
-          />
-        </View>
-
-        <View className="px-4 py-3 rounded-full" style={{ maxWidth: "38%" }}>
-          <ResponsiveUi.Text fontSize={18} medium numberOfLines={1}>
-            {recipientLabel}
-          </ResponsiveUi.Text>
-        </View>
-      </View>
-
-      <View className="mt-2  py-2  rounded-xl">
-        <ResponsiveUi.Text
-          fontSize={16}
-          tailwind="ml-5 mt-8"
-          color={colors.text}
-        >
-          Processing payment to {_.startCase(_.toLower(recipientLabel))}. Hang
-          on, this will only take a few seconds
-        </ResponsiveUi.Text>
+        </BaseSheet>
       </View>
     </AppLayout>
   );

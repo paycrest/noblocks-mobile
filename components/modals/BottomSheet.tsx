@@ -12,6 +12,7 @@ interface BaseSheetProps {
   isDismissible?: boolean;
   showBackdrop?: boolean;
   hideHandle?: boolean;
+  topCornerRadius?: number;
 }
 
 const BaseSheet: React.FC<BaseSheetProps> = ({
@@ -22,6 +23,7 @@ const BaseSheet: React.FC<BaseSheetProps> = ({
   isDismissible = true,
   showBackdrop = true,
   hideHandle = false,
+  topCornerRadius,
 }) => {
   const colors = useThemeColors();
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
@@ -66,7 +68,11 @@ const BaseSheet: React.FC<BaseSheetProps> = ({
       enablePanDownToClose={isDismissible}
       enableOverDrag={false}
       enableDynamicSizing={false}
-      backgroundStyle={{ backgroundColor: colors.surface_overlay }}
+      backgroundStyle={{
+        backgroundColor: colors.surface_overlay,
+        borderTopLeftRadius: topCornerRadius,
+        borderTopRightRadius: topCornerRadius,
+      }}
       handleIndicatorStyle={
         hideHandle ? { display: "none" } : { backgroundColor: colors.secondary }
       }
