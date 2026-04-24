@@ -191,24 +191,25 @@ const FiatCurrencySelectorModal: FunctionComponent<
               contentContainerStyle={{ paddingBottom: 24 }}
               ListEmptyComponent={
                 <View className="items-center py-8">
-                  <ResponsiveUi.Text color={colors.secondary} fontSize={14}>
-                    No currency matches your search.
-                  </ResponsiveUi.Text>
+                  {isLoading ? (
+                    <>
+                      <ActivityIndicator color={colors.primary} />
+                      <ResponsiveUi.Text
+                        fontSize={14}
+                        color={colors.secondary}
+                        tailwind="mt-3"
+                      >
+                        Loading currencies...
+                      </ResponsiveUi.Text>
+                    </>
+                  ) : (
+                    <ResponsiveUi.Text color={colors.secondary} fontSize={14}>
+                      No currency matches your search.
+                    </ResponsiveUi.Text>
+                  )}
                 </View>
               }
             />
-            {isLoading && (
-              <View className="absolute inset-0 items-center justify-center">
-                <ActivityIndicator color={colors.primary} size="large" />
-                <ResponsiveUi.Text
-                  fontSize={14}
-                  color={colors.secondary}
-                  tailwind="mt-3"
-                >
-                  Loading currencies…
-                </ResponsiveUi.Text>
-              </View>
-            )}
             {!isLoading && error ? (
               <View className="absolute inset-0 items-center justify-center px-6">
                 <ResponsiveUi.Text
