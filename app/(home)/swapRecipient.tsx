@@ -286,11 +286,11 @@ const SwapDetails: FunctionComponent = () => {
           Add recipient
         </ResponsiveUi.Text>
         <TouchableOpacity
-          className="mt-12 w-4/5 flex-row items-center justify-between"
+          className="mt-12 w-4/5 border-[0.5px] border-secondary bg-subtle_surface p-4 rounded-lg flex-row items-center justify-between"
           activeOpacity={0.85}
           onPress={() => setIsInstitutionModalVisible(true)}
         >
-          <View className="flex-row items-center">
+          <View className="flex-row   items-center">
             {selectedInstitution?.logoURI ? (
               <Image
                 source={{ uri: selectedInstitution.logoURI }}
@@ -312,7 +312,7 @@ const SwapDetails: FunctionComponent = () => {
           </View>
           <ChevronDown color={colors.secondary} />
         </TouchableOpacity>
-        <View className="w-full mt-12 justify-center items-center">
+        <View className="w-full mt-6 justify-center items-center">
           <TextInput
             placeholder="Account number"
             placeholderTextColor={colors.place_holder}
@@ -325,12 +325,15 @@ const SwapDetails: FunctionComponent = () => {
               color: colors.text,
               borderColor: colors.secondary,
               fontWeight: "500",
-              borderRadius: 8,
+              borderRadius: 16,
+              borderWidth: 0.5,
               fontSize: 18,
               lineHeight: 22,
-              height: 50,
+              height: 55,
               width: "80%",
-              paddingVertical: 0,
+              padding: 6,
+              paddingHorizontal: 10,
+              backgroundColor: colors.subtle_surface,
             }}
             keyboardType="numeric"
           />
