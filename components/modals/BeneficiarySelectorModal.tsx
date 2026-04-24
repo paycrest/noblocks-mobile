@@ -1,7 +1,6 @@
 import { ResponsiveUi } from "@/components/ResponsiveUi";
 import { useThemeColors } from "@/hooks/useThemeColor";
 import { Search, X } from "lucide-react-native";
-import UserCircleIcon from "../svgs/user-circle-icon";
 import React, { FunctionComponent, useMemo, useState } from "react";
 import {
   Dimensions,
@@ -10,11 +9,12 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import UserCircleIcon from "../svgs/user-circle-icon";
 
 import BackdropBlur from "./BackdropBlur";
 import BaseModal from "./BaseModal";
 
-const MODAL_HEIGHT = Dimensions.get("screen").height * 0.56;
+const MODAL_HEIGHT = Dimensions.get("screen").height * 0.5;
 
 export interface BeneficiaryItem {
   id: string;
@@ -95,7 +95,10 @@ const BeneficiarySelectorModal: FunctionComponent<
           setSearchQuery("");
         }}
       >
-        <UserCircleIcon color={colors.subtle_surface} stroke={colors.secondary} />
+        <UserCircleIcon
+          color={colors.subtle_surface}
+          stroke={colors.secondary}
+        />
         <View className="ml-4 flex-1">
           <ResponsiveUi.Text semiBold fontSize={18} color={colors.text}>
             {item.name}
@@ -124,6 +127,7 @@ const BeneficiarySelectorModal: FunctionComponent<
               paddingHorizontal: 18,
               paddingTop: 22,
               paddingBottom: 14,
+              marginTop: 40,
             }}
           >
             <View className="flex-row items-center justify-between mb-5">
