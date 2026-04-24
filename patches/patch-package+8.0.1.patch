@@ -1,0 +1,13 @@
+diff --git a/node_modules/patch-package/dist/makePatch.js b/node_modules/patch-package/dist/makePatch.js
+index a240b7e..a4ead3e 100644
+--- a/node_modules/patch-package/dist/makePatch.js
++++ b/node_modules/patch-package/dist/makePatch.js
+@@ -114,7 +114,7 @@ function makePatch({ packagePathSpecifier, appPath, packageManager, includePaths
+                 fs_extra_1.copySync(rcPath, path_1.join(tmpRepo.name, rcFile), { dereference: true });
+             }
+         });
+-        if (packageManager === "yarn") {
++        if (packageManager === "npm") {
+             console_1.default.info(chalk_1.default.grey("•"), `Installing ${packageDetails.name}@${packageVersion} with yarn`);
+             try {
+                 // try first without ignoring scripts in case they are required
