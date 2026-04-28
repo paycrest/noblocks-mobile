@@ -7,7 +7,8 @@ import USDC from "@/components/svgs/usdc-icon";
 import Tether from "@/components/svgs/tether";
 import Binance from "@/components/svgs/binance";
 import { Colors, colors } from "../../constants/Colors";
-import { useThemeColors } from "@/hooks/useThemeColor";
+import DepositModal from "@/components/modals/DepositModal";
+import { formatWalletAddress } from "@privy-io/expo";
 
 const sampleWalletData = [
   {
@@ -79,6 +80,7 @@ const walletItem: ListRenderItem<{
 };
 
 const Wallet: FunctionComponent = () => {
+  const [isVisible, setIsVisible] = React.useState(false);
   return (
     <AppLayout scrollable={false}>
       <View className="mt-8">
@@ -105,7 +107,7 @@ const Wallet: FunctionComponent = () => {
             style={{ width: "45%" }}
             tailwind="w-full text-center"
             title="Deposit"
-            action={() => {}}
+            action={() => setIsVisible(true)}
           />
         </View>
         <FlatList
@@ -115,6 +117,13 @@ const Wallet: FunctionComponent = () => {
           contentContainerStyle={{ marginTop: 40 }}
         />
       </View>
+      <DepositModal
+        isVisible={isVisible}
+        onClose={() => setIsVisible(false)}
+        address={formatWalletAddress(
+          "0x323b5d5d8362ac4d310610f63162b77c4e857416",
+        )}
+      />
     </AppLayout>
   );
 };
