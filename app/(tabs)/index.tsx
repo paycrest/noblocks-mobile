@@ -33,7 +33,13 @@ import { Image } from "expo-image";
 import { router } from "expo-router";
 import { ChevronDown, X } from "lucide-react-native";
 import React, { useEffect, useMemo, useState } from "react";
-import { Alert, Switch, TouchableOpacity, View } from "react-native";
+import {
+  Alert,
+  Switch,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
+} from "react-native";
 import ArrowDataTransfer from "../../components/svgs/arrow-data-transfer";
 
 const toDecimalString = (rawValue: string, decimals: number) => {
@@ -339,139 +345,150 @@ export default function HomeScreen() {
   }
   return (
     <>
-      <AppLayout>
-        <View className="flex-row items-center justify-between ">
-          <View className="flex-row items-center  ">
-            <ResponsiveUi.Text bold color={colors.primary}>
-              Details
-            </ResponsiveUi.Text>
-            <View className="ml-8 flex-row">
-              <View className="border rounded-full w-3 h-3 border-primary" />
-              <View className="border rounded-full w-3 h-3 ml-2 border-primary" />
+      <TouchableWithoutFeedback
+        onPress={() => {
+          setIsKeyboardVisible(false);
+        }}
+        accessible={false}
+      >
+        <View style={{ flex: 1 }}>
+          <AppLayout>
+            <View className="flex-row items-center justify-between ">
+              <View className="flex-row items-center  ">
+                <ResponsiveUi.Text bold color={colors.primary}>
+                  Details
+                </ResponsiveUi.Text>
+                <View className="ml-8 flex-row">
+                  <View className="border rounded-full w-3 h-3 border-primary" />
+                  <View className="border rounded-full w-3 h-3 ml-2 border-primary" />
+                </View>
+              </View>
+              <View className="flex-row items-center  ">
+                <WalletIcon className="mr-8" />
+                <X color={colors.secondary} />
+              </View>
             </View>
-          </View>
-          <View className="flex-row items-center  ">
-            <WalletIcon className="mr-8" />
-            <X color={colors.secondary} />
-          </View>
-        </View>
-        <View className="flex-row mt-8 justify-between">
-          <ResponsiveUi.Text className="mt-4" semiBold fontSize={18}>
-            Swap
-          </ResponsiveUi.Text>
-          <TouchableOpacity
-            activeOpacity={0.8}
-            className="flex-row items-center"
-            onPress={() => {
-              setIsChainSheetVisible(true);
-            }}
-          >
-            {selectedChain.logoURI ? (
-              <Image
-                source={{ uri: selectedChain?.logoURI }}
-                style={{
-                  width: 20,
-                  height: 20,
-                  borderRadius: 10,
-                  marginRight: 8,
+            <View className="flex-row mt-8 justify-between">
+              <ResponsiveUi.Text className="mt-4" semiBold fontSize={18}>
+                Swap
+              </ResponsiveUi.Text>
+              <TouchableOpacity
+                activeOpacity={0.8}
+                className="flex-row items-center"
+                onPress={() => {
+                  setIsChainSheetVisible(true);
+                }}
+              >
+                {selectedChain.logoURI ? (
+                  <Image
+                    source={{ uri: selectedChain?.logoURI }}
+                    style={{
+                      width: 20,
+                      height: 20,
+                      borderRadius: 10,
+                      marginRight: 8,
+                    }}
+                  />
+                ) : null}
+                <ResponsiveUi.Text className="mt-4" medium fontSize={15}>
+                  {selectedChain.name}
+                </ResponsiveUi.Text>
+                <ChevronDown
+                  color={colors.primary}
+                  size={16}
+                  style={{ marginLeft: 6 }}
+                />
+              </TouchableOpacity>
+            </View>
+            <View className="flex-row items-center justify-between mt-4 px-1">
+              <ResponsiveUi.Text medium fontSize={14} color={colors.secondary}>
+                Testnet mode
+              </ResponsiveUi.Text>
+              <Switch
+                value={isTestnetMode}
+                onValueChange={(enabled) => {
+                  setIsTestnetMode(enabled);
+                  setSelectedChain(
+                    enabled ? DEFAULT_TESTNET_CHAIN : DEFAULT_CHAIN,
+                  );
+                  setSelectedFromAsset(enabled ? null : DEFAULT_ASSET);
+                }}
+                trackColor={{ false: colors.secondary, true: colors.slate }}
+                thumbColor={colors.white}
+                ios_backgroundColor={colors.gray_hover}
+              />
+            </View>
+            <View className=" mt-8 px-4">
+              <WalletBalance
+                selectedAsset={selectedFromAsset}
+                chainLogoURI={selectedChain.logoURI}
+                privyBalanceLabel={sendAssetBalanceLabel}
+                onUseMaxPress={() => {
+                  if (!maxSendAmount || maxSendAmount === "0") {
+                    Alert.alert(
+                      "No balance",
+                      "No available balance for the selected asset.",
+                    );
+                    return;
+                  }
+
+                  setAmount(maxSendAmount);
+                }}
+                onAssetPress={() => {
+                  setIsAssetSheetVisible(true);
                 }}
               />
-            ) : null}
-            <ResponsiveUi.Text className="mt-4" medium fontSize={15}>
-              {selectedChain.name}
-            </ResponsiveUi.Text>
-            <ChevronDown
-              color={colors.primary}
-              size={16}
-              style={{ marginLeft: 6 }}
-            />
-          </TouchableOpacity>
+              <SwapInput
+                value={amount}
+                selectedAssetSymbol={selectedFromAsset?.symbol}
+                isDisabled={isAssetSheetVisible || isChainSheetVisible}
+                onFocus={() => {
+                  setIsKeyboardVisible(true);
+                }}
+              />
+              <CurrencySelector
+                selectedAsset={
+                  selectedFiatOption
+                    ? {
+                        symbol: selectedFiatOption?.code,
+                        name: selectedFiatOption?.name,
+                        logoURI: selectedFiatOption.logoURI,
+                      }
+                    : null
+                }
+                label={selectedFiatOption?.name}
+                subtitle={
+                  isRateLoading
+                    ? "Fetching rate..."
+                    : `Receive ${selectedFiatOption?.code}`
+                }
+                rightValue={fiatEstimate}
+                isLoading={isRateLoading}
+                onPress={() => {
+                  setIsFiatModalVisible(true);
+                }}
+              />
+              <View className="mt-8 flex-row items-center justify-center">
+                <ResponsiveUi.Text color={colors.secondary}>
+                  1 {selectedFromAsset?.symbol}
+                </ResponsiveUi.Text>
+                <ArrowDataTransfer
+                  width={14}
+                  height={14}
+                  style={{ marginHorizontal: 6 }}
+                />
+                <ResponsiveUi.Text color={colors.secondary}>
+                  {activeRate
+                    ? `${activeRate.toLocaleString(undefined, {
+                        maximumFractionDigits: 6,
+                      })} ${selectedFiatOption?.code}`
+                    : "N/A"}
+                </ResponsiveUi.Text>
+              </View>
+            </View>
+          </AppLayout>
         </View>
-        <View className="flex-row items-center justify-between mt-4 px-1">
-          <ResponsiveUi.Text medium fontSize={14} color={colors.secondary}>
-            Testnet mode
-          </ResponsiveUi.Text>
-          <Switch
-            value={isTestnetMode}
-            onValueChange={(enabled) => {
-              setIsTestnetMode(enabled);
-              setSelectedChain(enabled ? DEFAULT_TESTNET_CHAIN : DEFAULT_CHAIN);
-              setSelectedFromAsset(enabled ? null : DEFAULT_ASSET);
-            }}
-            trackColor={{ false: colors.secondary, true: colors.slate }}
-            thumbColor={colors.white}
-            ios_backgroundColor={colors.gray_hover}
-          />
-        </View>
-        <View className=" mt-8 px-4">
-          <WalletBalance
-            selectedAsset={selectedFromAsset}
-            chainLogoURI={selectedChain.logoURI}
-            privyBalanceLabel={sendAssetBalanceLabel}
-            onUseMaxPress={() => {
-              if (!maxSendAmount || maxSendAmount === "0") {
-                Alert.alert(
-                  "No balance",
-                  "No available balance for the selected asset.",
-                );
-                return;
-              }
-
-              setAmount(maxSendAmount);
-            }}
-            onAssetPress={() => {
-              setIsAssetSheetVisible(true);
-            }}
-          />
-          <SwapInput
-            value={amount}
-            selectedAssetSymbol={selectedFromAsset?.symbol}
-            isDisabled={isAssetSheetVisible || isChainSheetVisible}
-            onFocus={() => {
-              setIsKeyboardVisible(true);
-            }}
-          />
-          <CurrencySelector
-            selectedAsset={
-              selectedFiatOption
-                ? {
-                    symbol: selectedFiatOption?.code,
-                    name: selectedFiatOption?.name,
-                    logoURI: selectedFiatOption.logoURI,
-                  }
-                : null
-            }
-            label={selectedFiatOption?.name}
-            subtitle={
-              isRateLoading
-                ? "Fetching rate..."
-                : `Receive ${selectedFiatOption?.code}`
-            }
-            rightValue={fiatEstimate}
-            isLoading={isRateLoading}
-            onPress={() => {
-              setIsFiatModalVisible(true);
-            }}
-          />
-          <View className="mt-8 flex-row items-center justify-center">
-            <ResponsiveUi.Text color={colors.secondary}>
-              1 {selectedFromAsset?.symbol}
-            </ResponsiveUi.Text>
-            <ArrowDataTransfer
-              width={14}
-              height={14}
-              style={{ marginHorizontal: 6 }}
-            />
-            <ResponsiveUi.Text color={colors.secondary}>
-              {activeRate
-                ? `${activeRate.toLocaleString(undefined, {
-                    maximumFractionDigits: 6,
-                  })} ${selectedFiatOption?.code}`
-                : "N/A"}
-            </ResponsiveUi.Text>
-          </View>
-        </View>
-      </AppLayout>
+      </TouchableWithoutFeedback>
       <AssetSelectorSheet
         chainId={selectedChain.id}
         isVisible={isAssetSheetVisible}
@@ -536,7 +553,7 @@ export default function HomeScreen() {
         snapPoints={["46%"]}
         showBackdrop={false}
         hideHandle
-        isDismissible={false}
+        isDismissible={true}
       >
         <CustomKeyBoard
           value={amount}
