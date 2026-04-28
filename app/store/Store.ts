@@ -6,6 +6,7 @@ import {
 } from "zustand/middleware";
 import { AuthSlice, authState } from "./slices/authslice";
 import { GeneralSlice, generalState } from "./slices/generalSlice";
+import { SwapDraftSlice, swapDraftState } from "./slices/swapDraftSlice";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { immer } from "zustand/middleware/immer";
@@ -19,7 +20,7 @@ interface RootState {
   logoutAndClearState: () => void;
 }
 
-export type StoreState = RootState & GeneralSlice & AuthSlice;
+export type StoreState = RootState & GeneralSlice & AuthSlice & SwapDraftSlice;
 
 export type ImmerStateCreator<T> = StateCreator<
   T,
@@ -38,9 +39,9 @@ export const createStoreWithSelectors =
             selected[key] = state[key];
             return selected;
           },
-          {} as { [P in K]: T[P] }
-        )
-      )
+          {} as { [P in K]: T[P] },
+        ),
+      ),
     );
   };
 
@@ -62,7 +63,8 @@ export const boundStore = create<StoreState>()(
         },
         ...generalState.slice(setState, getState, store),
         ...authState.slice(setState, getState, store),
-      }))
+        ...swapDraftState.slice(setState, getState, store),
+      })),
     ),
     {
       name: "noblocks-storage",
@@ -74,8 +76,8 @@ export const boundStore = create<StoreState>()(
           _firstLaunch: true,
         });
       },
-    }
-  )
+    },
+  ),
 );
 
 export const useBoundStore = boundStore;

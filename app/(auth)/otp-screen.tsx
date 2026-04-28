@@ -4,12 +4,13 @@ import OTPInput from "@/components/inputs/OTPInput";
 import AppLayout from "@/components/layouts/AppLayout";
 import { ResponsiveUi } from "@/components/ResponsiveUi";
 import Logo from "@/components/svgs/logo";
-import { Colors } from "@/constants/Colors";
 import useAuth from "@/hooks/auth/useAuth";
+import { useThemeColors } from "@/hooks/useThemeColor";
 import { useLocalSearchParams } from "expo-router";
 import { View } from "react-native";
 
 const OtpScreen: FunctionComponent = () => {
+  const colors = useThemeColors();
   const { email } = useLocalSearchParams();
   const { loginUser, sendLoginCode, logoutUser } = useAuth();
   return (
@@ -33,7 +34,7 @@ const OtpScreen: FunctionComponent = () => {
             Didn’t receive a code?{" "}
             <ResponsiveUi.Text
               style={{
-                color: Colors.slate,
+                color: colors.slate,
               }}
               tailwind="text-slate"
             >

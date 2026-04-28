@@ -5,14 +5,15 @@ import { ResponsiveUi } from "@/components/ResponsiveUi";
 import { FormInput } from "@/components/inputs/FormInput";
 import AppLayout from "@/components/layouts/AppLayout";
 import Logo from "@/components/svgs/logo";
-import { Colors } from "@/constants/Colors";
 import useAuth from "@/hooks/auth/useAuth";
+import { useThemeColors } from "@/hooks/useThemeColor";
 import { signupSchema } from "@/schema/authschema";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { ActivityIndicator, View } from "react-native";
 import { ISignUp } from "../types/authTypes";
 
 const Index: FunctionComponent = () => {
+  const colors = useThemeColors();
   const {
     control,
     watch,
@@ -65,7 +66,7 @@ const Index: FunctionComponent = () => {
               hasError={!!errors.email}
               customErrorMsg={errors.email?.message}
               rightAction={
-                isChecking ? <ActivityIndicator color={Colors.slate} /> : null
+                isChecking ? <ActivityIndicator color={colors.slate} /> : null
               }
             />
           )}

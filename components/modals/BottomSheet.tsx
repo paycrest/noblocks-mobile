@@ -1,57 +1,96 @@
-import {
-  BottomSheetModal,
-  BottomSheetModalProvider,
-  BottomSheetView,
-} from "@gorhom/bottom-sheet";
-import React, { useCallback, useRef } from "react";
-import { Button, StyleSheet, Text } from "react-native";
+// BaseSheet.tsx
+import { useThemeColors } from "@/hooks/useThemeColor";
+import { BottomSheetModal } from "@gorhom/bottom-sheet";
+import React, { useCallback, useEffect, useRef } from "react";
+import { Pressable, StyleSheet, View } from "react-native";
 
-import { GestureHandlerRootView } from "react-native-gesture-handler";
+interface BaseSheetProps {
+  children?: React.ReactNode;
+  isVisible?: boolean;
+  onVisibilityChange?: (visible: boolean) => void;
+  snapPoints?: Array<string | number>;
+  isDismissible?: boolean;
+  showBackdrop?: boolean;
+  hideHandle?: boolean;
+  topCornerRadius?: number;
+}
 
-const BaseSheet = () => {
-  // ref
+const BaseSheet: React.FC<BaseSheetProps> = ({
+  children,
+  isVisible = false,
+  onVisibilityChange,
+  snapPoints = ["50%"],
+  isDismissible = true,
+  showBackdrop = true,
+  hideHandle = false,
+  topCornerRadius,
+}) => {
+  const colors = useThemeColors();
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
-  // callbacks
-  const handlePresentModalPress = useCallback(() => {
-    bottomSheetModalRef.current?.present();
-  }, []);
-  const handleSheetChanges = useCallback((index: number) => {
-    console.log("handleSheetChanges", index);
-  }, []);
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (isVisible) {
+        bottomSheetModalRef.current?.present();
+        return;
+      }
 
-  // renders
+      bottomSheetModalRef.current?.dismiss();
+    }, 0);
+
+    return () => clearTimeout(timeout);
+  }, [isVisible]);
+
+  const renderBackdrop = useCallback(
+    () => (
+      <Pressable
+        onPress={() => {
+          if (!isDismissible) {
+            return;
+          }
+
+          onVisibilityChange?.(false);
+          bottomSheetModalRef.current?.dismiss();
+        }}
+        style={styles.backdrop}
+      />
+    ),
+    [isDismissible, onVisibilityChange],
+  );
+
   return (
-    <GestureHandlerRootView style={styles.container}>
-      <BottomSheetModalProvider>
-        <Button
-          onPress={handlePresentModalPress}
-          title="Present Modal"
-          color="black"
-        />
-        <BottomSheetModal
-          ref={bottomSheetModalRef}
-          onChange={handleSheetChanges}
-        >
-          <BottomSheetView style={styles.contentContainer}>
-            <Text>Awesome 🎉</Text>
-          </BottomSheetView>
-        </BottomSheetModal>
-      </BottomSheetModalProvider>
-    </GestureHandlerRootView>
+    <BottomSheetModal
+      ref={bottomSheetModalRef}
+      onDismiss={() => onVisibilityChange?.(false)}
+      snapPoints={snapPoints}
+      style={{ flex: 1 }}
+      backdropComponent={showBackdrop ? renderBackdrop : undefined}
+      enablePanDownToClose={isDismissible}
+      enableOverDrag={false}
+      enableDynamicSizing={false}
+      backgroundStyle={{
+        backgroundColor: colors.surface_overlay,
+        borderTopLeftRadius: topCornerRadius,
+        borderTopRightRadius: topCornerRadius,
+      }}
+      handleIndicatorStyle={
+        hideHandle ? { display: "none" } : { backgroundColor: colors.secondary }
+      }
+    >
+      <View style={styles.contentContainer}>{children}</View>
+    </BottomSheetModal>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 24,
-    justifyContent: "center",
-    backgroundColor: "grey",
-  },
   contentContainer: {
     flex: 1,
-    alignItems: "center",
+    alignItems: "stretch",
+    justifyContent: "flex-start",
+  },
+  backdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0, 0, 0, 0.45)",
   },
 });
 

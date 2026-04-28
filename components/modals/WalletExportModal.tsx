@@ -1,6 +1,6 @@
 import React, { FunctionComponent, useState } from "react";
 
-import { Colors } from "@/constants/Colors";
+import { genericColors } from "@/constants/Colors";
 import { useAppDimensions } from "@/hooks/useAppDimensions";
 import { useThemeColors } from "@/hooks/useThemeColor";
 import { X } from "lucide-react-native";
@@ -26,7 +26,7 @@ interface Instructions {
 const instructions: Instructions[] = [
   {
     text: "Never share your Secret Recovery Phrase with anyone.",
-    color: Colors.yellow,
+    color: genericColors.yellow,
   },
   {
     text: "Anyone who has access to your Secret Recovery Phrase can steal your funds.",

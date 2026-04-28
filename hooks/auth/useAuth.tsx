@@ -5,11 +5,11 @@ import {
   usePrivy,
 } from "@privy-io/expo";
 
-import { router } from "expo-router";
-import { useCallback } from "react";
+import { useSelector } from "@/app/store/Store";
 import { useEmbeddedEthereumWallet } from "@privy-io/expo";
 import { useLinkWithPasskey } from "@privy-io/expo/passkey";
-import { useSelector } from "@/app/store/Store";
+import { router } from "expo-router";
+import { useCallback } from "react";
 
 const useAuth = () => {
   const { create } = useEmbeddedEthereumWallet();
