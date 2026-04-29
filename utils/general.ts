@@ -1,3 +1,4 @@
+import { Colors } from "@/constants/Colors";
 import clsx from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -36,4 +37,17 @@ export const formatAmount = (amount: number | string, symbol: string = "₦") =>
   if (isNaN(num)) num = 0;
   const formattedAmount = num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   return `${symbol}${formattedAmount}`;
+};
+
+export const setTransactionStatusColor = (status: string) => {
+  switch (status) {
+    case "Completed":
+      return Colors.green;
+    case "Ongoing":
+      return Colors.light.secondary;
+    case "Failed":
+      return Colors.destructive;
+    default:
+      return Colors.light.secondary;
+  }
 };
