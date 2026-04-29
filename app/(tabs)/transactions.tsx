@@ -1,33 +1,38 @@
 import React, { FunctionComponent } from "react";
 
 import AppLayout from "@/components/layouts/AppLayout";
-import { SectionList, ListRenderItem, View } from "react-native";
+import {
+  SectionList,
+  ListRenderItem,
+  View,
+  TouchableOpacity,
+} from "react-native";
 import { ResponsiveUi } from "@/components/ResponsiveUi";
 import { ITransaction, transactions } from "@/utils/sampleData";
 import { Colors } from "@/constants/Colors";
-import { formatAmount } from "@/utils/general";
+import { formatAmount, setTransactionStatusColor } from "@/utils/general";
 import Coins from "@/components/svgs/coins";
 import { ActivityIndicator, useTheme } from "react-native-paper";
 import { isToday, isYesterday, format, parseISO } from "date-fns";
 import { useThemeColors } from "@/hooks/useThemeColor";
+import { router, useRouter } from "expo-router";
 
-const setTransactionStatusColor = (status: string) => {
-  switch (status) {
-    case "Completed":
-      return Colors.green;
-    case "Ongoing":
-      return Colors.light.secondary;
-    case "Failed":
-      return Colors.destructive;
-    default:
-      return Colors.light.secondary;
-  }
-};
+type TransactionDetailsParams = Omit<ITransaction, "icon"> & { icon?: string };
+
 const transactionItem: ListRenderItem<ITransaction> = ({ item }) => {
   const { icon: Icon, amountNGN, amountUSD, status, token } = item;
   const statusColor = setTransactionStatusColor(status);
+  const router = useRouter(); // Moved this line up for clarity
   return (
-    <View className="flex-row items-center justify-between py-4 px-2">
+    <TouchableOpacity
+      onPress={() =>
+        router.push({
+          pathname: "/(transactions)/transactionDetails",
+          params: { ...item } as unknown as TransactionDetailsParams, // Type assertion to ensure params match expected type
+        })
+      }
+      className="flex-row items-center justify-between py-4 px-2"
+    >
       <View className="flex-row items-center">
         <Icon width={40} height={40} />
         <View className="ml-2">
@@ -68,7 +73,7 @@ const transactionItem: ListRenderItem<ITransaction> = ({ item }) => {
           {status}
         </ResponsiveUi.Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 
@@ -96,7 +101,7 @@ const Transactions: FunctionComponent = () => {
   const colors = useThemeColors();
   return (
     <AppLayout scrollable={false}>
-      <View className="mt-4 mb-20">
+      <View className="mt-4 mb-24">
         <ResponsiveUi.Text medium fontSize={22} tailwind="mb-2">
           Transactions
         </ResponsiveUi.Text>
