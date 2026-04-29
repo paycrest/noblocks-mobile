@@ -12,10 +12,10 @@ import { ITransaction, transactions } from "@/utils/sampleData";
 import { Colors } from "@/constants/Colors";
 import { formatAmount, setTransactionStatusColor } from "@/utils/general";
 import Coins from "@/components/svgs/coins";
-import { ActivityIndicator, useTheme } from "react-native-paper";
+import { ActivityIndicator } from "react-native-paper";
 import { isToday, isYesterday, format, parseISO } from "date-fns";
 import { useThemeColors } from "@/hooks/useThemeColor";
-import { router, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 
 type TransactionDetailsParams = Omit<ITransaction, "icon"> & { icon?: string };
 

@@ -34,8 +34,10 @@ export interface GenericColors {
   success: string;
   teal: string;
   primary: string;
+  lavendar: string;
+  place_holder2: string;
+  primary_2: string;
 }
-
 export interface ColorsInterface extends GenericColors {
   light: ThemeColors;
   dark: ThemeColors;
@@ -61,6 +63,10 @@ const palette = {
   success: "#227738",
   teal: "#20BA90",
   gray: "rgba(255, 255, 255, 0.10)",
+  lavendar: "#A9A5F6",
+  place_holder2: `rgba(255, 255, 255, 0.3)`,
+  primary_2: "rgba(139, 133, 244, 0.14)",
+
   // light theme
   tintLight: "#0a7ea4",
   textLight: "black",
@@ -105,6 +111,9 @@ export const genericColors: GenericColors = {
   success: palette.success,
   teal: palette.teal,
   primary: palette.primary,
+  lavendar: palette.lavendar,
+  place_holder2: palette.place_holder2,
+  primary_2: palette.primary_2,
 };
 
 export const Colors: ColorsInterface = {

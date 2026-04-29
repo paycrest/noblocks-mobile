@@ -7,7 +7,6 @@ import { Image } from "expo-image";
 import { CheckCircle2, Search, X } from "lucide-react-native";
 import React, { FunctionComponent, useMemo, useState } from "react";
 import {
-  ActivityIndicator,
   Dimensions,
   FlatList,
   TextInput,
@@ -18,6 +17,7 @@ import {
 import { ResponsiveUi } from "../ResponsiveUi";
 import BackdropBlur from "./BackdropBlur";
 import BaseModal from "./BaseModal";
+import { ActivityIndicator } from "react-native-paper";
 
 const FEATURED_CHAIN_ORDER = [
   "Base",
@@ -169,7 +169,11 @@ const ChainSelectorSheet: FunctionComponent<ChainSelectorSheetProps> = ({
               {isLoading ? (
                 <View className="flex-1 items-center justify-center">
                   <ActivityIndicator color={colors.primary} />
-                  <ResponsiveUi.Text fontSize={14} color={colors.secondary}>
+                  <ResponsiveUi.Text
+                    fontSize={14}
+                    tailwind="mt-3"
+                    color={colors.secondary}
+                  >
                     Loading chains...
                   </ResponsiveUi.Text>
                 </View>

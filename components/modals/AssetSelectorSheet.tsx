@@ -6,13 +6,13 @@ import { Image } from "expo-image";
 import { CheckCircle2, Search, X } from "lucide-react-native";
 import React, { FunctionComponent, useMemo, useState } from "react";
 import {
-  ActivityIndicator,
   Dimensions,
   FlatList,
   TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
+import { ActivityIndicator } from "react-native-paper";
 
 import { ResponsiveUi } from "../ResponsiveUi";
 import BackdropBlur from "./BackdropBlur";
