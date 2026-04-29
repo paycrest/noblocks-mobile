@@ -85,7 +85,7 @@ const TransactionDetails: FunctionComponent = () => {
             </ResponsiveUi.Text>
           </View>
         </View>
-        <View className="mt-12 w-full">
+        <View className="mt-10 w-full">
           <TransactionItem
             label="Amount"
             field={formatAmount(params.amountNGN, "₦")}
@@ -107,7 +107,8 @@ const TransactionDetails: FunctionComponent = () => {
             })}
           />
         </View>
-        <View className="mt-12 w-full">
+        <View className="border border-gray border-dashed w-full my-2" />
+        <View className="mt-6 w-full">
           <TransactionItem label="Date" field={params.date} />
           <TransactionItem
             label="Transaction Status"
