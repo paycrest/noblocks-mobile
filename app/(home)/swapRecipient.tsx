@@ -23,12 +23,8 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import {
-  ActivityIndicator,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { TextInput, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator } from "react-native-paper";
 
 import PersonIcon from "@/components/svgs/person-icon";
 import _ from "lodash";

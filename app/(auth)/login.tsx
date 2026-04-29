@@ -9,8 +9,9 @@ import useAuth from "@/hooks/auth/useAuth";
 import { useThemeColors } from "@/hooks/useThemeColor";
 import { signupSchema } from "@/schema/authschema";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { ActivityIndicator, View } from "react-native";
+import { View } from "react-native";
 import { ISignUp } from "../types/authTypes";
+import { ActivityIndicator } from "react-native-paper";
 
 const Index: FunctionComponent = () => {
   const colors = useThemeColors();

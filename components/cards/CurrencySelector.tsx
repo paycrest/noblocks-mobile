@@ -3,9 +3,9 @@ import { Image } from "expo-image";
 import { truncate } from "lodash";
 import { ChevronDown, Plus } from "lucide-react-native";
 import React, { FunctionComponent } from "react";
-import { ActivityIndicator, TouchableOpacity, View } from "react-native";
+import { TouchableOpacity, View } from "react-native";
 import { ResponsiveUi } from "../ResponsiveUi";
-
+import { ActivityIndicator } from "react-native-paper";
 interface CurrencySelectorProps {
   selectedAsset?: {
     symbol: string;
