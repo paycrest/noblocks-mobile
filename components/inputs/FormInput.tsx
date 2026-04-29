@@ -136,6 +136,7 @@ export const FormInput = ({
             borderRadius: Radius.large,
             paddingHorizontal: 12,
             borderWidth: 1,
+
             borderColor: colors.gray_hover,
           },
         ]}
@@ -149,7 +150,8 @@ export const FormInput = ({
 
               width: "100%",
               color: colors.text,
-              height: hp(Platform.OS === "android" ? 5.4 : 5),
+              height: hp(5.4),
+              lineHeight: fontPercentageToDP(4),
             },
             inputProps?.style,
           ]}
