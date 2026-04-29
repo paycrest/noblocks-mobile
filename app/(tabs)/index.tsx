@@ -435,7 +435,7 @@ export default function HomeScreen() {
                       />
                     </TouchableOpacity>
                   </View>
-                  <View className="flex-row items-center justify-between mt-4 px-1">
+                  {/* <View className="flex-row items-center justify-between mt-4 px-1">
                     <ResponsiveUi.Text
                       medium
                       fontSize={14}
@@ -459,7 +459,7 @@ export default function HomeScreen() {
                       thumbColor={colors.white}
                       ios_backgroundColor={colors.gray_hover}
                     />
-                  </View>
+                  </View> */}
                   <View className=" mt-8 px-4">
                     <WalletBalance
                       selectedAsset={selectedFromAsset}
