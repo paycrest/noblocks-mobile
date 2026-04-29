@@ -4,6 +4,7 @@ import { ChevronDown, Plus } from "lucide-react-native";
 import React, { FunctionComponent } from "react";
 import { TouchableOpacity, View } from "react-native";
 import { ResponsiveUi } from "../ResponsiveUi";
+import _ from "lodash";
 
 interface WalletBalanceProps {
   selectedAsset?: {
@@ -73,14 +74,18 @@ const WalletBalance: FunctionComponent<WalletBalanceProps> = ({
 
         <View className="ml-4">
           <ResponsiveUi.Text fontSize={18} tailwind="mb-2">
-            {selectedAsset?.name ?? "Select Asset"}
+            {_.truncate(selectedAsset?.name, { length: 20 }) ?? "Select Asset"}
           </ResponsiveUi.Text>
           <ResponsiveUi.Text color={colors.secondary} light fontSize={18} bold>
             {privyBalanceLabel ?? "--"}
           </ResponsiveUi.Text>
         </View>
       </View>
-      <TouchableOpacity activeOpacity={0.8} onPress={onUseMaxPress}>
+      <TouchableOpacity
+        className="w-1/4"
+        activeOpacity={0.8}
+        onPress={onUseMaxPress}
+      >
         <ResponsiveUi.Text medium fontSize={16} tailwind="ml-4">
           Use Max
         </ResponsiveUi.Text>
