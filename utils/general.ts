@@ -30,3 +30,10 @@ export const parseDigits = (numbers?: string) =>
 export const formatWalletAddress = (address: string) => {
   return `${address.slice(0, 5)}...${address.slice(-5)}`;
 };
+
+export const formatAmount = (amount: number | string, symbol: string = "₦") => {
+  let num = typeof amount === "number" ? amount : parseFloat(amount);
+  if (isNaN(num)) num = 0;
+  const formattedAmount = num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return `${symbol}${formattedAmount}`;
+};
