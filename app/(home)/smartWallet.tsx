@@ -90,7 +90,12 @@ const SmartWallet: FunctionComponent = () => {
           key={selectedTab}
           entering={enteringAnimation}
           exiting={exitingAnimation}
-          style={{ marginTop: 16, height: height / 2.5, alignItems: "center" }}
+          style={{
+            flex: 1,
+            marginTop: 16,
+            height: height / 2.5,
+            alignItems: "center",
+          }}
         >
           {selectedTab === "QR" ? (
             <QRCodeIcon />
