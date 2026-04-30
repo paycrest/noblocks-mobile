@@ -1,6 +1,6 @@
 import {
   Platform,
-  StatusBar,
+  TouchableOpacity,
   View,
   ViewStyle,
   useColorScheme,
@@ -23,6 +23,9 @@ import { StyledKeyboardAwareScrollView } from "../StyledComponents";
 import { useAppDimensions } from "@/hooks/useAppDimensions";
 import { useSelector } from "@/app/store/Store";
 import { useThemeColors } from "@/hooks/useThemeColor";
+import { ChevronLeft } from "lucide-react-native";
+import { router } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 
 interface AppLayoutProps {
   layoutStyle?: ViewStyle;
@@ -46,6 +49,7 @@ interface AppLayoutProps {
   showActionBar?: boolean;
   bounces?: boolean;
   directChild?: boolean;
+  canGoBack?: boolean;
 }
 
 export interface BookingContainerRef {
@@ -69,8 +73,9 @@ const AppLayout = forwardRef(
       showVerticalScrollIndicator = false,
       bounces = false,
       directChild = false,
+      canGoBack = false,
     }: AppLayoutProps,
-    ref
+    ref,
   ) => {
     const insets = useSafeAreaInsets();
     const { wp, isLargeScreen } = useAppDimensions();
@@ -92,7 +97,7 @@ const AppLayout = forwardRef(
 
     const appBarStyle = useMemo(() => {
       const effectiveTheme = appTheme === "system" ? phoneTheme : appTheme;
-      return effectiveTheme === "dark" ? "light-content" : "dark-content";
+      return effectiveTheme === "dark" ? "light" : "dark"; // expo-status-bar style values
     }, [appTheme, phoneTheme]);
 
     return (
@@ -100,18 +105,27 @@ const AppLayout = forwardRef(
         style={{
           flex: 1,
           backgroundColor: statusBarBackgroundColor ?? colors.background,
+          paddingTop: 5,
         }}
       >
         <StatusBar
-          animated={true}
-          barStyle={appBarStyle}
+          animated
+          style={appBarStyle}
           backgroundColor={statusBarBackgroundColor ?? colors.background}
           hidden={false}
         />
+
         <View
           className={`flex-grow flex-1 w-full  ${layoutClassName}`}
           style={[{ backgroundColor: colors.background }, layoutStyle]}
         >
+          <View className="mx-4">
+            {canGoBack && (
+              <TouchableOpacity onPress={() => router.back()}>
+                <ChevronLeft color={colors.text} size={30} />
+              </TouchableOpacity>
+            )}
+          </View>
           {scrollable ? (
             <View className={`flex-1 w-full ${outerContainerClassName}`}>
               <StyledKeyboardAwareScrollView
@@ -174,7 +188,7 @@ const AppLayout = forwardRef(
         </View>
       </SafeAreaView>
     );
-  }
+  },
 );
 
 export default AppLayout;
