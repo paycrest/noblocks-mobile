@@ -1,3 +1,4 @@
+import IconList from "@/components/iconList";
 import { ResponsiveUi } from "@/components/ResponsiveUi";
 import QRCodeIcon from "@/components/svgs/qr-code";
 import USDC from "@/components/svgs/usdc-icon";
@@ -107,6 +108,7 @@ const SmartWallet: FunctionComponent = () => {
               <ResponsiveUi.Text medium fontSize={20} tailwind="mt-4">
                 0xa5d962C...C5821eb1024
               </ResponsiveUi.Text>
+              <IconList />
               <ResponsiveUi.Text
                 center
                 fontSize={14}
