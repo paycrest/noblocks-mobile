@@ -2,6 +2,7 @@ import { useThemeColors } from "@/hooks/useThemeColor";
 import React, { FunctionComponent, useMemo } from "react";
 import { TextInput, View } from "react-native";
 import { ResponsiveUi } from "../ResponsiveUi";
+import { useAppDimensions } from "@/hooks/useAppDimensions";
 
 interface SwapInputProps {
   value: string;
@@ -30,6 +31,8 @@ const SwapInput: FunctionComponent<SwapInputProps> = ({
     return numericValue.toFixed(2);
   }, [value]);
 
+  const { hp } = useAppDimensions();
+
   return (
     <View
       className="mt-8"
@@ -52,7 +55,7 @@ const SwapInput: FunctionComponent<SwapInputProps> = ({
         <View className="flex-row items-center flex-shrink-0">
           <ResponsiveUi.Text
             medium
-            fontSize={30}
+            fontSize={hp(3)}
             style={{ color: colors.text }}
           >
             $
@@ -70,7 +73,6 @@ const SwapInput: FunctionComponent<SwapInputProps> = ({
               if (isDisabled) {
                 return;
               }
-
               onFocus();
             }}
             onPressIn={() => {
@@ -81,8 +83,12 @@ const SwapInput: FunctionComponent<SwapInputProps> = ({
               onFocus();
             }}
             caretHidden={false}
-            className="text-3xl"
-            style={{ color: colors.text, minWidth: 48, maxWidth: 180 }}
+            style={{
+              color: colors.text,
+              minWidth: 48,
+              maxWidth: 180,
+              fontSize: hp(3),
+            }}
           />
         </View>
       </View>
