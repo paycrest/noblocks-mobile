@@ -69,7 +69,7 @@ const TransactionDetails: FunctionComponent = () => {
     ? iconMap[params.token as keyof typeof iconMap]
     : undefined;
   return (
-    <AppLayout>
+    <AppLayout canGoBack>
       <View style={{ alignItems: "center", marginTop: 32 }}>
         <ResponsiveUi.Text medium center fontSize={20}>
           Swapped
