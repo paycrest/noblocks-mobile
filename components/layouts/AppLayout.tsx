@@ -105,7 +105,6 @@ const AppLayout = forwardRef(
         style={{
           flex: 1,
           backgroundColor: statusBarBackgroundColor ?? colors.background,
-          paddingTop: 5,
         }}
       >
         <StatusBar

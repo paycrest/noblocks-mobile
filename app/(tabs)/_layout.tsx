@@ -2,6 +2,7 @@ import HomeIcon from "@/components/svgs/home-icon";
 import SettingsIcon from "@/components/svgs/settings-icon";
 import WalletIcon from "@/components/svgs/wallet-icon";
 import TabBarBackground from "@/components/ui/TabBarBackground";
+import { useAppDimensions } from "@/hooks/useAppDimensions";
 import { useThemeColors } from "@/hooks/useThemeColor";
 import {
   Tabs,
@@ -24,6 +25,7 @@ export default function TabLayout() {
   // Are we on the home/swap screen?
   const isOnHome = segments[0] === "(tabs)" && pathname === "/";
   const shouldHideTabs = isOnHome && isSmartWalletVisible;
+  const { hp } = useAppDimensions();
 
   return (
     <Tabs
@@ -32,7 +34,7 @@ export default function TabLayout() {
         headerShown: false,
         tabBarBackground: TabBarBackground,
         tabBarIconStyle: {
-          marginTop: 15,
+          marginTop: hp(1),
         },
         tabBarStyle: shouldHideTabs
           ? { display: "none" }

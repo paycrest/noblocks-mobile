@@ -11,6 +11,7 @@ import { StatusBar } from "expo-status-bar";
 import _ from "lodash";
 import { CheckCircle2, X } from "lucide-react-native";
 import React, { FunctionComponent, useMemo } from "react";
+import { useAppDimensions } from "@/hooks/useAppDimensions";
 import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -29,12 +30,13 @@ const DetailRow: React.FC<DetailRowProps> = ({
   valueColor,
   valueBold = false,
 }) => {
+  const { hp } = useAppDimensions();
   return (
-    <View className="flex-row items-center justify-between">
-      <ResponsiveUi.Text fontSize={14} color={labelColor}>
+    <View className="flex-row items-center mt-2 justify-between">
+      <ResponsiveUi.Text fontSize={hp(1.8)} color={labelColor}>
         {label}
       </ResponsiveUi.Text>
-      <ResponsiveUi.Text fontSize={14} color={valueColor} bold={valueBold}>
+      <ResponsiveUi.Text fontSize={hp(1.8)} color={valueColor} bold={valueBold}>
         {value}
       </ResponsiveUi.Text>
     </View>
@@ -44,6 +46,7 @@ const DetailRow: React.FC<DetailRowProps> = ({
 const TransactionSuccess: FunctionComponent = () => {
   const colors = useThemeColors();
   const insets = useSafeAreaInsets();
+  const { hp } = useAppDimensions();
   const { amount, token, recipientName } = useLocalSearchParams<{
     amount?: string;
     token?: string;
@@ -103,8 +106,12 @@ const TransactionSuccess: FunctionComponent = () => {
           hideHandle
         >
           <View
-            className="flex-1 px-5 pt-4"
-            style={{ paddingBottom: insets.bottom + 14 }}
+            style={{
+              flex: 1,
+              paddingHorizontal: hp(2.5),
+              paddingTop: hp(2),
+              paddingBottom: insets.bottom + hp(2.5),
+            }}
           >
             <X
               size={28}
@@ -113,12 +120,12 @@ const TransactionSuccess: FunctionComponent = () => {
               onPress={() => router.back()}
             />
 
-            <View className="mt-12">
-              <CheckCircle2 color={colors.teal} size={30} />
+            <View style={{ marginTop: hp(3), alignItems: "center" }}>
+              <CheckCircle2 color={colors.teal} size={hp(3.2)} />
               <ResponsiveUi.Text
-                fontSize={20}
+                fontSize={hp(2)}
                 bold
-                tailwind="mt-5"
+                style={{ marginTop: hp(1.2) }}
                 color={colors.text}
               >
                 Transaction successful
@@ -137,34 +144,39 @@ const TransactionSuccess: FunctionComponent = () => {
             />
 
             <View
-              className="mt-5"
-              style={{ borderTopWidth: 1, borderTopColor: colors.gray }}
+              style={{
+                marginTop: hp(1.5),
+                borderTopWidth: 1,
+                borderTopColor: colors.gray,
+              }}
             />
 
             <ResponsiveUi.Text
-              fontSize={14}
-              tailwind="mt-5"
+              fontSize={hp(2)}
+              style={{ marginTop: hp(1.2) }}
               color={colors.secondary}
             >
               Your transfer of{" "}
-              <ResponsiveUi.Text color={colors.text} fontSize={14} medium>
+              <ResponsiveUi.Text color={colors.text} fontSize={hp(2)} medium>
                 {amountLabel}
               </ResponsiveUi.Text>{" "}
               to {recipientLabel} has been completed successfully.
             </ResponsiveUi.Text>
 
             <View
-              className="mt-5"
-              style={{ borderTopWidth: 1, borderTopColor: colors.gray }}
+              style={{
+                marginTop: hp(5),
+                borderTopWidth: 1,
+                borderTopColor: colors.gray,
+              }}
             />
 
-            <View className="mt-5" style={{ gap: 16 }}>
+            <View style={{ marginTop: hp(1.2), gap: hp(1.2) }}>
               <DetailRow
                 label="Transaction status"
                 value="Completed"
                 labelColor={colors.secondary}
                 valueColor={colors.success}
-                valueBold
               />
               <DetailRow
                 label="Fund status"
@@ -187,22 +199,33 @@ const TransactionSuccess: FunctionComponent = () => {
             </View>
 
             <View
-              className="mt-5"
-              style={{ borderTopWidth: 1, borderTopColor: colors.gray }}
+              style={{
+                marginTop: hp(2.5),
+                borderTopWidth: 1,
+                borderTopColor: colors.gray,
+              }}
             />
 
             <ResponsiveUi.Text
-              fontSize={14}
-              tailwind="mt-5"
+              fontSize={hp(2)}
+              style={{ marginTop: hp(2) }}
               color={colors.secondary}
             >
               Help spread the word
             </ResponsiveUi.Text>
 
-            <View className="mt-4 rounded-2xl px-4 py-4 flex-row items-start">
+            <View
+              style={{
+                marginTop: hp(3),
+                borderRadius: hp(1.2),
+                paddingHorizontal: hp(1.2),
+                flexDirection: "row",
+                alignItems: "flex-start",
+              }}
+            >
               <HeartIcon width={26} height={26} />
               <ResponsiveUi.Text
-                fontSize={14}
+                fontSize={hp(2)}
                 tailwind="ml-3 flex-1"
                 color={colors.secondary}
               >
@@ -211,7 +234,14 @@ const TransactionSuccess: FunctionComponent = () => {
               </ResponsiveUi.Text>
             </View>
 
-            <View className="w-[80%] pt-6 flex-row" style={{ gap: 14 }}>
+            <View
+              style={{
+                width: "80%",
+                paddingTop: hp(1.5),
+                flexDirection: "row",
+                gap: hp(1),
+              }}
+            >
               <ResponsiveUi.Button
                 title="X (Twitter)"
                 action={() => {}}
@@ -234,14 +264,21 @@ const TransactionSuccess: FunctionComponent = () => {
               />
             </View>
 
-            <View className="mt-auto pt-6 flex-row" style={{ gap: 14 }}>
+            <View
+              style={{
+                marginTop: "auto",
+                paddingTop: hp(1.5),
+                flexDirection: "row",
+                gap: hp(1),
+              }}
+            >
               <ResponsiveUi.Button
                 title="Get receipt"
                 action={() => {}}
                 bold
                 color={colors.text}
                 backgroundColor={colors.subtle_surface}
-                style={{ flex: 1 }}
+                style={{ flex: 1, minHeight: hp(5.5) }}
                 tailwind="w-full"
               />
               <ResponsiveUi.Button
@@ -261,7 +298,7 @@ const TransactionSuccess: FunctionComponent = () => {
                 bold
                 color={colors.white}
                 backgroundColor={colors.slate}
-                style={{ flex: 1, width: "100%" }}
+                style={{ flex: 1, minHeight: hp(5.5), width: "100%" }}
                 tailwind="w-full"
               />
             </View>

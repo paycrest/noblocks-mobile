@@ -3,6 +3,7 @@ import React, { FunctionComponent, useMemo } from "react";
 import { TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ResponsiveUi } from "../ResponsiveUi";
+import { useAppDimensions } from "@/hooks/useAppDimensions";
 
 interface CustomKeyBoardProps {
   value?: string;
@@ -32,6 +33,7 @@ const CustomKeyBoard: FunctionComponent<CustomKeyBoardProps> = ({
   className,
 }) => {
   const insets = useSafeAreaInsets();
+  const { hp, wp } = useAppDimensions();
 
   const inputs = useMemo(
     () => [
@@ -76,21 +78,43 @@ const CustomKeyBoard: FunctionComponent<CustomKeyBoardProps> = ({
     onSubmit?.();
   };
 
+  // Responsive sizes
+  const keyWidth = wp(20); // 20% of screen width
+  const keyHeight = hp(7); // 7% of screen height
+  const keyFontSize = hp(3.2); // 3.2% of screen height
+  const rowGap = wp(15); // 6% of screen width
+  const rowMarginBottom = hp(1.5); // 1.5% of screen height
+
   return (
     <View
-      style={{ paddingBottom: insets.bottom + 4 }}
-      className={`w-full z-50 px-4 items-center  ${className ?? ""}`}
+      style={{ paddingBottom: insets.bottom + hp(1.5) }}
+      className={`w-full z-50 px-4 items-center ${className ?? ""}`}
     >
       <View className="justify-center py-2">
         {inputs.map((row, rowIndex) => (
-          <View key={rowIndex} className="flex-row justify-center gap-16 mb-4">
+          <View
+            key={rowIndex}
+            style={{
+              flexDirection: "row",
+              justifyContent: "center",
+              marginBottom: rowMarginBottom,
+              gap: rowGap,
+            }}
+          >
             {row.map((key) => (
               <TouchableOpacity
                 onPress={() => handleKeyPress(key)}
                 key={key}
-                className="w-16 h-14 bg-gray-200 rounded-full items-center justify-center"
+                style={{
+                  width: keyWidth,
+                  height: keyHeight,
+                  backgroundColor: "#e5e7eb", // bg-gray-200
+                  borderRadius: keyWidth / 2,
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
               >
-                <ResponsiveUi.Text bold fontSize={28}>
+                <ResponsiveUi.Text bold fontSize={keyFontSize}>
                   {key === "<" ? "⌫" : key}
                 </ResponsiveUi.Text>
               </TouchableOpacity>

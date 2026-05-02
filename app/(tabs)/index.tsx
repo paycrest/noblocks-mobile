@@ -32,7 +32,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import { ChevronDown, X } from "lucide-react-native";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { use, useEffect, useMemo, useState } from "react";
 import {
   Alert,
   Switch,
@@ -43,6 +43,7 @@ import {
 import ArrowDataTransfer from "../../components/svgs/arrow-data-transfer";
 import SmartWallet from "../(home)/smartWallet";
 import Animated, { FadeIn, FadeOut, Layout } from "react-native-reanimated";
+import { useAppDimensions } from "@/hooks/useAppDimensions";
 
 const toDecimalString = (rawValue: string, decimals: number) => {
   if (!rawValue || !/^\d+$/.test(rawValue)) {
@@ -159,6 +160,7 @@ export default function HomeScreen() {
   });
   const [isSmartWalletScreenVisible, setIsSmartWalletScreenVisible] =
     useState(false);
+  const { hp, wp } = useAppDimensions();
 
   const sendAssetBalanceLabel = useMemo(() => {
     if (!selectedFromAsset) {
@@ -354,6 +356,20 @@ export default function HomeScreen() {
     return null;
   }
 
+  // Responsive values
+  const chainLogoSize = wp(7); // 7% of screen width
+  const chainLogoRadius = chainLogoSize / 2;
+  const chainLogoMargin = wp(2);
+  const swapFontSize = hp(2.3); // 2.3% of screen height
+  const chainFontSize = hp(1.8); // 1.8% of screen height
+  const chevronSize = wp(4.5); // 4.5% of screen width
+  const swapMarginTop = hp(2.5);
+  const walletDotSize = wp(3.5);
+  const walletDotMargin = wp(1.2);
+  const arrowSize = wp(4);
+  const mt8 = hp(2.5);
+  const px4 = wp(4);
+
   return (
     <>
       <TouchableWithoutFeedback
@@ -363,7 +379,7 @@ export default function HomeScreen() {
         accessible={false}
       >
         <Animated.View entering={FadeIn} exiting={FadeOut} style={{ flex: 1 }}>
-          <AppLayout>
+          <AppLayout scrollable={true}>
             <Animated.View
               // This single container controls the swap/smart-wallet section
               layout={Layout.springify().damping(18).stiffness(150)}
@@ -386,21 +402,47 @@ export default function HomeScreen() {
                 exiting={FadeOut.duration(250)}
                 className="flex-row items-center justify-between "
               >
-                <View className="flex-row items-center  ">
-                  <ResponsiveUi.Text bold color={colors.primary}>
+                <View className="flex-row items-center">
+                  <ResponsiveUi.Text
+                    bold
+                    color={colors.primary}
+                    fontSize={swapFontSize}
+                  >
                     Details
                   </ResponsiveUi.Text>
-                  <View className="ml-8 flex-row">
-                    <View className="border rounded-full w-3 h-3 border-primary" />
-                    <View className="border rounded-full w-3 h-3 ml-2 border-primary" />
+                  <View
+                    style={{
+                      marginLeft: walletDotMargin * 2,
+                      flexDirection: "row",
+                    }}
+                  >
+                    <View
+                      style={{
+                        borderWidth: 1,
+                        borderRadius: walletDotSize / 2,
+                        width: walletDotSize,
+                        height: walletDotSize,
+                        borderColor: colors.primary,
+                      }}
+                    />
+                    <View
+                      style={{
+                        borderWidth: 1,
+                        borderRadius: walletDotSize / 2,
+                        width: walletDotSize,
+                        height: walletDotSize,
+                        borderColor: colors.primary,
+                        marginLeft: walletDotMargin,
+                      }}
+                    />
                   </View>
                 </View>
-                <View className="flex-row items-center  ">
+                <View className="flex-row items-center">
                   <WalletIcon
                     onPress={() =>
                       setIsSmartWalletScreenVisible((prev) => !prev)
                     }
-                    className="mr-8"
+                    style={{ marginRight: walletDotMargin * 2 }}
                   />
                   <X
                     color={colors.secondary}
@@ -409,13 +451,19 @@ export default function HomeScreen() {
                 </View>
               </Animated.View>
               <>
-                <View className="flex-row mt-8 justify-between">
-                  <ResponsiveUi.Text className="mt-4" semiBold fontSize={18}>
+                <View
+                  style={{
+                    marginTop: swapMarginTop,
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <ResponsiveUi.Text semiBold fontSize={swapFontSize}>
                     Swap
                   </ResponsiveUi.Text>
                   <TouchableOpacity
                     activeOpacity={0.8}
-                    className="flex-row items-center"
+                    style={{ flexDirection: "row", alignItems: "center" }}
                     onPress={() => {
                       setIsChainSheetVisible(true);
                     }}
@@ -424,20 +472,20 @@ export default function HomeScreen() {
                       <Image
                         source={{ uri: selectedChain?.logoURI }}
                         style={{
-                          width: 20,
-                          height: 20,
-                          borderRadius: 10,
-                          marginRight: 8,
+                          width: chainLogoSize,
+                          height: chainLogoSize,
+                          borderRadius: chainLogoRadius,
+                          marginRight: chainLogoMargin,
                         }}
                       />
                     ) : null}
-                    <ResponsiveUi.Text className="mt-4" medium fontSize={15}>
+                    <ResponsiveUi.Text medium fontSize={chainFontSize}>
                       {selectedChain.name}
                     </ResponsiveUi.Text>
                     <ChevronDown
                       color={colors.primary}
-                      size={16}
-                      style={{ marginLeft: 6 }}
+                      size={chevronSize}
+                      style={{ marginLeft: chainLogoMargin }}
                     />
                   </TouchableOpacity>
                 </View>
@@ -466,7 +514,7 @@ export default function HomeScreen() {
                       ios_backgroundColor={colors.gray_hover}
                     />
                   </View> */}
-                <View className=" mt-8 px-4">
+                <View style={{ marginTop: mt8, paddingHorizontal: px4 }}>
                   <WalletBalance
                     selectedAsset={selectedFromAsset}
                     chainLogoURI={selectedChain.logoURI}
@@ -516,16 +564,29 @@ export default function HomeScreen() {
                       setIsFiatModalVisible(true);
                     }}
                   />
-                  <View className="mt-8 flex-row items-center justify-center">
-                    <ResponsiveUi.Text color={colors.secondary}>
+                  <View
+                    style={{
+                      marginTop: mt8 * 2.2,
+                      flexDirection: "row",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <ResponsiveUi.Text
+                      color={colors.secondary}
+                      fontSize={chainFontSize}
+                    >
                       1 {selectedFromAsset?.symbol}
                     </ResponsiveUi.Text>
                     <ArrowDataTransfer
-                      width={14}
-                      height={14}
-                      style={{ marginHorizontal: 6 }}
+                      width={arrowSize}
+                      height={arrowSize}
+                      style={{ marginHorizontal: chainLogoMargin }}
                     />
-                    <ResponsiveUi.Text color={colors.secondary}>
+                    <ResponsiveUi.Text
+                      color={colors.secondary}
+                      fontSize={chainFontSize}
+                    >
                       {activeRate
                         ? `${activeRate.toLocaleString(undefined, {
                             maximumFractionDigits: 6,

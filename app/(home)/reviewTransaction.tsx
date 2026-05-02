@@ -10,6 +10,8 @@ import _ from "lodash";
 import { WalletIcon, X } from "lucide-react-native";
 import React, { FunctionComponent, useCallback, useMemo } from "react";
 import { Alert, View } from "react-native";
+import { useAppDimensions } from "@/hooks/useAppDimensions";
+import BackArrow from "@/components/svgs/back-arrow";
 
 interface DetailRowProps {
   label: string;
@@ -23,30 +25,40 @@ const DetailRow: FunctionComponent<DetailRowProps> = ({
   valueIconUri,
 }) => {
   const colors = useThemeColors();
+  const { hp, wp } = useAppDimensions();
 
   return (
-    <View className="flex-row items-start justify-between py-3">
-      <ResponsiveUi.Text fontSize={14} color={colors.secondary}>
+    <View
+      style={{
+        flexDirection: "row",
+        alignItems: "flex-start",
+        justifyContent: "space-between",
+        paddingVertical: hp(1.2),
+      }}
+    >
+      <ResponsiveUi.Text fontSize={hp(2)} color={colors.secondary}>
         {label}
       </ResponsiveUi.Text>
-      <View className="flex-row items-center max-w-[62%]">
+      <View
+        style={{ flexDirection: "row", alignItems: "center", maxWidth: "62%" }}
+      >
         {valueIconUri ? (
           <Image
             source={{ uri: valueIconUri }}
             style={{
-              width: 16,
-              height: 16,
-              borderRadius: 8,
-              marginRight: 6,
+              width: wp(4.5),
+              height: wp(4.5),
+              borderRadius: wp(2.25),
+              marginRight: wp(1.5),
             }}
             contentFit="cover"
           />
         ) : null}
         <ResponsiveUi.Text
-          fontSize={12}
+          fontSize={hp(1.8)}
           medium
           color={colors.text}
-          tailwind="text-right"
+          style={{ textAlign: "right" }}
         >
           {value}
         </ResponsiveUi.Text>
@@ -57,6 +69,7 @@ const DetailRow: FunctionComponent<DetailRowProps> = ({
 
 const ReviewTransaction: FunctionComponent = () => {
   const colors = useThemeColors();
+  const { hp, wp } = useAppDimensions();
   const { wallets } = useEmbeddedEthereumWallet();
   const {
     amount,
@@ -196,56 +209,117 @@ const ReviewTransaction: FunctionComponent = () => {
 
   return (
     <AppLayout>
-      <View className="flex-row items-center justify-between ">
-        <View className="flex-row w-1/3 justify-between items-center">
-          <View className="border rounded-full w-3 h-3 border-primary" />
-          <View className="border rounded-full w-3 h-3 border-primary" />
-          <ResponsiveUi.Text fontSize={14} bold color={colors.primary}>
+      {/* Progress Row */}
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <View
+          style={{
+            flexDirection: "row",
+            width: "33%",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <View
+            style={{
+              borderWidth: 1,
+              borderRadius: wp(3) / 2,
+              width: wp(3),
+              height: wp(3),
+              borderColor: colors.primary,
+            }}
+          />
+          <View
+            style={{
+              borderWidth: 1,
+              borderRadius: wp(3) / 2,
+              width: wp(3),
+              height: wp(3),
+              borderColor: colors.primary,
+            }}
+          />
+          <ResponsiveUi.Text fontSize={hp(1.8)} bold color={colors.primary}>
             Review
           </ResponsiveUi.Text>
         </View>
-        <View className="flex-row items-center  ">
-          <WalletIcon className="mr-8" />
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <WalletIcon style={{ marginRight: wp(4) }} />
           <X color={colors.secondary} onPress={() => router.back()} />
         </View>
       </View>
-      <View className="flex-row mt-8 items-center justify-between">
-        <ResponsiveUi.Text className="mt-4" semiBold fontSize={18}>
+      {/* Swap Row */}
+      <View
+        style={{
+          flexDirection: "row",
+          marginTop: hp(2.5),
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <ResponsiveUi.Text
+          style={{ marginTop: hp(1) }}
+          semiBold
+          fontSize={hp(2.2)}
+        >
           Swap
         </ResponsiveUi.Text>
-        <View className="flex-row items-center">
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
           {fromChainLogoUri ? (
             <Image
               source={{ uri: fromChainLogoUri }}
               style={{
-                width: 20,
-                height: 20,
-                borderRadius: 10,
-                marginRight: 8,
+                width: wp(6),
+                height: wp(6),
+                borderRadius: wp(3),
+                marginRight: wp(2),
               }}
               contentFit="cover"
             />
           ) : null}
-          <ResponsiveUi.Text medium className="ml-4" fontSize={18}>
+          <ResponsiveUi.Text
+            medium
+            style={{ marginLeft: wp(2) }}
+            fontSize={hp(2.2)}
+          >
             {fromChainName}
           </ResponsiveUi.Text>
         </View>
       </View>
-      <View className="mt-12 items-start">
-        <ResponsiveUi.Text fontSize={18} medium color={colors.text}>
+      <BackArrow className="mt-4 -ml-2" onPress={() => router.back()} />
+      {/* Title and Subtitle */}
+      <View
+        style={{
+          marginTop: hp(5),
+          marginHorizontal: wp(4),
+          alignItems: "flex-start",
+        }}
+      >
+        <ResponsiveUi.Text fontSize={hp(2.2)} medium color={colors.text}>
           Review Transaction
         </ResponsiveUi.Text>
         <ResponsiveUi.Text
-          tailwind="mt-4"
-          fontSize={16}
+          style={{ marginTop: hp(1.5) }}
+          fontSize={hp(2)}
           color={colors.secondary}
         >
           Verify transaction details before you send
         </ResponsiveUi.Text>
       </View>
+      {/* Details Card */}
       <View
-        className="mt-8 rounded-2xl border px-4 py-2"
-        style={{ borderColor: colors.gray }}
+        style={{
+          marginTop: hp(2.5),
+          borderRadius: 18,
+          borderWidth: 1,
+          borderColor: colors.gray,
+          paddingHorizontal: wp(4),
+          paddingVertical: hp(1.5),
+        }}
       >
         <DetailRow
           label="Amount (token)"
@@ -261,18 +335,33 @@ const ReviewTransaction: FunctionComponent = () => {
         <DetailRow label="Account" value={accountValue} />
         <DetailRow label="Memo" value={memoValue} />
       </View>
-      <View className="mt-12 px-8 justify-center items-center">
+      <View
+        style={{
+          marginTop: hp(5),
+          paddingHorizontal: wp(6),
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
         <ResponsiveUi.Text
           center
-          tailwind="leading-6"
-          fontSize={14}
+          style={{ lineHeight: hp(2.5) }}
+          fontSize={hp(1.8)}
           color={colors.secondary}
         >
           Ensure the details above is correct. Failed transaction due to wrong
           details will attract a refund fee
         </ResponsiveUi.Text>
       </View>
-      <View className="flex-1 justify-end">
+      <View
+        style={{
+          position: "absolute",
+          left: 0,
+          right: 0,
+          bottom: 15,
+          paddingHorizontal: wp(4),
+        }}
+      >
         <ResponsiveUi.Button
           action={() => {
             // handleSwap();
@@ -287,6 +376,7 @@ const ReviewTransaction: FunctionComponent = () => {
           }}
           title={isCreatingOrder ? "Submitting..." : "Swap"}
           disabled={isCreatingOrder}
+          style={{ width: "100%" }}
         />
       </View>
     </AppLayout>

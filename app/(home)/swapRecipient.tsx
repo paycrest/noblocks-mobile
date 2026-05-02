@@ -24,6 +24,7 @@ import React, {
   useState,
 } from "react";
 import { TextInput, TouchableOpacity, View } from "react-native";
+import { useAppDimensions } from "@/hooks/useAppDimensions";
 import { ActivityIndicator } from "react-native-paper";
 
 import PersonIcon from "@/components/svgs/person-icon";
@@ -62,6 +63,7 @@ const getAccountVerificationErrorMessage = (error: unknown) => {
 
 const SwapDetails: FunctionComponent = () => {
   const colors = useThemeColors();
+  const { hp, wp } = useAppDimensions();
   const [isInstitutionModalVisible, setIsInstitutionModalVisible] =
     useState(false);
   const [isBeneficiaryModalVisible, setIsBeneficiaryModalVisible] =
@@ -212,118 +214,203 @@ const SwapDetails: FunctionComponent = () => {
 
   return (
     <AppLayout>
-      <View className="flex-row items-center justify-between ">
-        <View className="flex-row w-1/2 justify-between items-center">
-          <View className="border rounded-full w-3 h-3 border-primary" />
-          <ResponsiveUi.Text fontSize={14} bold color={colors.primary}>
+      {/* Progress Row */}
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <View
+          style={{
+            flexDirection: "row",
+            width: "50%",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <View
+            style={{
+              borderWidth: 1,
+              borderRadius: wp(3) / 2,
+              width: wp(3),
+              height: wp(3),
+              borderColor: colors.primary,
+            }}
+          />
+          <ResponsiveUi.Text fontSize={hp(1.8)} bold color={colors.primary}>
             Recipient
           </ResponsiveUi.Text>
-          <View className="flex-row">
-            <View className="border rounded-full w-3 h-3 border-primary" />
+          <View style={{ flexDirection: "row" }}>
+            <View
+              style={{
+                borderWidth: 1,
+                borderRadius: wp(3) / 2,
+                width: wp(3),
+                height: wp(3),
+                borderColor: colors.primary,
+              }}
+            />
           </View>
         </View>
-        <View className="flex-row items-center  ">
-          <WalletIcon className="mr-8" />
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <WalletIcon style={{ marginRight: wp(4) }} />
           <X color={colors.secondary} onPress={() => router.back()} />
         </View>
       </View>
-      <View className="flex-row mt-8 items-center justify-between">
-        <ResponsiveUi.Text className="mt-4" semiBold fontSize={18}>
+      {/* Swap Row */}
+      <View
+        style={{
+          flexDirection: "row",
+          marginTop: hp(2.5),
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <ResponsiveUi.Text
+          style={{ marginTop: hp(1) }}
+          semiBold
+          fontSize={hp(2.2)}
+        >
           Swap
         </ResponsiveUi.Text>
-        <View className="flex-row items-center">
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
           {fromChainLogoUri ? (
             <Image
               source={{ uri: fromChainLogoUri }}
               style={{
-                width: 20,
-                height: 20,
-                borderRadius: 10,
-                marginRight: 8,
+                width: wp(6),
+                height: wp(6),
+                borderRadius: wp(3),
+                marginRight: wp(2),
               }}
               contentFit="cover"
             />
           ) : null}
-          <ResponsiveUi.Text medium className="ml-4" fontSize={18}>
+          <ResponsiveUi.Text
+            medium
+            style={{ marginLeft: wp(2) }}
+            fontSize={hp(2.2)}
+          >
             {fromChainName}
           </ResponsiveUi.Text>
         </View>
       </View>
-      <View className="mt-8 flex-row items-center justify-between">
-        <View className="flex-row items-center w-2/5 ">
+      {/* Amount Row */}
+      <View
+        style={{
+          marginTop: hp(2.5),
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <View
+          style={{ flexDirection: "row", alignItems: "center", width: "40%" }}
+        >
           {fromAssetUri ? (
             <Image
               source={{ uri: fromAssetUri }}
               style={{
-                width: 24,
-                height: 24,
-                borderRadius: 10,
-                marginRight: 8,
+                width: wp(7),
+                height: wp(7),
+                borderRadius: wp(3),
+                marginRight: wp(2),
               }}
               contentFit="cover"
             />
           ) : null}
-          <ResponsiveUi.Text medium tailwind="ml-8" fontSize={18}>
+          <ResponsiveUi.Text
+            medium
+            style={{ marginLeft: wp(3) }}
+            fontSize={hp(2.2)}
+          >
             ${amount}
           </ResponsiveUi.Text>
         </View>
         <ChevronRight color={colors.secondary} />
-        <View className="flex-row items-center w-2/5 ">
+        <View
+          style={{ flexDirection: "row", alignItems: "center", width: "40%" }}
+        >
           {toFiatUri ? (
             <Image
               source={{ uri: toFiatUri }}
               style={{
-                width: 24,
-                height: 24,
-                borderRadius: 10,
-                marginRight: 8,
+                width: wp(7),
+                height: wp(7),
+                borderRadius: wp(3),
+                marginRight: wp(2),
               }}
               contentFit="cover"
             />
           ) : null}
-          <ResponsiveUi.Text medium tailwind="ml-8" fontSize={18}>
+          <ResponsiveUi.Text
+            medium
+            style={{ marginLeft: wp(3) }}
+            fontSize={hp(2.2)}
+          >
             {fiatEstimate}
           </ResponsiveUi.Text>
         </View>
       </View>
-      <View className="mt-12 items-center">
+      {/* Add Recipient Section */}
+      <View style={{ marginTop: hp(5), alignItems: "center" }}>
         <ResponsiveUi.Text
           semiBold
-          tailwind="ml-8"
-          fontSize={16}
+          style={{ marginLeft: wp(3) }}
+          fontSize={hp(2)}
           color={colors.text}
         >
           Add recipient
         </ResponsiveUi.Text>
         <TouchableOpacity
-          className="mt-12 w-4/5 border-[0.5px] border-secondary bg-subtle_surface rounded-2xl flex-row items-center justify-between"
-          style={{ height: 55, paddingHorizontal: 10 }}
+          style={{
+            marginTop: hp(5),
+            width: "80%",
+            borderWidth: 0.5,
+            borderColor: colors.secondary,
+            backgroundColor: colors.subtle_surface,
+            borderRadius: 18,
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            height: hp(6.5),
+            paddingHorizontal: wp(3),
+          }}
           activeOpacity={0.85}
           onPress={() => setIsInstitutionModalVisible(true)}
         >
-          <View className="flex-row   items-center">
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
             {selectedInstitution?.logoURI ? (
               <Image
                 source={{ uri: selectedInstitution.logoURI }}
                 style={{
-                  width: 20,
-                  height: 20,
-                  borderRadius: 10,
-                  marginRight: 8,
+                  width: wp(6),
+                  height: wp(6),
+                  borderRadius: wp(3),
+                  marginRight: wp(2),
                 }}
                 contentFit="cover"
               />
             ) : null}
             <ResponsiveUi.Text
               color={selectedInstitution ? colors.text : colors.secondary}
-              fontSize={18}
+              fontSize={hp(2.2)}
             >
               {selectedInstitution?.name ?? "Select bank"}
             </ResponsiveUi.Text>
           </View>
           <ChevronDown color={colors.secondary} />
         </TouchableOpacity>
-        <View className="w-full mt-6 justify-center items-center">
+        <View
+          style={{
+            width: "100%",
+            marginTop: hp(2.5),
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
           <TextInput
             placeholder="Account number"
             placeholderTextColor={colors.place_holder}
@@ -338,27 +425,35 @@ const SwapDetails: FunctionComponent = () => {
               fontWeight: "500",
               borderRadius: 16,
               borderWidth: 0.5,
-              fontSize: 18,
-              lineHeight: 22,
-              height: 55,
+              fontSize: hp(2.2),
+              lineHeight: hp(2.7),
+              height: hp(6.5),
               width: "80%",
-              paddingHorizontal: 10,
+              paddingHorizontal: wp(3),
               backgroundColor: colors.subtle_surface,
             }}
             keyboardType="numeric"
           />
 
-          <View className="mt-12">
+          <View style={{ marginTop: hp(5) }}>
             <PersonIcon />
           </View>
 
           {isVerifyingAccount ? (
-            <View className="w-4/5 mt-4 justify-center flex-row items-center">
+            <View
+              style={{
+                width: "80%",
+                marginTop: hp(1.5),
+                justifyContent: "center",
+                flexDirection: "row",
+                alignItems: "center",
+              }}
+            >
               <ActivityIndicator size="small" color={colors.primary} />
               <ResponsiveUi.Text
-                fontSize={13}
+                fontSize={hp(1.7)}
                 color={colors.secondary}
-                tailwind="ml-2"
+                style={{ marginLeft: wp(2) }}
                 center
               >
                 Verifying account details...
@@ -367,9 +462,9 @@ const SwapDetails: FunctionComponent = () => {
           ) : null}
 
           {!isVerifyingAccount && resolvedAccountName ? (
-            <View className="w-4/5 mt-4">
+            <View style={{ width: "80%", marginTop: hp(1.5) }}>
               <ResponsiveUi.Text
-                fontSize={16}
+                fontSize={hp(2)}
                 medium
                 center
                 color={colors.text}
@@ -379,21 +474,21 @@ const SwapDetails: FunctionComponent = () => {
             </View>
           ) : null}
 
-          <View className="mt-12">
+          <View style={{ marginTop: hp(5) }}>
             <AddBeneficiaryCard
               onPress={() => setIsBeneficiaryModalVisible(true)}
             />
           </View>
           {!isVerifyingAccount && accountVerificationError ? (
-            <View className="w-4/5 mt-3">
-              <ResponsiveUi.Text fontSize={13} color={colors.secondary}>
+            <View style={{ width: "80%", marginTop: hp(1) }}>
+              <ResponsiveUi.Text fontSize={hp(1.7)} color={colors.secondary}>
                 {accountVerificationError}
               </ResponsiveUi.Text>
             </View>
           ) : null}
         </View>
       </View>
-      <View className="flex-1 justify-end">
+      <View style={{ position: "absolute", left: 0, right: 0, bottom: 15, paddingHorizontal: wp(4) }}>
         <ResponsiveUi.Button
           action={() =>
             router.push({
@@ -420,7 +515,7 @@ const SwapDetails: FunctionComponent = () => {
             })
           }
           disabled={!resolvedAccountName}
-          className="mt-8 w-full"
+          style={{ width: "100%" }}
           title="Continue"
         />
       </View>

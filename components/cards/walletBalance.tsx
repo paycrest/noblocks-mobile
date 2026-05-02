@@ -82,7 +82,7 @@ const WalletBalance: FunctionComponent<WalletBalanceProps> = ({
         </View>
       </View>
       <TouchableOpacity
-        className="w-1/4"
+        className="max-w-2/5"
         activeOpacity={0.8}
         onPress={onUseMaxPress}
       >

@@ -14,6 +14,7 @@ import { ActivityIndicator } from "react-native-paper";
 import { ResponsiveUi } from "../ResponsiveUi";
 import BackdropBlur from "./BackdropBlur";
 import BaseModal from "./BaseModal";
+import { useAppDimensions } from "@/hooks/useAppDimensions";
 
 const MODAL_HEIGHT = Dimensions.get("screen").height * 0.46;
 const ACTIVE_FIAT_CODES = new Set(["KES", "NGN"]);
@@ -55,6 +56,7 @@ const FiatCurrencySelectorModal: FunctionComponent<
 }) => {
   const colors = useThemeColors();
   const [searchQuery, setSearchQuery] = useState("");
+  const { hp, wp } = useAppDimensions();
 
   const filteredCurrencies = useMemo(() => {
     const normalizedQuery = searchQuery.trim().toLowerCase();
@@ -93,14 +95,14 @@ const FiatCurrencySelectorModal: FunctionComponent<
         {item.logoURI ? (
           <Image
             source={{ uri: item.logoURI }}
-            style={{ width: 52, height: 52, borderRadius: 26 }}
+            style={{ width: hp(5), height: hp(5), borderRadius: hp(3.5) }}
           />
         ) : (
           <View
             style={{
-              width: 52,
-              height: 52,
-              borderRadius: 26,
+              width: wp(7),
+              height: hp(7),
+              borderRadius: hp(3.5),
               backgroundColor: colors.secondary,
             }}
             className="items-center justify-center"
@@ -112,18 +114,18 @@ const FiatCurrencySelectorModal: FunctionComponent<
         )}
 
         <View className="ml-4 flex-1">
-          <ResponsiveUi.Text medium fontSize={17}>
+          <ResponsiveUi.Text medium fontSize={hp(2.2)}>
             {item.name}
           </ResponsiveUi.Text>
-          <ResponsiveUi.Text fontSize={14} color={colors.secondary}>
+          <ResponsiveUi.Text fontSize={hp(2.2)} color={colors.secondary}>
             {item.shortName}
           </ResponsiveUi.Text>
         </View>
 
         {isSelected ? (
-          <CheckCircle2 size={20} color={colors.primary} />
+          <CheckCircle2 size={hp(2.5)} color={colors.primary} />
         ) : !isActive ? (
-          <ResponsiveUi.Text fontSize={12} color={colors.secondary}>
+          <ResponsiveUi.Text fontSize={hp(2)} color={colors.secondary}>
             Unavailable
           </ResponsiveUi.Text>
         ) : null}
@@ -150,17 +152,17 @@ const FiatCurrencySelectorModal: FunctionComponent<
             }}
           >
             <View className="flex-row items-center justify-between mb-5">
-              <ResponsiveUi.Text semiBold fontSize={20}>
+              <ResponsiveUi.Text semiBold fontSize={hp(2.5)}>
                 Select currency
               </ResponsiveUi.Text>
               <TouchableOpacity activeOpacity={0.8} onPress={onClose}>
-                <X size={28} color={colors.secondary} />
+                <X size={hp(2.5)} color={colors.secondary} />
               </TouchableOpacity>
             </View>
 
             <View className="relative mb-4 justify-center">
               <View className="absolute left-4 z-10">
-                <Search size={24} color={colors.secondary} />
+                <Search size={hp(2.5)} color={colors.secondary} />
               </View>
               <TextInput
                 value={searchQuery}
@@ -178,7 +180,7 @@ const FiatCurrencySelectorModal: FunctionComponent<
                   paddingLeft: 56,
                   paddingRight: 16,
                   paddingVertical: 14,
-                  fontSize: 17,
+                  fontSize: hp(2.2),
                   fontWeight: "500",
                 }}
               />
@@ -189,7 +191,7 @@ const FiatCurrencySelectorModal: FunctionComponent<
                 <View className="flex-1 items-center justify-center py-8">
                   <ActivityIndicator color={colors.primary} />
                   <ResponsiveUi.Text
-                    fontSize={14}
+                    fontSize={hp(2.2)}
                     color={colors.secondary}
                     tailwind="mt-3"
                   >
@@ -200,7 +202,7 @@ const FiatCurrencySelectorModal: FunctionComponent<
                 <View className="flex-1 items-center justify-center px-6">
                   <ResponsiveUi.Text
                     center
-                    fontSize={14}
+                    fontSize={hp(2.2)}
                     color={colors.secondary}
                     tailwind="mb-4"
                   >
@@ -210,7 +212,7 @@ const FiatCurrencySelectorModal: FunctionComponent<
                     <TouchableOpacity activeOpacity={0.8} onPress={onRetry}>
                       <ResponsiveUi.Text
                         medium
-                        fontSize={14}
+                        fontSize={hp(2.2)}
                         color={colors.primary}
                       >
                         Try again
@@ -228,7 +230,10 @@ const FiatCurrencySelectorModal: FunctionComponent<
                   contentContainerStyle={{ paddingBottom: 24, flexGrow: 1 }}
                   ListEmptyComponent={
                     <View className="flex-1 items-center justify-center py-8">
-                      <ResponsiveUi.Text color={colors.secondary} fontSize={14}>
+                      <ResponsiveUi.Text
+                        color={colors.secondary}
+                        fontSize={hp(2.2)}
+                      >
                         No currency matches your search.
                       </ResponsiveUi.Text>
                     </View>

@@ -1,4 +1,5 @@
 import React, { FunctionComponent } from "react";
+import { useAppDimensions } from "@/hooks/useAppDimensions";
 
 import AppLayout from "@/components/layouts/AppLayout";
 import {
@@ -19,63 +20,71 @@ import { useRouter } from "expo-router";
 
 type TransactionDetailsParams = Omit<ITransaction, "icon"> & { icon?: string };
 
-const transactionItem: ListRenderItem<ITransaction> = ({ item }) => {
-  const { icon: Icon, amountNGN, amountUSD, status, token } = item;
-  const statusColor = setTransactionStatusColor(status);
-  const router = useRouter(); // Moved this line up for clarity
-  return (
-    <TouchableOpacity
-      onPress={() =>
-        router.push({
-          pathname: "/(transactions)/transactionDetails",
-          params: { ...item } as unknown as TransactionDetailsParams, // Type assertion to ensure params match expected type
-        })
-      }
-      className="flex-row items-center justify-between py-4 px-2"
-    >
-      <View className="flex-row items-center">
-        <Icon width={40} height={40} />
-        <View className="ml-2">
-          <View className="flex-row items-center">
-            {status === "Completed" ? (
-              <Coins />
-            ) : (
-              <ActivityIndicator size={10} />
-            )}
-            <ResponsiveUi.Text
-              color={Colors.light.secondary}
-              tailwind="ml-2"
-              fontSize={14}
-            >
-              {status === "Completed" ? "Swapped" : "Swapping"}
+const transactionItem =
+  (hp: any, wp: any): ListRenderItem<ITransaction> =>
+  ({ item }) => {
+    const { icon: Icon, amountNGN, amountUSD, status, token } = item;
+    const statusColor = setTransactionStatusColor(status);
+    const router = useRouter();
+    return (
+      <TouchableOpacity
+        onPress={() =>
+          router.push({
+            pathname: "/(transactions)/transactionDetails",
+            params: { ...item } as unknown as TransactionDetailsParams,
+          })
+        }
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+          paddingVertical: hp(1.2),
+          paddingHorizontal: wp(2),
+        }}
+      >
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <Icon width={wp(9)} height={wp(9)} />
+          <View style={{ marginLeft: wp(2) }}>
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              {status === "Completed" ? (
+                <Coins width={wp(4)} height={wp(4)} />
+              ) : (
+                <ActivityIndicator size={wp(2.5)} />
+              )}
+              <ResponsiveUi.Text
+                color={Colors.light.secondary}
+                style={{ marginLeft: wp(2) }}
+                fontSize={wp(3.5)}
+              >
+                {status === "Completed" ? "Swapped" : "Swapping"}
+              </ResponsiveUi.Text>
+            </View>
+            <ResponsiveUi.Text fontSize={wp(3)} style={{ marginTop: hp(0.5) }}>
+              {formatAmount(amountUSD, "$")} {token}
             </ResponsiveUi.Text>
           </View>
-          <ResponsiveUi.Text fontSize={14} tailwind="mt-1">
-            {formatAmount(amountUSD, "$")} {token}
+        </View>
+        <View style={{ flexDirection: "column", alignItems: "flex-end" }}>
+          <ResponsiveUi.Text
+            medium
+            fontSize={wp(3.8)}
+            style={{ marginLeft: wp(2) }}
+            color={Colors.light.secondary}
+          >
+            {formatAmount(amountNGN, "NGN ")}
+          </ResponsiveUi.Text>
+          <ResponsiveUi.Text
+            light
+            fontSize={wp(3)}
+            color={statusColor}
+            style={{ marginLeft: wp(2), marginTop: hp(0.5) }}
+          >
+            {status}
           </ResponsiveUi.Text>
         </View>
-      </View>
-      <View className="flex-col items-end">
-        <ResponsiveUi.Text
-          medium
-          fontSize={16}
-          tailwind="ml-2"
-          color={Colors.light.secondary}
-        >
-          {formatAmount(amountNGN, "NGN ")}
-        </ResponsiveUi.Text>
-        <ResponsiveUi.Text
-          light
-          fontSize={14}
-          color={statusColor}
-          tailwind="ml-2  mt-1"
-        >
-          {status}
-        </ResponsiveUi.Text>
-      </View>
-    </TouchableOpacity>
-  );
-};
+      </TouchableOpacity>
+    );
+  };
 
 // Helper to get section title
 function getSectionTitle(dateString: string) {
@@ -97,31 +106,36 @@ function groupTransactionsByDay(transactions: ITransaction[]) {
 }
 
 const Transactions: FunctionComponent = () => {
+  const { hp, wp } = useAppDimensions();
   const sections = groupTransactionsByDay(transactions);
   const colors = useThemeColors();
   return (
     <AppLayout scrollable={false}>
-      <View className="mt-4 mb-24">
-        <ResponsiveUi.Text medium fontSize={22} tailwind="mb-2">
+      <View style={{ marginTop: hp(3.5), marginBottom: hp(10) }}>
+        <ResponsiveUi.Text
+          medium
+          fontSize={wp(4.8)}
+          style={{ marginBottom: hp(1.2) }}
+        >
           Transactions
         </ResponsiveUi.Text>
         <SectionList
           showsVerticalScrollIndicator={false}
           sections={sections}
-          renderItem={transactionItem}
+          renderItem={transactionItem(hp, wp)}
           keyExtractor={(item, index) => index.toString()}
-          className="mt-4"
+          contentContainerStyle={{ marginTop: hp(2) }}
           renderSectionHeader={({ section: { title } }) => (
             <View
               style={{
                 backgroundColor: colors.background,
                 zIndex: 10,
-                paddingVertical: 8,
-                paddingHorizontal: 8,
+                paddingVertical: hp(1),
+                paddingHorizontal: wp(2),
               }}
             >
               <ResponsiveUi.Text
-                fontSize={16}
+                fontSize={wp(3.5)}
                 medium
                 color={Colors.light.secondary}
               >
