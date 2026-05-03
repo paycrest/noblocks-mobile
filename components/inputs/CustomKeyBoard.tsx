@@ -108,7 +108,6 @@ const CustomKeyBoard: FunctionComponent<CustomKeyBoardProps> = ({
                 style={{
                   width: keyWidth,
                   height: keyHeight,
-                  backgroundColor: "#e5e7eb", // bg-gray-200
                   borderRadius: keyWidth / 2,
                   alignItems: "center",
                   justifyContent: "center",

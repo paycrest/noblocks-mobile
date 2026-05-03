@@ -50,13 +50,13 @@ const SmartWallet: FunctionComponent = () => {
   const mt6 = hp(2.5);
   const mt12 = hp(5);
   const mt2 = hp(0.8);
-  const mt4 = hp(1.5);
+  const mt4 = hp(4);
   const mt5 = hp(2);
-  const px2 = wp(4);
+  const px2 = wp(2);
   const py2 = hp(1);
   const tabButtonFontSize = hp(1.7);
-  const tabButtonWidth = wp(35);
-  const qrSize = hp(28);
+  const tabButtonWidth = wp(40);
+  const qrSize = hp(35);
 
   return (
     <View style={{ marginTop: mt6 }}>
@@ -114,12 +114,12 @@ const SmartWallet: FunctionComponent = () => {
         <View
           style={{
             flexDirection: "row",
-            width: "auto",
+            width: wp(85),
             paddingHorizontal: px2,
-            borderRadius: 999,
-            justifyContent: "center",
+            borderRadius: wp(20),
+            justifyContent: "space-between",
             paddingVertical: py2,
-            backgroundColor: colors.gray2,
+            backgroundColor: colors.gray,
             marginTop: mt6,
             alignItems: "center",
           }}
@@ -139,7 +139,12 @@ const SmartWallet: FunctionComponent = () => {
                 }
                 color={selectedTab === tab ? colors.lavendar : colors.secondary}
                 action={() => setSelectedTab(tab)}
-                style={{ width: "100%", textAlign: "center" }}
+                style={{
+                  width: wp(40),
+                  textAlign: "center",
+                }}
+                className=""
+                tailwind="bg-white"
               />
             </Animated.View>
           ))}
