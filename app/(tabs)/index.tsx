@@ -406,7 +406,7 @@ export default function HomeScreen() {
                   <ResponsiveUi.Text
                     bold
                     color={colors.primary}
-                    fontSize={swapFontSize}
+                    fontSize={hp(2)}
                   >
                     Details
                   </ResponsiveUi.Text>
@@ -442,10 +442,14 @@ export default function HomeScreen() {
                     onPress={() =>
                       setIsSmartWalletScreenVisible((prev) => !prev)
                     }
+                    height={hp(3.5)}
+                    width={hp(3.5)}
                     style={{ marginRight: walletDotMargin * 2 }}
                   />
                   <X
                     color={colors.secondary}
+                    height={hp(3.5)}
+                    width={hp(3.5)}
                     onPress={() => setIsSmartWalletScreenVisible(false)}
                   />
                 </View>
