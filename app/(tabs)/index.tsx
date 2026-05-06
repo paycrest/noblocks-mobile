@@ -345,8 +345,9 @@ export default function HomeScreen() {
   useEffect(() => {
     router.setParams({
       smartWalletVisible: isSmartWalletScreenVisible ? "true" : "false",
+      keyboardVisible: isKeyboardVisible ? "true" : "false",
     });
-  }, [isSmartWalletScreenVisible, router]);
+  }, [isSmartWalletScreenVisible, isKeyboardVisible, router]);
 
   if (!loaded) {
     return null;
@@ -465,6 +466,7 @@ export default function HomeScreen() {
                   }}
                   onPress={() => {
                     setIsChainSheetVisible(true);
+                    setIsKeyboardVisible(false);
                   }}
                 >
                   {selectedChain.logoURI ? (
@@ -540,6 +542,7 @@ export default function HomeScreen() {
                           }}
                           onAssetPress={() => {
                             setIsAssetSheetVisible(true);
+                            setIsKeyboardVisible(false);
                           }}
                         />
                         <View className=" w-full self-center border-t my-3 h-1 border-subtle_surface" />
@@ -564,37 +567,36 @@ export default function HomeScreen() {
                           zIndex: 22,
                         }}
                       >
-                        <View className="border border-subtle_surface rounded-full py-2 px-2 bg-neutral_surface">
+                        <View className="border border-subtle_surface rounded-full py-2 px-2 bg-neutral_surface  ">
                           <ChevronDown size={20} color={colors.secondary} />
                         </View>
                       </View>
                     </View>
-                    <View>
-                      <CurrencySelector
-                        selectedAsset={
-                          selectedFiatOption
-                            ? {
-                                symbol: selectedFiatOption?.code,
-                                name: selectedFiatOption?.name,
-                                logoURI: selectedFiatOption.logoURI,
-                              }
-                            : null
-                        }
-                        label={selectedFiatOption?.name}
-                        subtitle={
-                          !selectedFiatOption
-                            ? "Select currency"
-                            : isRateLoading
-                              ? "Fetching rate..."
-                              : `Receive ${selectedFiatOption?.code}`
-                        }
-                        rightValue={fiatEstimate}
-                        isLoading={isRateLoading}
-                        onPress={() => {
-                          setIsFiatModalVisible(true);
-                        }}
-                      />
-                    </View>
+                    <CurrencySelector
+                      selectedAsset={
+                        selectedFiatOption
+                          ? {
+                              symbol: selectedFiatOption?.code,
+                              name: selectedFiatOption?.name,
+                              logoURI: selectedFiatOption.logoURI,
+                            }
+                          : null
+                      }
+                      label={selectedFiatOption?.name}
+                      subtitle={
+                        !selectedFiatOption
+                          ? "Select currency"
+                          : isRateLoading
+                            ? "Fetching rate..."
+                            : `Receive ${selectedFiatOption?.code}`
+                      }
+                      rightValue={fiatEstimate}
+                      isLoading={isRateLoading}
+                      onPress={() => {
+                        setIsFiatModalVisible(true);
+                        setIsKeyboardVisible(false);
+                      }}
+                    />
                   </View>
                   {selectedFiatOption && (
                     <View
@@ -698,7 +700,7 @@ export default function HomeScreen() {
 
           <BaseSheet
             isVisible={isKeyboardVisible}
-            snapPoints={["44%"]}
+            snapPoints={["45%"]}
             showBackdrop={false}
             hideHandle
             isDismissible={true}
@@ -732,6 +734,7 @@ export default function HomeScreen() {
                     fiatEstimate,
                   },
                 });
+                setIsKeyboardVisible(false);
               }}
               visible={isKeyboardVisible}
               submitLabel="Continue"

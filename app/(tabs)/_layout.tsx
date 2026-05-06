@@ -21,10 +21,12 @@ export default function TabLayout() {
   const pathname = usePathname();
 
   const isSmartWalletVisible = params.smartWalletVisible === "true";
+  const isKeyboardVisible = params.keyboardVisible === "true";
 
   // Are we on the home/swap screen?
   const isOnHome = segments[0] === "(tabs)" && pathname === "/";
-  const shouldHideTabs = isOnHome && isSmartWalletVisible;
+  const shouldHideTabs =
+    isOnHome && (isSmartWalletVisible || isKeyboardVisible);
   const { hp } = useAppDimensions();
 
   return (

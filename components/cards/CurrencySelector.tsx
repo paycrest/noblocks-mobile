@@ -34,7 +34,7 @@ const CurrencySelector: FunctionComponent<CurrencySelectorProps> = ({
   const displayRightValue = parsedRightValue || "0";
 
   return (
-    <View className="mt-4 flex-1 border border-subtle_surface px-5 py-4 rounded-2xl bg-neutral_surface  flex-row justify-between items-center">
+    <View className="mt-4 flex-1 h-20 border border-subtle_surface px-5 py-4 rounded-2xl bg-neutral_surface  flex-row justify-between items-center">
       <TouchableOpacity
         activeOpacity={0.8}
         className="flex-row items-center"
@@ -72,7 +72,7 @@ const CurrencySelector: FunctionComponent<CurrencySelectorProps> = ({
                 top: 0,
                 left: -2,
                 borderWidth: 1.5,
-                borderColor: colors.surface_overlay,
+                borderColor: colors.white,
               }}
             />
           ) : null}

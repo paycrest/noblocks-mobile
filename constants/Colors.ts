@@ -13,7 +13,7 @@ interface ThemeColors {
   neutral?: string; // only exists in light
   slate: string;
   white: string;
-  surface_overlay: string;
+  neutral_surface: string;
   gray: string;
   tint: string;
   primary: string;
@@ -136,7 +136,7 @@ export const Colors: ColorsInterface = {
     subtle_surface: palette.subtleSurfaceLight,
     secondary: palette.secondaryLight,
     neutral: palette.neutralLight,
-    surface_overlay: palette.surfaceOverlayLight,
+    neutral_surface: palette.surfaceOverlayLight,
     tint: palette.tintLight,
   },
   dark: {
@@ -147,7 +147,7 @@ export const Colors: ColorsInterface = {
     gray_hover: palette.grayHoverDark,
     subtle_surface: palette.subtleSurfaceDark,
     secondary: palette.secondaryDark,
-    surface_overlay: palette.surfaceOverlayDark,
+    neutral_surface: palette.surfaceOverlayDark,
     tint: palette.tintDark,
   },
   ...genericColors,
