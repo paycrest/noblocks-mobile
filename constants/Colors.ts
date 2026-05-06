@@ -13,7 +13,7 @@ interface ThemeColors {
   neutral?: string; // only exists in light
   slate: string;
   white: string;
-  surface_overlay: string;
+  neutral_surface: string;
   gray: string;
   tint: string;
   primary: string;
@@ -37,10 +37,16 @@ export interface GenericColors {
   lavendar: string;
   place_holder2: string;
   primary_2: string;
+  primary_9: string;
+  gray2: string;
+  white_10: string;
+  white_5: string;
 }
 export interface ColorsInterface extends GenericColors {
   light: ThemeColors;
   dark: ThemeColors;
+  neutral_surface: string;
+  subtle_surface: string;
 }
 
 export type ThemePalette = ThemeColors & GenericColors;
@@ -63,9 +69,12 @@ const palette = {
   success: "#227738",
   teal: "#20BA90",
   gray: "rgba(255, 255, 255, 0.10)",
+  gray2: "#FFFFFF0D",
   lavendar: "#A9A5F6",
   place_holder2: `rgba(255, 255, 255, 0.3)`,
   primary_2: "rgba(139, 133, 244, 0.14)",
+  primary_9: "#8B85F417",
+  neutral_surface: "#FFFFFF0D",
 
   // light theme
   tintLight: "#0a7ea4",
@@ -86,6 +95,8 @@ const palette = {
   subtleSurfaceDark: "#FFFFFF1A",
   secondaryDark: "#FFFFFF80",
   surfaceOverlayDark: "#202020",
+  white_10: "FFFFFF1A",
+  white_5: "FFFFFF0D",
 } as const;
 
 // ─── Values shared by both themes ────────────────────────────────────────────
@@ -113,10 +124,16 @@ export const genericColors: GenericColors = {
   primary: palette.primary,
   lavendar: palette.lavendar,
   place_holder2: palette.place_holder2,
+  gray2: palette.gray2,
+  white_10: palette.white_10,
   primary_2: palette.primary_2,
+  primary_9: palette.primary_9,
+  white_5: palette.white_5,
 };
 
 export const Colors: ColorsInterface = {
+  neutral_surface: palette.neutral_surface,
+  subtle_surface: palette.subtleSurfaceDark,
   light: {
     ...sharedTheme,
     text: palette.textLight,
@@ -126,7 +143,7 @@ export const Colors: ColorsInterface = {
     subtle_surface: palette.subtleSurfaceLight,
     secondary: palette.secondaryLight,
     neutral: palette.neutralLight,
-    surface_overlay: palette.surfaceOverlayLight,
+    neutral_surface: palette.surfaceOverlayLight,
     tint: palette.tintLight,
   },
   dark: {
@@ -137,7 +154,7 @@ export const Colors: ColorsInterface = {
     gray_hover: palette.grayHoverDark,
     subtle_surface: palette.subtleSurfaceDark,
     secondary: palette.secondaryDark,
-    surface_overlay: palette.surfaceOverlayDark,
+    neutral_surface: palette.surfaceOverlayDark,
     tint: palette.tintDark,
   },
   ...genericColors,

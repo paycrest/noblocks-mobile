@@ -2,14 +2,32 @@ import HomeIcon from "@/components/svgs/home-icon";
 import SettingsIcon from "@/components/svgs/settings-icon";
 import WalletIcon from "@/components/svgs/wallet-icon";
 import TabBarBackground from "@/components/ui/TabBarBackground";
+import { useAppDimensions } from "@/hooks/useAppDimensions";
 import { useThemeColors } from "@/hooks/useThemeColor";
-import { Tabs } from "expo-router";
+import {
+  Tabs,
+  useGlobalSearchParams,
+  usePathname,
+  useSegments,
+} from "expo-router";
 import { Clock } from "lucide-react-native";
 import React from "react";
 import { Platform } from "react-native";
 
 export default function TabLayout() {
   const colors = useThemeColors();
+  const segments = useSegments();
+  const params = useGlobalSearchParams();
+  const pathname = usePathname();
+
+  const isSmartWalletVisible = params.smartWalletVisible === "true";
+  const isKeyboardVisible = params.keyboardVisible === "true";
+
+  // Are we on the home/swap screen?
+  const isOnHome = segments[0] === "(tabs)" && pathname === "/";
+  const shouldHideTabs =
+    isOnHome && (isSmartWalletVisible || isKeyboardVisible);
+  const { hp } = useAppDimensions();
 
   return (
     <Tabs
@@ -18,17 +36,19 @@ export default function TabLayout() {
         headerShown: false,
         tabBarBackground: TabBarBackground,
         tabBarIconStyle: {
-          marginTop: 15,
+          marginTop: hp(1),
         },
-        tabBarStyle: Platform.select({
-          ios: {
-            position: "absolute",
-            backgroundColor: "transparent",
-          },
-          default: {
-            backgroundColor: colors.background,
-          },
-        }),
+        tabBarStyle: shouldHideTabs
+          ? { display: "none" }
+          : Platform.select({
+              ios: {
+                position: "absolute",
+                backgroundColor: "transparent",
+              },
+              default: {
+                backgroundColor: colors.background,
+              },
+            }),
       }}
     >
       <Tabs.Screen

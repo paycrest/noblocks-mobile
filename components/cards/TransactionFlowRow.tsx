@@ -66,7 +66,7 @@ const TransactionFlowRow: React.FC<TransactionFlowRowProps> = ({
   }, [connectorWidth, movingDotSize, resolvedConnectorProgress]);
 
   return (
-    <View className="mt-8 w-full flex-row items-center">
+    <View className="mt-4 w-full flex-row items-center">
       <View className="px-4 py-3 rounded-full flex-row items-center">
         <View
           className="w-6 h-6 rounded-full items-center justify-center"

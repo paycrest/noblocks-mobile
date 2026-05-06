@@ -1,8 +1,18 @@
 // CustomKeyBoard.tsx
-import React, { FunctionComponent, useMemo } from "react";
+import React, { FunctionComponent } from "react";
 import { TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ResponsiveUi } from "../ResponsiveUi";
+import { useAppDimensions } from "@/hooks/useAppDimensions";
+import BackButton from "../svgs/back-button";
+import { useThemeColors } from "@/hooks/useThemeColor";
+
+const KEYS = [
+  ["1", "2", "3"],
+  ["4", "5", "6"],
+  ["7", "8", "9"],
+  [".", "0", "<"],
+];
 
 interface CustomKeyBoardProps {
   value?: string;
@@ -32,16 +42,10 @@ const CustomKeyBoard: FunctionComponent<CustomKeyBoardProps> = ({
   className,
 }) => {
   const insets = useSafeAreaInsets();
+  const { hp, wp } = useAppDimensions();
+  const colors = useThemeColors();
 
-  const inputs = useMemo(
-    () => [
-      ["1", "2", "3"],
-      ["4", "5", "6"],
-      ["7", "8", "9"],
-      [".", "0", "<"],
-    ],
-    [],
-  );
+  if (!visible) return null;
 
   const handleKeyPress = (key: string) => {
     onKeyPress?.(key);
@@ -70,38 +74,59 @@ const CustomKeyBoard: FunctionComponent<CustomKeyBoardProps> = ({
     onChangeText?.(nextValue);
   };
 
-  if (!visible) return null;
-
-  const handleSubmit = () => {
-    onSubmit?.();
-  };
+  const keyWidth = wp(24);
+  const keyHeight = hp(6);
+  const keyFontSize = hp(3.2);
+  const rowGap = wp(3);
+  const rowMarginBottom = hp(2);
 
   return (
     <View
-      style={{ paddingBottom: insets.bottom + 4 }}
-      className={`w-full z-50 px-4 items-center  ${className ?? ""}`}
+      style={{ paddingBottom: insets.bottom + hp(1.5) }}
+      className={`w-full z-50 px-4 items-center ${className ?? ""}`}
     >
       <View className="justify-center py-2">
-        {inputs.map((row, rowIndex) => (
-          <View key={rowIndex} className="flex-row justify-center gap-16 mb-4">
+        {KEYS.map((row, rowIndex) => (
+          <View
+            key={rowIndex}
+            style={{
+              flexDirection: "row",
+              justifyContent: "center",
+              marginBottom: rowMarginBottom,
+              gap: rowGap,
+            }}
+          >
             {row.map((key) => (
               <TouchableOpacity
                 onPress={() => handleKeyPress(key)}
                 key={key}
-                className="w-16 h-14 bg-gray-200 rounded-full items-center justify-center"
+                style={{
+                  width: keyWidth,
+                  height: keyHeight,
+                  borderRadius: 10,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  borderWidth: key === "<" || key === "." ? 0 : 1,
+                  borderColor: colors.gray,
+                }}
               >
-                <ResponsiveUi.Text bold fontSize={28}>
-                  {key === "<" ? "⌫" : key}
-                </ResponsiveUi.Text>
+                {key === "<" ? (
+                  <BackButton />
+                ) : (
+                  <ResponsiveUi.Text bold fontSize={keyFontSize}>
+                    {key}
+                  </ResponsiveUi.Text>
+                )}
               </TouchableOpacity>
             ))}
           </View>
         ))}
         <ResponsiveUi.Button
-          title={submitLabel ?? "Continue"}
-          action={handleSubmit}
+          title={submitLabel}
+          action={() => onSubmit?.()}
           disabled={submitDisabled}
-          small
+          medium
+          fontSize={hp(2)}
         />
       </View>
     </View>

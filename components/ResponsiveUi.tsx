@@ -181,6 +181,7 @@ export const ResponsiveUi = {
       ...rest
     }: ResponsiveUiButtonProps) => {
       const themColors = useThemeColors();
+      const { hp, wp } = useAppDimensions();
       const shouldUseDefaultSmallSize =
         rest.fontSize == null &&
         !rest.xl &&
@@ -204,7 +205,11 @@ export const ResponsiveUi = {
           className={cn(btnClassName)}
           style={[
             styles.responsiveBtn,
-            { opacity: disabled ? 0.4 : 1 },
+            {
+              height: hp(6.5), // Responsive height
+              borderRadius: wp(12), // Responsive border radius
+              opacity: disabled ? 0.4 : 1,
+            },
             backgroundColor && { backgroundColor },
             style,
           ]}
@@ -218,7 +223,7 @@ export const ResponsiveUi = {
                 semiBold={!rest?.bold}
                 tailwind="mx-4"
                 {...rest}
-                color={rest.color ?? themColors.white} // 👈 let prop override theme
+                color={rest.color ?? themColors.white}
               >
                 {title}
               </ResponsiveUi.Text>
@@ -233,8 +238,6 @@ export const ResponsiveUi = {
 
 const styles = StyleSheet.create({
   responsiveBtn: {
-    borderRadius: 50,
-    height: 52,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: genericColors.slate,

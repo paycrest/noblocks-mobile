@@ -3,7 +3,7 @@ import { Image } from "expo-image";
 import { truncate } from "lodash";
 import { ChevronDown, Plus } from "lucide-react-native";
 import React, { FunctionComponent } from "react";
-import { TouchableOpacity, View } from "react-native";
+import { Pressable, TouchableOpacity, View } from "react-native";
 import { ResponsiveUi } from "../ResponsiveUi";
 import { ActivityIndicator } from "react-native-paper";
 interface CurrencySelectorProps {
@@ -34,7 +34,7 @@ const CurrencySelector: FunctionComponent<CurrencySelectorProps> = ({
   const displayRightValue = parsedRightValue || "0";
 
   return (
-    <View className="mt-8 flex-1 flex-row justify-between items-center">
+    <View className="mt-4 flex-1 h-20 border border-subtle_surface px-5 py-4 rounded-2xl bg-neutral_surface  flex-row justify-between items-center">
       <TouchableOpacity
         activeOpacity={0.8}
         className="flex-row items-center"
@@ -49,7 +49,12 @@ const CurrencySelector: FunctionComponent<CurrencySelectorProps> = ({
             />
           ) : (
             <View
-              style={{ backgroundColor: colors.secondary }}
+              style={{
+                borderWidth: 1,
+                borderColor: colors.gray,
+                backgroundColor: colors.subtle_surface,
+                borderStyle: "dashed",
+              }}
               className="w-10 h-10 rounded-full items-center justify-center"
             >
               <Plus size={18} color={colors.text} />
@@ -67,7 +72,7 @@ const CurrencySelector: FunctionComponent<CurrencySelectorProps> = ({
                 top: 0,
                 left: -2,
                 borderWidth: 1.5,
-                borderColor: colors.surface_overlay,
+                borderColor: colors.white,
               }}
             />
           ) : null}
@@ -94,16 +99,22 @@ const CurrencySelector: FunctionComponent<CurrencySelectorProps> = ({
           })}
         </ResponsiveUi.Text>
       </View>
-      <View className="ml-auto w-1/3 flex items-end ">
-        {isLoading ? (
-          <ActivityIndicator size="small" color={colors.primary} />
-        ) : (
-          <ResponsiveUi.Text medium fontSize={18}>
-            {truncate(displayRightValue, {
-              length: 15,
-            })}
-          </ResponsiveUi.Text>
-        )}
+      <View className="ml-auto w-1/3  flex items-end ">
+        <Pressable
+          className={`bg-${!selectedAsset ? "dark-gray-hover" : "transparent"} px-4 py-3 rounded-3xl`}
+        >
+          {isLoading ? (
+            <ActivityIndicator size="small" color={colors.primary} />
+          ) : (
+            <ResponsiveUi.Text medium fontSize={18}>
+              {!selectedAsset
+                ? "Select"
+                : truncate(displayRightValue, {
+                    length: 15,
+                  })}
+            </ResponsiveUi.Text>
+          )}
+        </Pressable>
       </View>
     </View>
   );

@@ -55,14 +55,14 @@ const WalletExportModal: FunctionComponent<Props> = ({
       <BackdropBlur onClose={onClose} />
       <View
         style={{
-          height: hp(65),
+          height: Math.min(hp(70), 550), // Cap max height for large screens
           position: "absolute",
           width: wp(95),
-          bottom: 10,
-          borderRadius: 40,
+          bottom: wp(2), // Use smaller bottom margin for large screens
+          borderRadius: wp(8),
           backgroundColor: colors.surface_overlay,
-          padding: 20,
-          marginHorizontal: 40,
+          padding: wp(5),
+          marginHorizontal: wp(5),
           marginBottom: 20,
           alignSelf: "center",
         }}
@@ -71,36 +71,68 @@ const WalletExportModal: FunctionComponent<Props> = ({
           <ExportWalletIcon />
           <X onPress={onClose} size={20} color={colors.secondary} />
         </View>
-        <View className="mt-8">
-          <ResponsiveUi.Text semiBold>Export Wallet</ResponsiveUi.Text>
+        <View style={{ marginTop: hp(3) }}>
+          <ResponsiveUi.Text semiBold fontSize={wp(5.2)}>
+            Export Wallet
+          </ResponsiveUi.Text>
         </View>
-        <View className="mt-8">
+        <View style={{ marginTop: hp(3) }}>
           {instructions.map((instruction, index) => (
-            <View key={index} className="flex-row items-center mb-5">
-              <View className="mr-4 bg-gray items-center justify-center rounded-full py-1 px-2.5">
+            <View
+              key={index}
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                marginBottom: hp(2),
+              }}
+            >
+              <View
+                style={{
+                  marginRight: wp(4),
+                  backgroundColor: colors.gray,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  borderRadius: 100,
+                  paddingVertical: hp(0.7),
+                  paddingHorizontal: wp(2.5),
+                }}
+              >
                 <ResponsiveUi.Text small color={instruction.color} key={index}>
                   {index + 1}
                 </ResponsiveUi.Text>
               </View>
-              <ResponsiveUi.Text tailwind="w-72" small>
+              <ResponsiveUi.Text style={{ width: wp(60) }} small>
                 {instruction.text}
               </ResponsiveUi.Text>
             </View>
           ))}
         </View>
-        <View className="flex-row py-4 mt-2 bg-gray rounded-md px-2 justify-between">
+        <View
+          style={{
+            flexDirection: "row",
+            paddingVertical: hp(1.2),
+            marginTop: hp(1),
+            backgroundColor: colors.gray,
+            borderRadius: wp(3),
+            paddingHorizontal: wp(2),
+            alignItems: "center",
+          }}
+        >
           <Check
             checked={isTermsAccepted}
             type="square"
             onPress={() => setIsTermsAccepted((prev) => !prev)}
           />
-          <ResponsiveUi.Text tailwind="w-72 ml-5" fontSize={14}>
+          <ResponsiveUi.Text
+            style={{ width: wp(50), marginLeft: wp(3) }}
+            fontSize={wp(3.5)}
+          >
             I understand and accept the above information
           </ResponsiveUi.Text>
         </View>
         <ResponsiveUi.Button
           title="Reveal"
-          className="mt-8"
+          style={{ marginTop: hp(3) }}
           action={onRevealBtnPressed}
           disabled={!isTermsAccepted}
           iconMiddle={<RevealIcon />}

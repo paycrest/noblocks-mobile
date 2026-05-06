@@ -1,5 +1,6 @@
 import { ResponsiveUi } from "@/components/ResponsiveUi";
 import { useThemeColors } from "@/hooks/useThemeColor";
+import { useAppDimensions } from "@/hooks/useAppDimensions";
 import { Search, X } from "lucide-react-native";
 import React, { FunctionComponent, useMemo, useState } from "react";
 import {
@@ -66,6 +67,7 @@ const BeneficiarySelectorModal: FunctionComponent<
   BeneficiarySelectorModalProps
 > = ({ isVisible, onClose, onSelect }) => {
   const colors = useThemeColors();
+  const { hp, wp } = useAppDimensions();
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredBeneficiaries = useMemo(() => {
@@ -88,7 +90,12 @@ const BeneficiarySelectorModal: FunctionComponent<
     return (
       <TouchableOpacity
         activeOpacity={0.85}
-        className="flex-row items-center px-1 py-3"
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          paddingHorizontal: wp(2),
+          paddingVertical: hp(1.2),
+        }}
         onPress={() => {
           onSelect(item);
           onClose();
@@ -98,12 +105,14 @@ const BeneficiarySelectorModal: FunctionComponent<
         <UserCircleIcon
           color={colors.subtle_surface}
           stroke={colors.secondary}
+          height={hp(4)}
+          width={hp(4)}
         />
-        <View className="ml-4 flex-1">
-          <ResponsiveUi.Text semiBold fontSize={18} color={colors.text}>
+        <View style={{ marginLeft: wp(3), flex: 1 }}>
+          <ResponsiveUi.Text semiBold fontSize={hp(2.2)} color={colors.text}>
             {item.name}
           </ResponsiveUi.Text>
-          <ResponsiveUi.Text fontSize={16} color={colors.secondary}>
+          <ResponsiveUi.Text fontSize={hp(1.9)} color={colors.secondary}>
             {item.accountNumber} • {item.bankName}
           </ResponsiveUi.Text>
         </View>
@@ -130,18 +139,35 @@ const BeneficiarySelectorModal: FunctionComponent<
               marginTop: 40,
             }}
           >
-            <View className="flex-row items-center justify-between mb-5">
-              <ResponsiveUi.Text semiBold fontSize={20} color={colors.text}>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginBottom: hp(2.2),
+              }}
+            >
+              <ResponsiveUi.Text
+                semiBold
+                fontSize={hp(2.5)}
+                color={colors.text}
+              >
                 Select beneficiary
               </ResponsiveUi.Text>
               <TouchableOpacity activeOpacity={0.8} onPress={onClose}>
-                <X size={34} color={colors.secondary} />
+                <X size={hp(3.5)} color={colors.secondary} />
               </TouchableOpacity>
             </View>
 
-            <View className="relative mb-4 justify-center">
-              <View className="absolute left-4 z-10">
-                <Search size={30} color={colors.secondary} />
+            <View
+              style={{
+                position: "relative",
+                marginBottom: hp(1.5),
+                justifyContent: "center",
+              }}
+            >
+              <View style={{ position: "absolute", left: wp(4), zIndex: 10 }}>
+                <Search size={hp(3.2)} color={colors.secondary} />
               </View>
               <TextInput
                 value={searchQuery}
@@ -156,10 +182,10 @@ const BeneficiarySelectorModal: FunctionComponent<
                   borderRadius: 18,
                   color: colors.text,
                   backgroundColor: colors.background,
-                  paddingLeft: 60,
-                  paddingRight: 16,
-                  paddingVertical: 14,
-                  fontSize: 17,
+                  paddingLeft: wp(14),
+                  paddingRight: wp(4),
+                  paddingVertical: hp(1.5),
+                  fontSize: hp(2),
                   fontWeight: "500",
                 }}
               />
@@ -171,10 +197,20 @@ const BeneficiarySelectorModal: FunctionComponent<
               renderItem={renderItem}
               showsVerticalScrollIndicator
               keyboardShouldPersistTaps="handled"
-              contentContainerStyle={{ paddingBottom: 24, flexGrow: 1 }}
+              contentContainerStyle={{ paddingBottom: hp(3), flexGrow: 1 }}
               ListEmptyComponent={
-                <View className="flex-1 items-center justify-center py-8">
-                  <ResponsiveUi.Text color={colors.secondary} fontSize={14}>
+                <View
+                  style={{
+                    flex: 1,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    paddingVertical: hp(3),
+                  }}
+                >
+                  <ResponsiveUi.Text
+                    color={colors.secondary}
+                    fontSize={hp(1.7)}
+                  >
                     No beneficiary matches your search.
                   </ResponsiveUi.Text>
                 </View>

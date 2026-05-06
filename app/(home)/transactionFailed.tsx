@@ -8,6 +8,7 @@ import { StatusBar } from "expo-status-bar";
 import _ from "lodash";
 import { X, XCircle } from "lucide-react-native";
 import React, { FunctionComponent, useMemo } from "react";
+import { useAppDimensions } from "@/hooks/useAppDimensions";
 import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -26,13 +27,14 @@ const DetailRow: React.FC<DetailRowProps> = ({
   valueColor,
   valueBold = false,
 }) => {
+  const { hp } = useAppDimensions();
   return (
     <View className="flex-row items-center justify-between">
-      <ResponsiveUi.Text fontSize={14} color={labelColor}>
+      <ResponsiveUi.Text fontSize={hp(1.8)} color={labelColor}>
         {label}
       </ResponsiveUi.Text>
       <ResponsiveUi.Text
-        fontSize={14}
+        fontSize={hp(1.8)}
         color={valueColor}
         tailwind=""
         bold={valueBold}
@@ -46,6 +48,7 @@ const DetailRow: React.FC<DetailRowProps> = ({
 const TransactionFailed: FunctionComponent = () => {
   const colors = useThemeColors();
   const insets = useSafeAreaInsets();
+  const { hp, wp } = useAppDimensions();
   const { amount, token, recipientName, failureReason } = useLocalSearchParams<{
     amount?: string;
     token?: string;
@@ -116,8 +119,12 @@ const TransactionFailed: FunctionComponent = () => {
           hideHandle
         >
           <View
-            className="flex-1 px-5 pt-4"
-            style={{ paddingBottom: insets.bottom + 14 }}
+            style={{
+              flex: 1,
+              paddingHorizontal: wp(5),
+              paddingTop: hp(2),
+              paddingBottom: insets.bottom + hp(2.5),
+            }}
           >
             <X
               size={28}
@@ -126,12 +133,12 @@ const TransactionFailed: FunctionComponent = () => {
               onPress={() => router.back()}
             />
 
-            <View className="mt-12">
-              <XCircle size={30} color={colors.destructive} />
+            <View style={{ marginTop: hp(4), alignItems: "center" }}>
+              <XCircle size={hp(4)} color={colors.destructive} />
               <ResponsiveUi.Text
                 medium
-                fontSize={20}
-                tailwind="mt-5"
+                fontSize={hp(2.2)}
+                style={{ marginTop: hp(1.5) }}
                 color={colors.text}
               >
                 Oops! Transaction failed
@@ -150,56 +157,68 @@ const TransactionFailed: FunctionComponent = () => {
             />
 
             <View
-              className="mt-5"
-              style={{ borderTopWidth: 1, borderTopColor: colors.gray }}
+              style={{
+                marginTop: hp(2),
+                borderTopWidth: 1,
+                borderTopColor: colors.gray,
+              }}
             />
 
             <ResponsiveUi.Text
-              fontSize={14}
-              tailwind="mt-5"
+              fontSize={hp(1.7)}
+              style={{ marginTop: hp(1.5) }}
               color={colors.secondary}
             >
               Your transfer of{" "}
-              <ResponsiveUi.Text color={colors.text} fontSize={14} medium>
+              <ResponsiveUi.Text color={colors.text} fontSize={hp(2)} medium>
                 {amountLabel}
               </ResponsiveUi.Text>{" "}
               to {recipientLabel} was unsuccessful.
             </ResponsiveUi.Text>
 
             <ResponsiveUi.Text
-              fontSize={14}
-              tailwind="mt-6"
+              fontSize={hp(1.7)}
+              style={{ marginTop: hp(2.5) }}
               color={colors.secondary}
             >
               Token will be refunded to your account.
             </ResponsiveUi.Text>
 
-            <View className="mt-6 rounded-3xl px-5 py-5">
-              <ResponsiveUi.Text fontSize={14} bold color={colors.text}>
+            <View
+              style={{
+                marginTop: hp(2.5),
+                borderRadius: hp(2),
+                paddingHorizontal: wp(4),
+                paddingVertical: hp(2),
+                backgroundColor: colors.subtle_surface,
+              }}
+            >
+              <ResponsiveUi.Text fontSize={hp(1.7)} bold color={colors.text}>
                 Reason for failure
               </ResponsiveUi.Text>
               <ResponsiveUi.Text
-                fontSize={14}
-                tailwind="mt-5"
+                fontSize={hp(1.7)}
+                style={{ marginTop: hp(1.2), lineHeight: hp(2.2) }}
                 color={colors.secondary}
-                style={{ lineHeight: 20 }}
               >
                 {reasonText}
               </ResponsiveUi.Text>
             </View>
 
             <View
-              className="mt-6"
-              style={{ borderTopWidth: 1, borderTopColor: colors.gray }}
+              style={{
+                marginTop: hp(2.5),
+                borderTopWidth: 1,
+                borderTopColor: colors.gray,
+              }}
             />
 
-            <View className="mt-5" style={{ gap: 16 }}>
+            <View style={{ marginTop: hp(1.5), gap: hp(1.5) }}>
               <DetailRow
                 label="Transaction status"
                 value="Failed"
                 labelColor={colors.secondary}
                 valueColor={colors.destructive}
-                valueBold
               />
               <DetailRow
                 label="Fund status"
@@ -221,14 +240,15 @@ const TransactionFailed: FunctionComponent = () => {
               />
             </View>
 
-            <View className="mt-auto pt-8">
+            <View style={{ marginTop: "auto", paddingTop: hp(3) }}>
               <ResponsiveUi.Button
                 title="Retry transaction"
                 action={() => router.back()}
                 bold
                 color={colors.white}
                 backgroundColor={colors.slate}
-                fontSize={18}
+                fontSize={hp(2)}
+                style={{ minHeight: hp(5.5) }}
               />
             </View>
           </View>

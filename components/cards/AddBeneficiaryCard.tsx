@@ -17,7 +17,7 @@ const AddBeneficiaryCard: FunctionComponent<AddBeneficiaryCardProps> = ({
     <TouchableOpacity
       activeOpacity={0.85}
       onPress={onPress}
-      className="w-full mt-4 rounded-3xl px-4 py-4 flex-row items-center justify-between"
+      className="w-full mt-2 rounded-3xl px-4 py-4 flex-row items-center justify-between"
       style={{
         backgroundColor: colors.subtle_surface,
         borderWidth: 0.5,

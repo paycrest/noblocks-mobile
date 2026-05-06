@@ -17,6 +17,7 @@ import { ActivityIndicator } from "react-native-paper";
 import { ResponsiveUi } from "../ResponsiveUi";
 import BackdropBlur from "./BackdropBlur";
 import BaseModal from "./BaseModal";
+import { useAppDimensions } from "@/hooks/useAppDimensions";
 
 const FEATURED_SYMBOL_ORDER = ["ETH", "USDC", "USDT", "DAI", "WBTC"];
 const MODAL_HEIGHT = Math.min(420, Dimensions.get("screen").height * 0.4);
@@ -45,6 +46,7 @@ const AssetSelectorSheet: FunctionComponent<AssetSelectorSheetProps> = ({
 }) => {
   const colors = useThemeColors();
   const [searchQuery, setSearchQuery] = useState("");
+  const { hp, wp } = useAppDimensions();
 
   const {
     data: assets = [],
@@ -92,18 +94,18 @@ const AssetSelectorSheet: FunctionComponent<AssetSelectorSheetProps> = ({
           onClose();
         }}
       >
-        <View style={{ width: 40, height: 40 }}>
+        <View style={{ width: hp(5), height: hp(5) }}>
           {item.logoURI ? (
             <Image
               source={{ uri: item.logoURI }}
-              style={{ width: 40, height: 40, borderRadius: 20 }}
+              style={{ width: hp(5), height: hp(5), borderRadius: hp(2.5) }}
             />
           ) : (
             <View
               style={{ backgroundColor: colors.secondary }}
               className="w-10 h-10 rounded-full items-center justify-center"
             >
-              <ResponsiveUi.Text medium fontSize={13}>
+              <ResponsiveUi.Text medium fontSize={hp(2.2)}>
                 {item.symbol.slice(0, 3)}
               </ResponsiveUi.Text>
             </View>
@@ -112,9 +114,9 @@ const AssetSelectorSheet: FunctionComponent<AssetSelectorSheetProps> = ({
             <Image
               source={{ uri: chainLogoURI }}
               style={{
-                width: 16,
-                height: 16,
-                borderRadius: 8,
+                width: hp(2),
+                height: hp(2),
+                borderRadius: hp(1),
                 position: "absolute",
                 bottom: 0,
                 right: -2,
@@ -126,22 +128,26 @@ const AssetSelectorSheet: FunctionComponent<AssetSelectorSheetProps> = ({
         </View>
 
         <View className="ml-3 flex-1">
-          <ResponsiveUi.Text medium fontSize={16}>
+          <ResponsiveUi.Text medium fontSize={hp(2.2)}>
             {item.symbol}
           </ResponsiveUi.Text>
-          <ResponsiveUi.Text fontSize={13} color={colors.secondary}>
+          <ResponsiveUi.Text fontSize={hp(2)} color={colors.secondary}>
             {item.name}
           </ResponsiveUi.Text>
         </View>
 
-        <View className="items-end">
+        <View className="items-end w-1/4 flex-row">
           {formattedPrice ? (
-            <ResponsiveUi.Text fontSize={13} color={colors.secondary}>
+            <ResponsiveUi.Text fontSize={hp(2)} color={colors.secondary}>
               ${formattedPrice}
             </ResponsiveUi.Text>
           ) : null}
           {isSelected ? (
-            <CheckCircle2 size={18} color={colors.primary} />
+            <CheckCircle2
+              size={hp(2.5)}
+              className="ml-2"
+              color={colors.primary}
+            />
           ) : null}
         </View>
       </TouchableOpacity>
@@ -165,17 +171,17 @@ const AssetSelectorSheet: FunctionComponent<AssetSelectorSheetProps> = ({
             }}
           >
             <View className="flex-row items-center justify-between mb-4">
-              <ResponsiveUi.Text semiBold fontSize={18}>
+              <ResponsiveUi.Text semiBold fontSize={hp(2.5)}>
                 Select token
               </ResponsiveUi.Text>
               <TouchableOpacity activeOpacity={0.8} onPress={onClose}>
-                <X size={20} color={colors.secondary} />
+                <X size={hp(2.5)} color={colors.secondary} />
               </TouchableOpacity>
             </View>
 
             <View className="relative mb-4 justify-center">
               <View className="absolute left-4 z-10">
-                <Search size={18} color={colors.secondary} />
+                <Search size={hp(2.5)} color={colors.secondary} />
               </View>
               <TextInput
                 autoCapitalize="none"
@@ -193,7 +199,7 @@ const AssetSelectorSheet: FunctionComponent<AssetSelectorSheetProps> = ({
                   paddingRight: 16,
                   paddingVertical: 14,
                   fontWeight: "500",
-                  fontSize: 15,
+                  fontSize: hp(2),
                 }}
                 value={searchQuery}
               />
@@ -203,7 +209,7 @@ const AssetSelectorSheet: FunctionComponent<AssetSelectorSheetProps> = ({
               {isLoading ? (
                 <View className="flex-1 items-center justify-center">
                   <ActivityIndicator color={colors.primary} />
-                  <ResponsiveUi.Text fontSize={14} color={colors.secondary}>
+                  <ResponsiveUi.Text fontSize={hp(2)} color={colors.secondary}>
                     Loading assets...
                   </ResponsiveUi.Text>
                 </View>
@@ -211,7 +217,7 @@ const AssetSelectorSheet: FunctionComponent<AssetSelectorSheetProps> = ({
                 <View className="flex-1 items-center justify-center px-6">
                   <ResponsiveUi.Text
                     center
-                    fontSize={14}
+                    fontSize={hp(2)}
                     color={colors.secondary}
                   >
                     {errorMessage}
@@ -228,7 +234,7 @@ const AssetSelectorSheet: FunctionComponent<AssetSelectorSheetProps> = ({
                       <ActivityIndicator color={colors.white} size="small" />
                     ) : (
                       <ResponsiveUi.Text
-                        fontSize={14}
+                        fontSize={hp(2)}
                         semiBold
                         color={colors.white}
                       >
@@ -248,7 +254,10 @@ const AssetSelectorSheet: FunctionComponent<AssetSelectorSheetProps> = ({
                   style={{ flex: 1 }}
                   ListEmptyComponent={
                     <View className="items-center justify-center py-10">
-                      <ResponsiveUi.Text color={colors.secondary} fontSize={14}>
+                      <ResponsiveUi.Text
+                        color={colors.secondary}
+                        fontSize={hp(2)}
+                      >
                         No assets match your search.
                       </ResponsiveUi.Text>
                     </View>

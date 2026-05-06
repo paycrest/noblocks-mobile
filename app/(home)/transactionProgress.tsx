@@ -10,6 +10,7 @@ import _ from "lodash";
 import { X } from "lucide-react-native";
 import React, { FunctionComponent, useEffect, useMemo, useRef } from "react";
 import { Animated, Easing, View } from "react-native";
+import { useAppDimensions } from "@/hooks/useAppDimensions";
 import { AnimatedCircularProgress } from "react-native-circular-progress";
 import { UIActivityIndicator } from "react-native-indicators";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -24,6 +25,7 @@ const ActivityIndicator =
 
 const TransactionProgress: FunctionComponent = () => {
   const colors = useThemeColors();
+  const { hp, wp } = useAppDimensions();
   const insets = useSafeAreaInsets();
   const { amount, token, recipientName } = useLocalSearchParams<{
     amount?: string;
@@ -86,7 +88,6 @@ const TransactionProgress: FunctionComponent = () => {
         },
       });
     }, 3500);
-
     return () => clearTimeout(timeout);
   }, [amount, token, recipientName]);
 
@@ -119,17 +120,25 @@ const TransactionProgress: FunctionComponent = () => {
           showBackdrop={false}
           hideHandle
         >
-          <View className="flex-1 px-4 pt-2">
+          <View
+            style={{ flex: 1, paddingHorizontal: wp(4), paddingTop: hp(1.5) }}
+          >
             <X
-              size={28}
+              size={hp(3.5)}
               color={colors.text}
-              style={{ position: "absolute", right: 18, top: 18 }}
+              style={{ position: "absolute", right: wp(4), top: hp(2.2) }}
               onPress={() => router.back()}
             />
-            <View className="justify-center items-center mt-20">
+            <View
+              style={{
+                justifyContent: "center",
+                alignItems: "center",
+                marginTop: hp(8),
+              }}
+            >
               <AnimatedCircularProgress
-                size={230}
-                width={40}
+                size={wp(60)}
+                width={wp(10)}
                 fill={90}
                 tintColor={colors.teal}
                 lineCap="round"
@@ -138,15 +147,28 @@ const TransactionProgress: FunctionComponent = () => {
                 onAnimationComplete={() => console.log("onAnimationComplete")}
                 backgroundColor={colors.background}
                 renderCap={({ center }) => (
-                  <Circle cx={center.x} cy={center.y} r="4" fill="white" />
+                  <Circle
+                    cx={center.x}
+                    cy={center.y}
+                    r={hp(0.7)}
+                    fill="white"
+                  />
                 )}
               >
                 {(fill: number) => (
                   <>
-                    <ResponsiveUi.Text fontSize={35} bold color={colors.text}>
+                    <ResponsiveUi.Text
+                      fontSize={hp(4.2)}
+                      bold
+                      color={colors.text}
+                    >
                       {fill}
                     </ResponsiveUi.Text>
-                    <ResponsiveUi.Text fontSize={15} medium color={colors.text}>
+                    <ResponsiveUi.Text
+                      fontSize={hp(1.8)}
+                      medium
+                      color={colors.text}
+                    >
                       Sec
                     </ResponsiveUi.Text>
                   </>
@@ -154,11 +176,20 @@ const TransactionProgress: FunctionComponent = () => {
               </AnimatedCircularProgress>
             </View>
 
-            <View className="flex-row rounded-lg w-32 mt-16 px-2 py-1">
-              <ActivityIndicator color={colors.olive2} size={16} count={8} />
+            <View
+              style={{
+                flexDirection: "row",
+                borderRadius: 12,
+                width: wp(32),
+                marginTop: hp(7),
+                paddingHorizontal: wp(2),
+                paddingVertical: hp(1),
+              }}
+            >
+              <ActivityIndicator color={colors.olive2} size={hp(2)} count={8} />
               <ResponsiveUi.Text
-                fontSize={16}
-                tailwind="ml-5"
+                fontSize={hp(2)}
+                style={{ marginLeft: wp(3) }}
                 color={colors.olive}
               >
                 indexing
@@ -167,8 +198,8 @@ const TransactionProgress: FunctionComponent = () => {
 
             <View>
               <ResponsiveUi.Text
-                fontSize={18}
-                tailwind="ml-5 mt-8"
+                fontSize={hp(2.2)}
+                style={{ marginLeft: wp(3), marginTop: hp(3) }}
                 color={colors.text}
                 medium
               >
@@ -188,10 +219,16 @@ const TransactionProgress: FunctionComponent = () => {
               }}
             />
 
-            <View className="mt-2 py-2 rounded-xl">
+            <View
+              style={{
+                marginTop: hp(1.5),
+                paddingVertical: hp(1.2),
+                borderRadius: 16,
+              }}
+            >
               <ResponsiveUi.Text
-                fontSize={14}
-                tailwind="ml-5 mt-8"
+                fontSize={hp(1.8)}
+                style={{ marginLeft: wp(3), marginTop: hp(3) }}
                 color={colors.secondary}
               >
                 Processing payment to {_.startCase(_.toLower(recipientLabel))}.

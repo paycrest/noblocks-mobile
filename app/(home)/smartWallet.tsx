@@ -1,6 +1,8 @@
+import IconList from "@/components/iconList";
 import { ResponsiveUi } from "@/components/ResponsiveUi";
 import QRCodeIcon from "@/components/svgs/qr-code";
 import USDC from "@/components/svgs/usdc-icon";
+import { useAppDimensions } from "@/hooks/useAppDimensions";
 import { useThemeColors } from "@/hooks/useThemeColor";
 import { formatAmount } from "@/utils/general";
 import { CircleQuestionMark, Copy } from "lucide-react-native";
@@ -32,6 +34,7 @@ const SmartWallet: FunctionComponent = () => {
 
   const isGoingRight = prevTab === "QR" && selectedTab === "Address";
   const isGoingLeft = prevTab === "Address" && selectedTab === "QR";
+  const { hp, wp } = useAppDimensions();
 
   const enteringAnimation = isGoingRight
     ? SlideInLeft.duration(250)
@@ -43,44 +46,105 @@ const SmartWallet: FunctionComponent = () => {
 
   const { height } = Dimensions.get("window");
 
+  // Responsive spacing and sizing
+  const mt6 = hp(2.5);
+  const mt12 = hp(5);
+  const mt2 = hp(0.8);
+  const mt4 = hp(4);
+  const mt5 = hp(2);
+  const px2 = wp(2);
+  const py2 = hp(1);
+  const tabButtonFontSize = hp(1.7);
+  const tabButtonWidth = wp(40);
+  const qrSize = hp(35);
+
   return (
-    <View className=" mt-6">
-      <View className="flex-row items-center justify-center">
-        <ResponsiveUi.Text medium tailwind="mr-3" fontSize={18}>
+    <View style={{ marginTop: mt6 }}>
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <ResponsiveUi.Text
+          medium
+          fontSize={hp(2.5)}
+          style={{ marginRight: wp(3) }}
+        >
           Smart Wallet
         </ResponsiveUi.Text>
-        <CircleQuestionMark color={colors.secondary} size={18} />
+        <CircleQuestionMark color={colors.secondary} size={hp(2.5)} />
       </View>
-      <View className="items-center justify-center mt-6">
-        <ResponsiveUi.Text bold fontSize={36}>
-          {formatAmount(1234.56, "$")} {/* Example balance */}
+      <View
+        style={{
+          alignItems: "center",
+          justifyContent: "center",
+          marginTop: mt6,
+        }}
+      >
+        <ResponsiveUi.Text
+          bold
+          fontSize={hp(4)}
+          style={{ textAlign: "center" }}
+        >
+          {formatAmount(1234.56, "$")}
         </ResponsiveUi.Text>
-        <View className="flex-row items-center mt-2">
-          <USDC height={20} width={20} />
-          <ResponsiveUi.Text medium fontSize={16} tailwind="ml-2">
+        <View
+          style={{ flexDirection: "row", alignItems: "center", marginTop: mt2 }}
+        >
+          <USDC height={hp(2.5)} width={hp(2.5)} />
+          <ResponsiveUi.Text
+            medium
+            fontSize={hp(2)}
+            style={{ marginLeft: wp(2) }}
+          >
             {formatAmount(1234.56, "")} USDC
           </ResponsiveUi.Text>
         </View>
       </View>
-      <View className="mt-12 items-center justify-center">
+      <View
+        style={{
+          marginTop: mt12,
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
         <ResponsiveUi.Text>Fund wallet</ResponsiveUi.Text>
-        <View className="flex-row w-auto px-2 rounded-full justify-center py-2 bg-gray2 mt-6 items-center">
+        <View
+          style={{
+            flexDirection: "row",
+            width: wp(85),
+            paddingHorizontal: px2,
+            borderRadius: wp(20),
+            justifyContent: "space-between",
+            paddingVertical: py2,
+            backgroundColor: colors.gray,
+            marginTop: mt6,
+            alignItems: "center",
+          }}
+        >
           {TABS.map((tab) => (
             <Animated.View
               key={tab}
               entering={SlideInLeft.delay(100)}
               exiting={SlideInRight}
-              style={{ width: "40%", alignSelf: "center" }}
+              style={{ width: tabButtonWidth, alignSelf: "center" }}
             >
               <ResponsiveUi.Button
                 title={tab}
-                fontSize={12}
+                fontSize={tabButtonFontSize}
                 backgroundColor={
                   selectedTab === tab ? colors.primary_2 : "transparent"
                 }
                 color={selectedTab === tab ? colors.lavendar : colors.secondary}
                 action={() => setSelectedTab(tab)}
-                tailwind="w-full text-center"
+                style={{
+                  width: wp(40),
+                  textAlign: "center",
+                }}
+                className=""
+                tailwind="bg-white"
               />
             </Animated.View>
           ))}
@@ -90,23 +154,37 @@ const SmartWallet: FunctionComponent = () => {
           key={selectedTab}
           entering={enteringAnimation}
           exiting={exitingAnimation}
-          style={{ marginTop: 16, height: height / 2.5, alignItems: "center" }}
+          style={{
+            flex: 1,
+            marginTop: mt4,
+            height: hp(38),
+            alignItems: "center",
+          }}
         >
           {selectedTab === "QR" ? (
-            <QRCodeIcon />
+            <QRCodeIcon height={qrSize} width={qrSize} />
           ) : (
-            <View className="mt-12 items-center">
-              <ResponsiveUi.Text regular fontSize={14} color={colors.secondary}>
+            <View style={{ marginTop: mt5, alignItems: "center" }}>
+              <ResponsiveUi.Text
+                regular
+                fontSize={hp(2)}
+                color={colors.secondary}
+              >
                 Send funds to your wallet below
               </ResponsiveUi.Text>
-              <ResponsiveUi.Text medium fontSize={20} tailwind="mt-4">
+              <ResponsiveUi.Text
+                medium
+                fontSize={hp(2)}
+                style={{ marginTop: mt4 }}
+              >
                 0xa5d962C...C5821eb1024
               </ResponsiveUi.Text>
+              <IconList />
               <ResponsiveUi.Text
                 center
-                fontSize={14}
+                fontSize={hp(2)}
                 color={colors.secondary}
-                tailwind="mt-4"
+                style={{ marginTop: mt4 }}
               >
                 You can send tokens from Ethereum, Base, Arbitrum, Optimism,
                 Scroll networks
@@ -114,11 +192,12 @@ const SmartWallet: FunctionComponent = () => {
               <ResponsiveUi.Button
                 title="Copy codes"
                 action={() => {}}
-                className="mt-12"
+                style={{ marginTop: mt4 }}
                 backgroundColor={colors.background}
-                iconMiddle={<Copy className="ml-4" color={colors.text} />}
+                iconMiddle={
+                  <Copy style={{ marginLeft: wp(4) }} color={colors.text} />
+                }
                 color={colors.text}
-                containerStyle="mt-12"
               />
             </View>
           )}
