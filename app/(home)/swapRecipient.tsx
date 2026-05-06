@@ -453,7 +453,7 @@ const SwapDetails: FunctionComponent = () => {
 
           <View
             style={{
-              marginTop: hp(1),
+              marginTop: hp(3),
               borderWidth: 1,
               borderColor: colors.subtle_surface,
               padding: wp(3),
@@ -461,6 +461,8 @@ const SwapDetails: FunctionComponent = () => {
             }}
           >
             <PersonIcon
+              height={35}
+              width={35}
               color={!resolvedAccountName ? colors.gray_hover : colors.primary}
               color2={!resolvedAccountName ? colors.gray : colors.white}
             />
@@ -480,6 +482,11 @@ const SwapDetails: FunctionComponent = () => {
                   justifyContent: "center",
                   flexDirection: "row",
                   alignItems: "center",
+                  borderWidth: resolvedAccountName ? 0.5 : 0,
+                  borderColor: colors.destructive,
+                  borderRadius: 8,
+                  paddingHorizontal: resolvedAccountName ? wp(0.5) : 0,
+                  paddingVertical: resolvedAccountName ? hp(0.5) : 0,
                 }}
               >
                 {isVerifyingAccount ? (
@@ -498,7 +505,7 @@ const SwapDetails: FunctionComponent = () => {
             ) : null}
           </View>
 
-          <View style={{ marginTop: hp(1) }}>
+          <View style={{ marginTop: hp(2) }}>
             <AddBeneficiaryCard
               onPress={() => setIsBeneficiaryModalVisible(true)}
             />
