@@ -3,6 +3,7 @@ import {
   type VerifyAccountResponse,
 } from "@/api/queryFns";
 import AddBeneficiaryCard from "@/components/cards/AddBeneficiaryCard";
+import SwapChainRow from "@/components/cards/SwapChainRow";
 import AppLayout from "@/components/layouts/AppLayout";
 import BeneficiarySelectorModal, {
   type BeneficiaryItem,
@@ -15,7 +16,8 @@ import { useThemeColors } from "@/hooks/useThemeColor";
 import { useMutation } from "@tanstack/react-query";
 import { Image } from "expo-image";
 import { router, useLocalSearchParams } from "expo-router";
-import { ChevronDown, ChevronRight, WalletIcon, X } from "lucide-react-native";
+import WalletIcon from "@/components/svgs/wallet";
+import { ChevronDown, ChevronRight, X } from "lucide-react-native";
 import React, {
   FunctionComponent,
   useCallback,
@@ -182,6 +184,10 @@ const SwapDetails: FunctionComponent = () => {
     [],
   );
 
+  const handleAccountIdentifierChange = useCallback((value: string) => {
+    setAccountIdentifier(value.replace(/[^0-9]/g, ""));
+  }, []);
+
   useEffect(() => {
     if (!selectedInstitution || !canVerifyAccount) {
       setResolvedAccountName(null);
@@ -212,6 +218,52 @@ const SwapDetails: FunctionComponent = () => {
     verifySelectedAccount,
   ]);
 
+  const walletDotSize = wp(3.5);
+  const walletDotMargin = wp(1.2);
+
+  const walletDotStyle = {
+    borderWidth: 1,
+    borderRadius: walletDotSize / 2,
+    width: walletDotSize,
+    height: walletDotSize,
+    borderColor: colors.primary,
+  };
+
+  const amountPillStyle = {
+    flexDirection: "row" as const,
+    alignItems: "center" as const,
+    width: "45%" as const,
+    backgroundColor: colors.neutral_surface,
+    borderWidth: 1,
+    borderColor: colors.subtle_surface,
+    justifyContent: "space-between" as const,
+    paddingHorizontal: wp(3),
+    paddingVertical: hp(1.5),
+    borderRadius: 16,
+  };
+
+  const assetLogoStyle = {
+    width: wp(7),
+    height: wp(7),
+    borderRadius: wp(3),
+    marginRight: wp(2),
+  };
+
+  const selectedInstitutionName = selectedInstitution?.name ?? "Select bank";
+  const isInstitutionSelected = Boolean(selectedInstitution);
+
+  const verificationMessage = isVerifyingAccount
+    ? "Verifying account details..."
+    : resolvedAccountName
+      ? _.startCase(_.toLower(resolvedAccountName))
+      : accountVerificationError;
+
+  const showVerificationMessage = Boolean(verificationMessage);
+  const verificationFontSize = resolvedAccountName ? hp(2) : hp(1.7);
+  const verificationTextColor = resolvedAccountName
+    ? colors.text
+    : colors.secondary;
+
   return (
     <AppLayout>
       {/* Progress Row */}
@@ -230,28 +282,27 @@ const SwapDetails: FunctionComponent = () => {
             alignItems: "center",
           }}
         >
-          <View
-            style={{
-              borderWidth: 1,
-              borderRadius: wp(3) / 2,
-              width: wp(3),
-              height: wp(3),
-              borderColor: colors.primary,
-            }}
-          />
-          <ResponsiveUi.Text fontSize={hp(1.8)} bold color={colors.primary}>
-            Recipient
-          </ResponsiveUi.Text>
-          <View style={{ flexDirection: "row" }}>
+          <View className="flex-row w-36 justify-between items-center">
+            <View style={walletDotStyle} />
             <View
               style={{
-                borderWidth: 1,
-                borderRadius: wp(3) / 2,
-                width: wp(3),
-                height: wp(3),
-                borderColor: colors.primary,
+                backgroundColor: colors.primary_2,
+                borderRadius: 16,
+                paddingVertical: 4,
+                paddingHorizontal: 12,
+                marginHorizontal: 5,
               }}
-            />
+            >
+              <ResponsiveUi.Text
+                medium
+                color={colors.primary}
+                fontSize={hp(2.3)}
+              >
+                Recipient
+              </ResponsiveUi.Text>
+            </View>
+
+            <View style={[walletDotStyle, { marginLeft: walletDotMargin }]} />
           </View>
         </View>
         <View style={{ flexDirection: "row", alignItems: "center" }}>
@@ -259,44 +310,14 @@ const SwapDetails: FunctionComponent = () => {
           <X color={colors.secondary} onPress={() => router.back()} />
         </View>
       </View>
-      {/* Swap Row */}
-      <View
-        style={{
-          flexDirection: "row",
-          marginTop: hp(2.5),
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
-        <ResponsiveUi.Text
-          style={{ marginTop: hp(1) }}
-          semiBold
-          fontSize={hp(2.2)}
-        >
-          Swap
-        </ResponsiveUi.Text>
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
-          {fromChainLogoUri ? (
-            <Image
-              source={{ uri: fromChainLogoUri }}
-              style={{
-                width: wp(6),
-                height: wp(6),
-                borderRadius: wp(3),
-                marginRight: wp(2),
-              }}
-              contentFit="cover"
-            />
-          ) : null}
-          <ResponsiveUi.Text
-            medium
-            style={{ marginLeft: wp(2) }}
-            fontSize={hp(2.2)}
-          >
-            {fromChainName}
-          </ResponsiveUi.Text>
-        </View>
-      </View>
+      <SwapChainRow
+        title="Swap"
+        chainName={fromChainName}
+        chainLogoUri={fromChainLogoUri}
+        isStatic
+        showChevron={false}
+        marginTop={hp(4.5)}
+      />
       {/* Amount Row */}
       <View
         style={{
@@ -306,18 +327,11 @@ const SwapDetails: FunctionComponent = () => {
           justifyContent: "space-between",
         }}
       >
-        <View
-          style={{ flexDirection: "row", alignItems: "center", width: "40%" }}
-        >
+        <View style={amountPillStyle}>
           {fromAssetUri ? (
             <Image
               source={{ uri: fromAssetUri }}
-              style={{
-                width: wp(7),
-                height: wp(7),
-                borderRadius: wp(3),
-                marginRight: wp(2),
-              }}
+              style={assetLogoStyle}
               contentFit="cover"
             />
           ) : null}
@@ -329,20 +343,15 @@ const SwapDetails: FunctionComponent = () => {
             ${amount}
           </ResponsiveUi.Text>
         </View>
-        <ChevronRight color={colors.secondary} />
-        <View
-          style={{ flexDirection: "row", alignItems: "center", width: "40%" }}
-        >
+        <View className="bg-neutral_surface border border-subtle_surface p-1 rounded-full">
+          <ChevronRight color={colors.secondary} />
+        </View>
+        <View style={amountPillStyle}>
           {toFiatUri ? (
             <Image
               source={{ uri: toFiatUri }}
-              style={{
-                width: wp(7),
-                height: wp(7),
-                borderRadius: wp(3),
-                marginRight: wp(2),
-              }}
-              contentFit="cover"
+              style={assetLogoStyle}
+              contentFit="fill"
             />
           ) : null}
           <ResponsiveUi.Text
@@ -355,7 +364,16 @@ const SwapDetails: FunctionComponent = () => {
         </View>
       </View>
       {/* Add Recipient Section */}
-      <View style={{ marginTop: hp(5), alignItems: "center" }}>
+      <View
+        style={{
+          marginTop: hp(3),
+          alignItems: "center",
+          backgroundColor: colors.neutral_surface,
+          paddingHorizontal: wp(2),
+          paddingVertical: hp(3),
+          borderRadius: 16,
+        }}
+      >
         <ResponsiveUi.Text
           semiBold
           style={{ marginLeft: wp(3) }}
@@ -366,7 +384,7 @@ const SwapDetails: FunctionComponent = () => {
         </ResponsiveUi.Text>
         <TouchableOpacity
           style={{
-            marginTop: hp(5),
+            marginTop: hp(4),
             width: "80%",
             borderWidth: 0.5,
             borderColor: colors.secondary,
@@ -395,10 +413,10 @@ const SwapDetails: FunctionComponent = () => {
               />
             ) : null}
             <ResponsiveUi.Text
-              color={selectedInstitution ? colors.text : colors.secondary}
+              color={isInstitutionSelected ? colors.text : colors.secondary}
               fontSize={hp(2.2)}
             >
-              {selectedInstitution?.name ?? "Select bank"}
+              {selectedInstitutionName}
             </ResponsiveUi.Text>
           </View>
           <ChevronDown color={colors.secondary} />
@@ -415,9 +433,7 @@ const SwapDetails: FunctionComponent = () => {
             placeholder="Account number"
             placeholderTextColor={colors.place_holder}
             value={accountIdentifier}
-            onChangeText={(value) => {
-              setAccountIdentifier(value.replace(/[^0-9]/g, ""));
-            }}
+            onChangeText={handleAccountIdentifierChange}
             maxLength={ACCOUNT_NUMBER_LENGTH}
             style={{
               color: colors.text,
@@ -435,60 +451,69 @@ const SwapDetails: FunctionComponent = () => {
             keyboardType="numeric"
           />
 
-          <View style={{ marginTop: hp(5) }}>
-            <PersonIcon />
+          <View
+            style={{
+              marginTop: hp(1),
+              borderWidth: 1,
+              borderColor: colors.subtle_surface,
+              padding: wp(3),
+              borderRadius: 100,
+            }}
+          >
+            <PersonIcon
+              color={!resolvedAccountName ? colors.gray_hover : colors.primary}
+              color2={!resolvedAccountName ? colors.gray : colors.white}
+            />
           </View>
 
-          {isVerifyingAccount ? (
-            <View
-              style={{
-                width: "80%",
-                marginTop: hp(1.5),
-                justifyContent: "center",
-                flexDirection: "row",
-                alignItems: "center",
-              }}
-            >
-              <ActivityIndicator size="small" color={colors.primary} />
-              <ResponsiveUi.Text
-                fontSize={hp(1.7)}
-                color={colors.secondary}
-                style={{ marginLeft: wp(2) }}
-                center
+          <View
+            style={{
+              width: "80%",
+              marginTop: hp(1.5),
+              minHeight: hp(3),
+              justifyContent: "center",
+            }}
+          >
+            {showVerificationMessage ? (
+              <View
+                style={{
+                  justifyContent: "center",
+                  flexDirection: "row",
+                  alignItems: "center",
+                }}
               >
-                Verifying account details...
-              </ResponsiveUi.Text>
-            </View>
-          ) : null}
+                {isVerifyingAccount ? (
+                  <ActivityIndicator size="small" color={colors.primary} />
+                ) : null}
+                <ResponsiveUi.Text
+                  fontSize={verificationFontSize}
+                  color={verificationTextColor}
+                  style={isVerifyingAccount ? { marginLeft: wp(2) } : undefined}
+                  medium={Boolean(resolvedAccountName)}
+                  center
+                >
+                  {verificationMessage}
+                </ResponsiveUi.Text>
+              </View>
+            ) : null}
+          </View>
 
-          {!isVerifyingAccount && resolvedAccountName ? (
-            <View style={{ width: "80%", marginTop: hp(1.5) }}>
-              <ResponsiveUi.Text
-                fontSize={hp(2)}
-                medium
-                center
-                color={colors.text}
-              >
-                {_.startCase(_.toLower(resolvedAccountName))}
-              </ResponsiveUi.Text>
-            </View>
-          ) : null}
-
-          <View style={{ marginTop: hp(5) }}>
+          <View style={{ marginTop: hp(1) }}>
             <AddBeneficiaryCard
               onPress={() => setIsBeneficiaryModalVisible(true)}
             />
           </View>
-          {!isVerifyingAccount && accountVerificationError ? (
-            <View style={{ width: "80%", marginTop: hp(1) }}>
-              <ResponsiveUi.Text fontSize={hp(1.7)} color={colors.secondary}>
-                {accountVerificationError}
-              </ResponsiveUi.Text>
-            </View>
-          ) : null}
         </View>
       </View>
-      <View style={{ position: "absolute", left: 0, right: 0, bottom: 15, paddingHorizontal: wp(4) }}>
+      <View
+        style={{
+          position: "absolute",
+          left: 0,
+          right: 0,
+          bottom: 15,
+          paddingHorizontal: wp(4),
+        }}
+      >
         <ResponsiveUi.Button
           action={() =>
             router.push({
@@ -517,6 +542,7 @@ const SwapDetails: FunctionComponent = () => {
           disabled={!resolvedAccountName}
           style={{ width: "100%" }}
           title="Continue"
+          fontSize={hp(2)}
         />
       </View>
       <InstitutionSelectorModal

@@ -37,6 +37,7 @@ export interface GenericColors {
   lavendar: string;
   place_holder2: string;
   primary_2: string;
+  primary_9: string;
   gray2: string;
   white_10: string;
   white_5: string;
@@ -44,6 +45,8 @@ export interface GenericColors {
 export interface ColorsInterface extends GenericColors {
   light: ThemeColors;
   dark: ThemeColors;
+  neutral_surface: string;
+  subtle_surface: string;
 }
 
 export type ThemePalette = ThemeColors & GenericColors;
@@ -70,6 +73,7 @@ const palette = {
   lavendar: "#A9A5F6",
   place_holder2: `rgba(255, 255, 255, 0.3)`,
   primary_2: "rgba(139, 133, 244, 0.14)",
+  primary_9: "#8B85F417",
   neutral_surface: "#FFFFFF0D",
 
   // light theme
@@ -123,10 +127,13 @@ export const genericColors: GenericColors = {
   gray2: palette.gray2,
   white_10: palette.white_10,
   primary_2: palette.primary_2,
+  primary_9: palette.primary_9,
   white_5: palette.white_5,
 };
 
 export const Colors: ColorsInterface = {
+  neutral_surface: palette.neutral_surface,
+  subtle_surface: palette.subtleSurfaceDark,
   light: {
     ...sharedTheme,
     text: palette.textLight,

@@ -9,6 +9,7 @@ import { RATE_QUERY_STALE_TIME_MS } from "@/api/queryConstants";
 import { fetchPaycrestRate } from "@/api/queryFns";
 import { useSelector } from "@/app/store/Store";
 import CurrencySelector from "@/components/cards/CurrencySelector";
+import SwapChainRow from "@/components/cards/SwapChainRow";
 import CustomKeyBoard from "@/components/inputs/CustomKeyBoard";
 import SwapInput from "@/components/inputs/SwapInput";
 import AppLayout from "@/components/layouts/AppLayout";
@@ -29,17 +30,10 @@ import useWallet from "@/hooks/useWallet";
 import { isPrivySupportedAsset, isPrivySupportedChain } from "@/utils/privy";
 import { useIsFocused } from "@react-navigation/native";
 import { useQuery } from "@tanstack/react-query";
-import { Image } from "expo-image";
 import { router } from "expo-router";
 import { ChevronDown, X } from "lucide-react-native";
-import React, { use, useEffect, useMemo, useState } from "react";
-import {
-  Alert,
-  Switch,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  View,
-} from "react-native";
+import React, { useEffect, useMemo, useState } from "react";
+import { Alert, View } from "react-native";
 import ArrowDataTransfer from "../../components/svgs/arrow-data-transfer";
 import SmartWallet from "../(home)/smartWallet";
 import Animated, { FadeIn, FadeOut, Layout } from "react-native-reanimated";
@@ -354,12 +348,8 @@ export default function HomeScreen() {
   }
 
   // Responsive values
-  const chainLogoSize = wp(7);
-  const chainLogoRadius = chainLogoSize / 2;
   const chainLogoMargin = wp(2);
-  const swapFontSize = hp(2.3);
   const chainFontSize = hp(1.8);
-  const chevronSize = wp(4.5);
   const swapMarginTop = hp(3.5);
   const walletDotSize = wp(3.5);
   const walletDotMargin = wp(1.2);
@@ -394,13 +384,22 @@ export default function HomeScreen() {
               className={`flex-row items-center m justify-${isKeyboardVisible ? "between" : "center"}`}
             >
               <View className="flex-row w-36 justify-between items-center">
-                <ResponsiveUi.Text
-                  medium
-                  color={colors.primary}
-                  fontSize={hp(2.3)}
+                <View
+                  style={{
+                    backgroundColor: colors.primary_2,
+                    borderRadius: 16,
+                    paddingVertical: 4,
+                    paddingHorizontal: 12,
+                  }}
                 >
-                  Details
-                </ResponsiveUi.Text>
+                  <ResponsiveUi.Text
+                    medium
+                    color={colors.primary}
+                    fontSize={hp(2.3)}
+                  >
+                    Details
+                  </ResponsiveUi.Text>
+                </View>
                 <View
                   style={{
                     borderWidth: 1,
@@ -441,55 +440,16 @@ export default function HomeScreen() {
               )}
             </Animated.View>
             <>
-              <View
-                style={{
-                  marginTop: swapMarginTop,
-                  flexDirection: "row",
-                  alignItems: "center",
-                  justifyContent: "space-between",
+              <SwapChainRow
+                title="Swap"
+                chainName={selectedChain.name}
+                chainLogoUri={selectedChain.logoURI}
+                marginTop={swapMarginTop}
+                onPress={() => {
+                  setIsChainSheetVisible(true);
+                  setIsKeyboardVisible(false);
                 }}
-              >
-                <ResponsiveUi.Text semiBold fontSize={swapFontSize}>
-                  Swap
-                </ResponsiveUi.Text>
-                <TouchableOpacity
-                  activeOpacity={0.8}
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    backgroundColor: colors.neutral_surface,
-                    borderWidth: 1,
-                    borderColor: colors.subtle_surface,
-                    paddingHorizontal: 5,
-                    paddingVertical: 8,
-                    borderRadius: 20,
-                  }}
-                  onPress={() => {
-                    setIsChainSheetVisible(true);
-                    setIsKeyboardVisible(false);
-                  }}
-                >
-                  {selectedChain.logoURI ? (
-                    <Image
-                      source={{ uri: selectedChain?.logoURI }}
-                      style={{
-                        width: chainLogoSize,
-                        height: chainLogoSize,
-                        borderRadius: chainLogoRadius,
-                        marginRight: chainLogoMargin,
-                      }}
-                    />
-                  ) : null}
-                  <ResponsiveUi.Text medium fontSize={chainFontSize}>
-                    {selectedChain.name}
-                  </ResponsiveUi.Text>
-                  <ChevronDown
-                    color={colors.primary}
-                    size={chevronSize}
-                    style={{ marginLeft: chainLogoMargin }}
-                  />
-                </TouchableOpacity>
-              </View>
+              />
               {/* <View className="flex-row items-center justify-between mt-4 px-1">
                     <ResponsiveUi.Text
                       medium
