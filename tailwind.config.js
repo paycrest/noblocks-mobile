@@ -29,6 +29,7 @@ module.exports = {
         gray: "rgba(255, 255, 255, 0.10)",
         gray2: "rgba(255, 255, 255, 0.05)",
         subtle_surface: "#FFFFFF1A",
+        neutral_surface: "#FFFFFF0D",
         surface_overlay: "#ffff",
         tint: "#0a7ea4",
         "white-text": "#ffff",
