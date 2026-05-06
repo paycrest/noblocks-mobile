@@ -35,13 +35,12 @@ const SwapInput: FunctionComponent<SwapInputProps> = ({
 
   return (
     <View
-      className="mt-8"
       onStartShouldSetResponder={() => true}
       onResponderStart={(e) => {
         e.stopPropagation && e.stopPropagation();
       }}
     >
-      <View className="flex-row items-center justify-between">
+      <View className="flex-row items-center px-4 justify-between">
         <ResponsiveUi.Text
           medium
           fontSize={18}

@@ -1,9 +1,18 @@
 // CustomKeyBoard.tsx
-import React, { FunctionComponent, useMemo } from "react";
+import React, { FunctionComponent } from "react";
 import { TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ResponsiveUi } from "../ResponsiveUi";
 import { useAppDimensions } from "@/hooks/useAppDimensions";
+import BackButton from "../svgs/back-button";
+import { useThemeColors } from "@/hooks/useThemeColor";
+
+const KEYS = [
+  ["1", "2", "3"],
+  ["4", "5", "6"],
+  ["7", "8", "9"],
+  [".", "0", "<"],
+];
 
 interface CustomKeyBoardProps {
   value?: string;
@@ -34,16 +43,9 @@ const CustomKeyBoard: FunctionComponent<CustomKeyBoardProps> = ({
 }) => {
   const insets = useSafeAreaInsets();
   const { hp, wp } = useAppDimensions();
+  const colors = useThemeColors();
 
-  const inputs = useMemo(
-    () => [
-      ["1", "2", "3"],
-      ["4", "5", "6"],
-      ["7", "8", "9"],
-      [".", "0", "<"],
-    ],
-    [],
-  );
+  if (!visible) return null;
 
   const handleKeyPress = (key: string) => {
     onKeyPress?.(key);
@@ -72,18 +74,11 @@ const CustomKeyBoard: FunctionComponent<CustomKeyBoardProps> = ({
     onChangeText?.(nextValue);
   };
 
-  if (!visible) return null;
-
-  const handleSubmit = () => {
-    onSubmit?.();
-  };
-
-  // Responsive sizes
-  const keyWidth = wp(20); // 20% of screen width
-  const keyHeight = hp(7); // 7% of screen height
-  const keyFontSize = hp(3.2); // 3.2% of screen height
-  const rowGap = wp(15); // 6% of screen width
-  const rowMarginBottom = hp(1.5); // 1.5% of screen height
+  const keyWidth = wp(24);
+  const keyHeight = hp(6);
+  const keyFontSize = hp(3.2);
+  const rowGap = wp(3);
+  const rowMarginBottom = hp(2);
 
   return (
     <View
@@ -91,7 +86,7 @@ const CustomKeyBoard: FunctionComponent<CustomKeyBoardProps> = ({
       className={`w-full z-50 px-4 items-center ${className ?? ""}`}
     >
       <View className="justify-center py-2">
-        {inputs.map((row, rowIndex) => (
+        {KEYS.map((row, rowIndex) => (
           <View
             key={rowIndex}
             style={{
@@ -108,23 +103,30 @@ const CustomKeyBoard: FunctionComponent<CustomKeyBoardProps> = ({
                 style={{
                   width: keyWidth,
                   height: keyHeight,
-                  borderRadius: keyWidth / 2,
+                  borderRadius: 10,
                   alignItems: "center",
                   justifyContent: "center",
+                  borderWidth: key === "<" || key === "." ? 0 : 1,
+                  borderColor: colors.gray,
                 }}
               >
-                <ResponsiveUi.Text bold fontSize={keyFontSize}>
-                  {key === "<" ? "⌫" : key}
-                </ResponsiveUi.Text>
+                {key === "<" ? (
+                  <BackButton />
+                ) : (
+                  <ResponsiveUi.Text bold fontSize={keyFontSize}>
+                    {key}
+                  </ResponsiveUi.Text>
+                )}
               </TouchableOpacity>
             ))}
           </View>
         ))}
         <ResponsiveUi.Button
-          title={submitLabel ?? "Continue"}
-          action={handleSubmit}
+          title={submitLabel}
+          action={() => onSubmit?.()}
           disabled={submitDisabled}
-          small
+          medium
+          fontSize={hp(2)}
         />
       </View>
     </View>

@@ -28,7 +28,7 @@ const WalletBalance: FunctionComponent<WalletBalanceProps> = ({
   const colors = useThemeColors();
 
   return (
-    <View className="flex-row  w-full items-center justify-between">
+    <View className="flex-row px-4  w-full items-center justify-between">
       <View className="flex-row items-center">
         <TouchableOpacity
           activeOpacity={0.8}
@@ -82,11 +82,11 @@ const WalletBalance: FunctionComponent<WalletBalanceProps> = ({
         </View>
       </View>
       <TouchableOpacity
-        className="max-w-2/5"
+        className="max-w-2/5 bg-dark-gray-hover items-center justify-center px-4 py-3 rounded-3xl"
         activeOpacity={0.8}
         onPress={onUseMaxPress}
       >
-        <ResponsiveUi.Text medium fontSize={16} tailwind="ml-4">
+        <ResponsiveUi.Text medium fontSize={16} tailwind="">
           Use Max
         </ResponsiveUi.Text>
       </TouchableOpacity>
