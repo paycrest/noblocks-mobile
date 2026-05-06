@@ -1,4 +1,5 @@
 import { createPaycrestSenderOrder } from "@/api/queryFns";
+import SwapChainRow from "@/components/cards/SwapChainRow";
 import AppLayout from "@/components/layouts/AppLayout";
 import { ResponsiveUi } from "@/components/ResponsiveUi";
 import { useThemeColors } from "@/hooks/useThemeColor";
@@ -7,11 +8,12 @@ import { useMutation } from "@tanstack/react-query";
 import { Image } from "expo-image";
 import { router, useLocalSearchParams } from "expo-router";
 import _ from "lodash";
-import { WalletIcon, X } from "lucide-react-native";
+import { X } from "lucide-react-native";
 import React, { FunctionComponent, useCallback, useMemo } from "react";
 import { Alert, View } from "react-native";
 import { useAppDimensions } from "@/hooks/useAppDimensions";
 import BackArrow from "@/components/svgs/back-arrow";
+import WalletIcon from "@/components/svgs/wallet";
 
 interface DetailRowProps {
   label: string;
@@ -220,7 +222,7 @@ const ReviewTransaction: FunctionComponent = () => {
         <View
           style={{
             flexDirection: "row",
-            width: "33%",
+            width: "45%",
             justifyContent: "space-between",
             alignItems: "center",
           }}
@@ -243,53 +245,33 @@ const ReviewTransaction: FunctionComponent = () => {
               borderColor: colors.primary,
             }}
           />
-          <ResponsiveUi.Text fontSize={hp(1.8)} bold color={colors.primary}>
-            Review
-          </ResponsiveUi.Text>
+          <View
+            style={{
+              backgroundColor: colors.primary_2,
+              borderRadius: 16,
+              paddingVertical: 4,
+              paddingHorizontal: 12,
+              marginHorizontal: 5,
+            }}
+          >
+            <ResponsiveUi.Text medium color={colors.primary} fontSize={hp(2.3)}>
+              Review
+            </ResponsiveUi.Text>
+          </View>
         </View>
         <View style={{ flexDirection: "row", alignItems: "center" }}>
           <WalletIcon style={{ marginRight: wp(4) }} />
           <X color={colors.secondary} onPress={() => router.back()} />
         </View>
       </View>
-      {/* Swap Row */}
-      <View
-        style={{
-          flexDirection: "row",
-          marginTop: hp(2.5),
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
-        <ResponsiveUi.Text
-          style={{ marginTop: hp(1) }}
-          semiBold
-          fontSize={hp(2.2)}
-        >
-          Swap
-        </ResponsiveUi.Text>
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
-          {fromChainLogoUri ? (
-            <Image
-              source={{ uri: fromChainLogoUri }}
-              style={{
-                width: wp(6),
-                height: wp(6),
-                borderRadius: wp(3),
-                marginRight: wp(2),
-              }}
-              contentFit="cover"
-            />
-          ) : null}
-          <ResponsiveUi.Text
-            medium
-            style={{ marginLeft: wp(2) }}
-            fontSize={hp(2.2)}
-          >
-            {fromChainName}
-          </ResponsiveUi.Text>
-        </View>
-      </View>
+      <SwapChainRow
+        title="Swap"
+        chainName={fromChainName}
+        chainLogoUri={fromChainLogoUri}
+        isStatic
+        showChevron={false}
+        marginTop={hp(2.5)}
+      />
       <BackArrow className="mt-4 -ml-2" onPress={() => router.back()} />
       {/* Title and Subtitle */}
       <View
@@ -337,7 +319,7 @@ const ReviewTransaction: FunctionComponent = () => {
       </View>
       <View
         style={{
-          marginTop: hp(5),
+          marginTop: hp(3),
           paddingHorizontal: wp(6),
           justifyContent: "center",
           alignItems: "center",
@@ -345,7 +327,7 @@ const ReviewTransaction: FunctionComponent = () => {
       >
         <ResponsiveUi.Text
           center
-          style={{ lineHeight: hp(2.5) }}
+          style={{ lineHeight: hp(2) }}
           fontSize={hp(1.8)}
           color={colors.secondary}
         >
@@ -377,6 +359,7 @@ const ReviewTransaction: FunctionComponent = () => {
           title={isCreatingOrder ? "Submitting..." : "Swap"}
           disabled={isCreatingOrder}
           style={{ width: "100%" }}
+          fontSize={hp(2)}
         />
       </View>
     </AppLayout>
