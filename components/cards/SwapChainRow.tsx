@@ -15,6 +15,7 @@ interface SwapChainRowProps {
   isStatic?: boolean;
   showChevron?: boolean;
   marginTop?: number;
+  disableChevron?: boolean;
 }
 
 const SwapChainRow: FunctionComponent<SwapChainRowProps> = ({
@@ -25,6 +26,7 @@ const SwapChainRow: FunctionComponent<SwapChainRowProps> = ({
   isStatic = false,
   showChevron = true,
   marginTop,
+  disableChevron = false,
 }) => {
   const colors = useThemeColors();
   const { hp, wp } = useAppDimensions();
@@ -89,6 +91,7 @@ const SwapChainRow: FunctionComponent<SwapChainRowProps> = ({
           activeOpacity={0.8}
           onPress={onPress}
           style={styles.chainPillStyle}
+          disabled={disableChevron}
         >
           {content}
         </TouchableOpacity>
