@@ -127,7 +127,7 @@ const InstitutionSelectorModal: FunctionComponent<
               width: "100%",
               height: MODAL_HEIGHT,
               borderRadius: 36,
-              backgroundColor: colors.surface_overlay,
+              backgroundColor: colors.background,
               borderWidth: 1,
               borderColor: colors.secondary,
               paddingHorizontal: 18,
