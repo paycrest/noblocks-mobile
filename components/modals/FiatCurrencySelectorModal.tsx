@@ -10,6 +10,7 @@ import {
   View,
 } from "react-native";
 import { ActivityIndicator } from "react-native-paper";
+import truncate from "lodash/truncate";
 
 import { ResponsiveUi } from "../ResponsiveUi";
 import BackdropBlur from "./BackdropBlur";
@@ -95,7 +96,8 @@ const FiatCurrencySelectorModal: FunctionComponent<
         {item.logoURI ? (
           <Image
             source={{ uri: item.logoURI }}
-            style={{ width: hp(5), height: hp(5), borderRadius: hp(3.5) }}
+            style={{ width: hp(4), height: hp(4), borderRadius: hp(3.5) }}
+            contentFit="fill"
           />
         ) : (
           <View
@@ -113,19 +115,19 @@ const FiatCurrencySelectorModal: FunctionComponent<
           </View>
         )}
 
-        <View className="ml-4 flex-1">
-          <ResponsiveUi.Text medium fontSize={hp(2.2)}>
-            {item.name}
+        <View className="ml-4 w-1/3 flex-1">
+          <ResponsiveUi.Text medium fontSize={hp(1.8)}>
+            {truncate(item.name, { length: 15 })}
           </ResponsiveUi.Text>
-          <ResponsiveUi.Text fontSize={hp(2.2)} color={colors.secondary}>
+          <ResponsiveUi.Text fontSize={hp(1.8)} color={colors.secondary}>
             {item.shortName}
           </ResponsiveUi.Text>
         </View>
 
         {isSelected ? (
-          <CheckCircle2 size={hp(2.5)} color={colors.primary} />
+          <CheckCircle2 size={hp(2)} color={colors.primary} />
         ) : !isActive ? (
-          <ResponsiveUi.Text fontSize={hp(2)} color={colors.secondary}>
+          <ResponsiveUi.Text fontSize={hp(1.8)} color={colors.secondary}>
             Unavailable
           </ResponsiveUi.Text>
         ) : null}
@@ -143,7 +145,7 @@ const FiatCurrencySelectorModal: FunctionComponent<
               width: "100%",
               height: MODAL_HEIGHT,
               borderRadius: 36,
-              backgroundColor: colors.surface_overlay,
+              backgroundColor: colors.background,
               borderWidth: 0.5,
               borderColor: colors.secondary,
               paddingHorizontal: 18,
@@ -152,7 +154,7 @@ const FiatCurrencySelectorModal: FunctionComponent<
             }}
           >
             <View className="flex-row items-center justify-between mb-5">
-              <ResponsiveUi.Text semiBold fontSize={hp(2.5)}>
+              <ResponsiveUi.Text semiBold fontSize={hp(2)}>
                 Select currency
               </ResponsiveUi.Text>
               <TouchableOpacity activeOpacity={0.8} onPress={onClose}>
@@ -162,7 +164,7 @@ const FiatCurrencySelectorModal: FunctionComponent<
 
             <View className="relative mb-4 justify-center">
               <View className="absolute left-4 z-10">
-                <Search size={hp(2.5)} color={colors.secondary} />
+                <Search size={hp(2)} color={colors.secondary} />
               </View>
               <TextInput
                 value={searchQuery}
@@ -180,7 +182,7 @@ const FiatCurrencySelectorModal: FunctionComponent<
                   paddingLeft: 56,
                   paddingRight: 16,
                   paddingVertical: 14,
-                  fontSize: hp(2.2),
+                  fontSize: hp(1.8),
                   fontWeight: "500",
                 }}
               />
@@ -191,7 +193,7 @@ const FiatCurrencySelectorModal: FunctionComponent<
                 <View className="flex-1 items-center justify-center py-8">
                   <ActivityIndicator color={colors.primary} />
                   <ResponsiveUi.Text
-                    fontSize={hp(2.2)}
+                    fontSize={hp(2)}
                     color={colors.secondary}
                     tailwind="mt-3"
                   >
@@ -202,7 +204,7 @@ const FiatCurrencySelectorModal: FunctionComponent<
                 <View className="flex-1 items-center justify-center px-6">
                   <ResponsiveUi.Text
                     center
-                    fontSize={hp(2.2)}
+                    fontSize={hp(2)}
                     color={colors.secondary}
                     tailwind="mb-4"
                   >
@@ -212,7 +214,7 @@ const FiatCurrencySelectorModal: FunctionComponent<
                     <TouchableOpacity activeOpacity={0.8} onPress={onRetry}>
                       <ResponsiveUi.Text
                         medium
-                        fontSize={hp(2.2)}
+                        fontSize={hp(2)}
                         color={colors.primary}
                       >
                         Try again
