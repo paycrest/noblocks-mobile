@@ -1,22 +1,29 @@
-import {useMemo} from 'react';
-import {Dimensions, PixelRatio, Platform} from 'react-native';
+import { useMemo } from "react";
+import { Dimensions, PixelRatio, Platform } from "react-native";
 
-const {width, height} = Dimensions.get('screen');
+const { width, height } = Dimensions.get("screen");
 
 export const useAppDimensions = () => {
-  const scale = useMemo(() => {
-    const screenWidth = Math.min(width, height);
-    const isLargeScreen = screenWidth >= 768;
-    return isLargeScreen ? screenWidth * 0.6 : screenWidth;
+  const screenWidth = useMemo(() => {
+    return Math.min(width, height);
   }, []);
 
+  const scale = useMemo(() => {
+    const isLargeScreen = screenWidth >= 768;
+    return isLargeScreen ? screenWidth * 0.6 : screenWidth;
+  }, [screenWidth]);
+
   const isLargeScreen = useMemo(() => {
-    return Math.min(width, height) >= 768;
-  }, []);
+    return screenWidth >= 768;
+  }, [screenWidth]);
+
+  const isSmallScreen = useMemo(() => {
+    return screenWidth < 390;
+  }, [screenWidth]);
 
   const widthPercentageToDP = (widthPercent: string | number) => {
     const elemWidth =
-      typeof widthPercent === 'number'
+      typeof widthPercent === "number"
         ? widthPercent
         : parseFloat(widthPercent);
     return PixelRatio.roundToNearestPixel((scale * elemWidth) / 100);
@@ -24,7 +31,7 @@ export const useAppDimensions = () => {
 
   const heightPercentageToDP = (heightPercent: string | number) => {
     const elemHeight =
-      typeof heightPercent === 'number'
+      typeof heightPercent === "number"
         ? heightPercent
         : parseFloat(heightPercent);
     const screenHeight = Math.max(width, height);
@@ -33,7 +40,7 @@ export const useAppDimensions = () => {
 
   const fontPercentageToDP = (widthPercent: string | number) => {
     const elemWidth =
-      typeof widthPercent === 'number'
+      typeof widthPercent === "number"
         ? widthPercent
         : parseFloat(widthPercent);
     return PixelRatio.roundToNearestPixel(
@@ -45,11 +52,12 @@ export const useAppDimensions = () => {
   };
 
   return {
-    width: Math.min(width, height),
+    width: screenWidth,
     height: Math.max(width, height),
     wp: widthPercentageToDP,
     hp: heightPercentageToDP,
     fontPercentageToDP,
-    isLargeScreen: isLargeScreen,
+    isLargeScreen,
+    isSmallScreen,
   };
 };
