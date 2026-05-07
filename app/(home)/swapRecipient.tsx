@@ -274,9 +274,8 @@ const SwapDetails: FunctionComponent = () => {
   const verificationTextColor = resolvedAccountName
     ? colors.text
     : colors.secondary;
-  const beneficiaryFirstName = resolvedAccountName
-    ? _.head(_.split(_.trim(resolvedAccountName), " "))
-    : null;
+  const beneficiaryFirstName =
+    resolvedAccountName?.trim().split(" ")[0] ?? null;
   const [addToBeneficiaries, setAddToBeneficiaries] = useState(false);
   const appTheme = useColorScheme();
 
