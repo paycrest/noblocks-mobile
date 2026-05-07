@@ -453,6 +453,7 @@ export default function HomeScreen() {
                   setIsChainSheetVisible(true);
                   setIsKeyboardVisible(false);
                 }}
+                disableChevron={isSmartWalletScreenVisible}
               />
               {/* <View className="flex-row items-center justify-between mt-4 px-1">
                     <ResponsiveUi.Text
