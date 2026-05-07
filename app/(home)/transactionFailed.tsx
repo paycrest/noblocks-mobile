@@ -106,7 +106,7 @@ const TransactionFailed: FunctionComponent = () => {
             left: 0,
             right: 0,
             top: -insets.top,
-            height: insets.top + 128,
+            bottom: 0,
           }}
         />
 
@@ -126,19 +126,16 @@ const TransactionFailed: FunctionComponent = () => {
               paddingBottom: insets.bottom + hp(2.5),
             }}
           >
-            <X
-              size={28}
-              color={colors.text}
-              style={{ position: "absolute", right: 18, top: 18 }}
-              onPress={() => router.back()}
-            />
+            <View className="items-end">
+              <X size={28} color={colors.text} onPress={() => router.back()} />
+            </View>
 
-            <View style={{ marginTop: hp(4), alignItems: "center" }}>
-              <XCircle size={hp(4)} color={colors.destructive} />
+            <View style={{ marginTop: hp(1), alignItems: "flex-start" }}>
+              <XCircle size={hp(4.5)} color={colors.destructive} />
               <ResponsiveUi.Text
                 medium
                 fontSize={hp(2.2)}
-                style={{ marginTop: hp(1.5) }}
+                style={{ marginTop: hp(2) }}
                 color={colors.text}
               >
                 Oops! Transaction failed
@@ -168,6 +165,7 @@ const TransactionFailed: FunctionComponent = () => {
               fontSize={hp(1.7)}
               style={{ marginTop: hp(1.5) }}
               color={colors.secondary}
+              lineHeight={5}
             >
               Your transfer of{" "}
               <ResponsiveUi.Text color={colors.text} fontSize={hp(2)} medium>

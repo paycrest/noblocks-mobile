@@ -1,7 +1,9 @@
 import { ResponsiveUi } from "@/components/ResponsiveUi";
+import { useAppDimensions } from "@/hooks/useAppDimensions";
 import _ from "lodash";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Animated, Easing, View } from "react-native";
+import { Image } from "expo-image";
 
 export const TRANSACTION_FLOW_ROW_CONNECTOR_DOT_COUNT = 12;
 export const TRANSACTION_FLOW_ROW_MOVING_DOT_SIZE = 10;
@@ -13,6 +15,7 @@ interface TransactionFlowRowProps {
   connectorDotCount?: number;
   movingDotSize?: number;
   connectorProgress?: Animated.Value;
+  logoUri?: string;
   colors: {
     teal: string;
     text: string;
@@ -28,11 +31,13 @@ const TransactionFlowRow: React.FC<TransactionFlowRowProps> = ({
   movingDotSize = TRANSACTION_FLOW_ROW_MOVING_DOT_SIZE,
   connectorProgress,
   colors,
+  logoUri,
 }) => {
   const staticConnectorProgress = useRef(new Animated.Value(0)).current;
   const resolvedConnectorProgress =
     connectorProgress ?? staticConnectorProgress;
   const [connectorWidth, setConnectorWidth] = useState(0);
+  const { hp } = useAppDimensions();
 
   useEffect(() => {
     if (connectorProgress) {
@@ -66,16 +71,23 @@ const TransactionFlowRow: React.FC<TransactionFlowRowProps> = ({
   }, [connectorWidth, movingDotSize, resolvedConnectorProgress]);
 
   return (
-    <View className="mt-4 w-full flex-row items-center">
-      <View className="px-4 py-3 rounded-full flex-row items-center">
-        <View
-          className="w-6 h-6 rounded-full items-center justify-center"
-          style={{ backgroundColor: colors.teal }}
-        >
-          <ResponsiveUi.Text color={colors.white} bold fontSize={14}>
-            {tokenInitial}
-          </ResponsiveUi.Text>
-        </View>
+    <View className="mt-4 w-full flex-row items-center justify-between">
+      <View className="px-4 w-[40%] py-3 rounded-full flex-row items-center">
+        {logoUri ? (
+          <Image
+            source={{ uri: logoUri }}
+            style={{ width: hp(2), height: hp(2), borderRadius: hp(2.5) }}
+          />
+        ) : (
+          <View
+            className="w-6 h-6 rounded-full items-center justify-center"
+            style={{ backgroundColor: colors.teal }}
+          >
+            <ResponsiveUi.Text color={colors.white} bold fontSize={14}>
+              {tokenInitial}
+            </ResponsiveUi.Text>
+          </View>
+        )}
         <ResponsiveUi.Text
           fontSize={14}
           medium
@@ -87,7 +99,7 @@ const TransactionFlowRow: React.FC<TransactionFlowRowProps> = ({
       </View>
 
       <View
-        className="flex-1 mx-3 h-6 justify-center"
+        className="flex-1 mx-3 h-6 items-center justify-center"
         onLayout={(event) => setConnectorWidth(event.nativeEvent.layout.width)}
       >
         <View className="absolute inset-0 flex-row items-center justify-between px-2">
@@ -103,7 +115,11 @@ const TransactionFlowRow: React.FC<TransactionFlowRowProps> = ({
         <Animated.View
           className="absolute"
           style={{
-            transform: [{ translateX: connectorTranslateX }],
+            top: "50%",
+            transform: [
+              { translateX: connectorTranslateX },
+              { translateY: -movingDotSize / 2 },
+            ],
             width: movingDotSize,
             height: movingDotSize,
             borderRadius: movingDotSize / 1.5,
