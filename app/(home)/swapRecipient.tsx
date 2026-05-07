@@ -25,12 +25,18 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { TextInput, TouchableOpacity, View } from "react-native";
+import {
+  TextInput,
+  TouchableOpacity,
+  useColorScheme,
+  View,
+} from "react-native";
 import { useAppDimensions } from "@/hooks/useAppDimensions";
 import { ActivityIndicator } from "react-native-paper";
+import { Checkbox } from "expo-checkbox";
 
 import PersonIcon from "@/components/svgs/person-icon";
-import _, { truncate } from "lodash";
+import _, { capitalize, truncate } from "lodash";
 
 const ACCOUNT_NUMBER_LENGTH = 10;
 const ACCOUNT_VERIFICATION_DELAY_MS = 500;
@@ -65,7 +71,7 @@ const getAccountVerificationErrorMessage = (error: unknown) => {
 
 const SwapDetails: FunctionComponent = () => {
   const colors = useThemeColors();
-  const { hp, wp, width, isLargeScreen } = useAppDimensions();
+  const { hp, wp, isSmallScreen, isLargeScreen } = useAppDimensions();
   const [isInstitutionModalVisible, setIsInstitutionModalVisible] =
     useState(false);
   const [isBeneficiaryModalVisible, setIsBeneficiaryModalVisible] =
@@ -220,7 +226,6 @@ const SwapDetails: FunctionComponent = () => {
 
   const walletDotSize = wp(3.5);
   const walletDotMargin = wp(1.2);
-  const isSmallScreen = width < 390;
   const progressHeaderWidth = isSmallScreen ? wp(48) : wp(40);
   const recipientContentWidth = isLargeScreen ? Math.min(wp(82), 520) : wp(100);
   const recipientControlWidth = isSmallScreen ? "92%" : "80%";
@@ -269,6 +274,10 @@ const SwapDetails: FunctionComponent = () => {
   const verificationTextColor = resolvedAccountName
     ? colors.text
     : colors.secondary;
+  const beneficiaryFirstName =
+    resolvedAccountName?.trim().split(" ")[0] ?? null;
+  const [addToBeneficiaries, setAddToBeneficiaries] = useState(false);
+  const appTheme = useColorScheme();
 
   return (
     <AppLayout>
@@ -303,7 +312,6 @@ const SwapDetails: FunctionComponent = () => {
                 Recipient
               </ResponsiveUi.Text>
             </View>
-
             <View style={[walletDotStyle, { marginLeft: walletDotMargin }]} />
           </View>
         </View>
@@ -342,7 +350,7 @@ const SwapDetails: FunctionComponent = () => {
           ) : null}
           <ResponsiveUi.Text
             medium
-            style={{ marginLeft: wp(1), flex: 1 }}
+            style={{ marginLeft: wp(1), flex: 1, textAlign: "right" }}
             fontSize={amountValueFontSize}
             numberOfLines={1}
           >
@@ -362,7 +370,7 @@ const SwapDetails: FunctionComponent = () => {
           ) : null}
           <ResponsiveUi.Text
             medium
-            style={{ marginLeft: wp(1), flex: 1 }}
+            style={{ marginLeft: wp(1), flex: 1, textAlign: "right" }}
             fontSize={amountValueFontSize}
             numberOfLines={1}
           >
@@ -396,7 +404,7 @@ const SwapDetails: FunctionComponent = () => {
         </ResponsiveUi.Text>
         <TouchableOpacity
           style={{
-            marginTop: hp(4),
+            marginTop: hp(3),
             width: recipientControlWidth,
             borderWidth: 0.5,
             borderColor: colors.secondary,
@@ -465,7 +473,7 @@ const SwapDetails: FunctionComponent = () => {
 
           <View
             style={{
-              marginTop: hp(3),
+              marginTop: hp(2),
               borderWidth: 1,
               borderColor: colors.subtle_surface,
               padding: wp(3),
@@ -476,7 +484,7 @@ const SwapDetails: FunctionComponent = () => {
               height={35}
               width={35}
               color={!resolvedAccountName ? colors.gray_hover : colors.primary}
-              color2={!resolvedAccountName ? colors.gray : colors.white}
+              color2={!resolvedAccountName ? colors.secondary : colors.white}
             />
           </View>
 
@@ -495,20 +503,21 @@ const SwapDetails: FunctionComponent = () => {
                   flexDirection: "row",
                   alignItems: "center",
                   borderWidth: resolvedAccountName ? 0.5 : 0,
-                  borderColor: colors.destructive,
+                  borderColor:
+                    appTheme === "dark" ? colors.destructive : colors.white,
                   borderRadius: 8,
                   paddingHorizontal: resolvedAccountName ? wp(0.5) : 0,
                   paddingVertical: resolvedAccountName ? hp(0.5) : 0,
                 }}
               >
                 {isVerifyingAccount ? (
-                  <ActivityIndicator size="small" color={colors.primary} />
+                  <ActivityIndicator size={15} color={colors.primary} />
                 ) : null}
                 <ResponsiveUi.Text
                   fontSize={verificationFontSize}
                   color={verificationTextColor}
                   style={isVerifyingAccount ? { marginLeft: wp(2) } : undefined}
-                  medium={Boolean(resolvedAccountName)}
+                  semiBold={Boolean(resolvedAccountName)}
                   center
                 >
                   {verificationMessage}
@@ -517,6 +526,32 @@ const SwapDetails: FunctionComponent = () => {
             ) : null}
           </View>
 
+          {resolvedAccountName ? (
+            <View
+              className="mt-3"
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Checkbox
+                style={{
+                  margin: 8,
+                  borderWidth: 1,
+                  borderRadius: 4,
+                  borderColor: colors.secondary,
+                }}
+                value={addToBeneficiaries}
+                onValueChange={setAddToBeneficiaries}
+                color={addToBeneficiaries ? colors.primary : undefined}
+              />
+              <ResponsiveUi.Text fontSize={12}>
+                Add {capitalize(beneficiaryFirstName ?? "")} to your
+                beneficiaries
+              </ResponsiveUi.Text>
+            </View>
+          ) : null}
           <View style={{ marginTop: hp(1) }}>
             <AddBeneficiaryCard
               onPress={() => setIsBeneficiaryModalVisible(true)}

@@ -154,7 +154,7 @@ export default function HomeScreen() {
   });
   const [isSmartWalletScreenVisible, setIsSmartWalletScreenVisible] =
     useState(false);
-  const { hp, wp, width, isLargeScreen } = useAppDimensions();
+  const { hp, wp, isSmallScreen, isLargeScreen } = useAppDimensions();
 
   const sendAssetBalanceLabel = useMemo(() => {
     if (!selectedFromAsset) {
@@ -360,7 +360,6 @@ export default function HomeScreen() {
   const detailPillVertical = hp(0.5);
   const detailPillHorizontal = wp(3);
   const contentMaxWidth = isLargeScreen ? Math.min(wp(92), 620) : undefined;
-  const isSmallScreen = width < 390;
   const compactKeyboardLayout = isKeyboardVisible && isSmallScreen;
   const sectionTopSpacing = compactKeyboardLayout ? hp(0.8) : mt8;
   const rateRowTopSpacing = compactKeyboardLayout ? hp(1) : mt8 * 1.4;
