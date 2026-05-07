@@ -30,7 +30,7 @@ const DetailRow: React.FC<DetailRowProps> = ({
   valueColor,
   valueBold = false,
 }) => {
-  const { hp } = useAppDimensions();
+  const { hp, wp } = useAppDimensions();
   return (
     <View className="flex-row items-center mt-2 justify-between">
       <ResponsiveUi.Text fontSize={hp(1.8)} color={labelColor}>
@@ -46,7 +46,7 @@ const DetailRow: React.FC<DetailRowProps> = ({
 const TransactionSuccess: FunctionComponent = () => {
   const colors = useThemeColors();
   const insets = useSafeAreaInsets();
-  const { hp } = useAppDimensions();
+  const { hp, wp } = useAppDimensions();
   const { amount, token, recipientName } = useLocalSearchParams<{
     amount?: string;
     token?: string;
@@ -247,8 +247,10 @@ const TransactionSuccess: FunctionComponent = () => {
                 bold
                 color={colors.text}
                 backgroundColor={colors.subtle_surface}
-                iconLeft={<XIcon width={16} height={16} />}
-                style={{ flex: 1, height: 44 }}
+                iconLeft={<XIcon color={colors.text} width={16} height={16} />}
+                style={{ height: 44, width: wp(35) }}
+                fontSize={12}
+                tailwind="w-20 ml-8"
               />
               <ResponsiveUi.Button
                 title="Warpcast"
@@ -256,8 +258,13 @@ const TransactionSuccess: FunctionComponent = () => {
                 bold
                 color={colors.text}
                 backgroundColor={colors.subtle_surface}
-                iconLeft={<WarpcastIcon width={16} height={16} />}
-                style={{ flex: 1, height: 44 }}
+                iconLeft={
+                  <WarpcastIcon color={colors.text} width={16} height={16} />
+                }
+                style={{ height: 44, width: wp(35) }}
+                fontSize={12}
+                tailwind="w-20 ml-8"
+                containerStyle="w-20"
               />
             </View>
 
