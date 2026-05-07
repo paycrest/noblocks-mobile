@@ -27,6 +27,13 @@ const BaseSheet: React.FC<BaseSheetProps> = ({
 }) => {
   const colors = useThemeColors();
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const cornerStyle = topCornerRadius
+    ? {
+        borderTopLeftRadius: topCornerRadius,
+        borderTopRightRadius: topCornerRadius,
+        overflow: "hidden" as const,
+      }
+    : undefined;
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -69,15 +76,14 @@ const BaseSheet: React.FC<BaseSheetProps> = ({
       enableOverDrag={false}
       enableDynamicSizing={false}
       backgroundStyle={{
-        backgroundColor: colors.surface_overlay,
-        borderTopLeftRadius: topCornerRadius,
-        borderTopRightRadius: topCornerRadius,
+        backgroundColor: colors.neutral_surface,
+        ...cornerStyle,
       }}
       handleIndicatorStyle={
         hideHandle ? { display: "none" } : { backgroundColor: colors.secondary }
       }
     >
-      <View style={styles.contentContainer}>{children}</View>
+      <View style={[styles.contentContainer, cornerStyle]}>{children}</View>
     </BottomSheetModal>
   );
 };

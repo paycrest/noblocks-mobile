@@ -126,10 +126,12 @@ const ChainSelectorSheet: FunctionComponent<ChainSelectorSheetProps> = ({
               width: "100%",
               height: MODAL_HEIGHT,
               borderRadius: 28,
-              backgroundColor: colors.surface_overlay,
+              backgroundColor: colors.background,
               paddingHorizontal: 16,
               paddingTop: 16,
               paddingBottom: 8,
+              borderColor: colors.secondary,
+              borderWidth: 0.5,
             }}
           >
             <View className="flex-row items-center justify-between mb-4">

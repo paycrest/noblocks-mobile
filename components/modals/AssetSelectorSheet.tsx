@@ -13,6 +13,7 @@ import {
   View,
 } from "react-native";
 import { ActivityIndicator } from "react-native-paper";
+import truncate from "lodash/truncate";
 
 import { ResponsiveUi } from "../ResponsiveUi";
 import BackdropBlur from "./BackdropBlur";
@@ -82,7 +83,7 @@ const AssetSelectorSheet: FunctionComponent<AssetSelectorSheetProps> = ({
     const isSelected =
       selectedAssetAddress?.toLowerCase() === item.address.toLowerCase();
     const formattedPrice = item.priceUSD
-      ? Number(item.priceUSD).toFixed(Number(item.priceUSD) >= 1 ? 2 : 4)
+      ? Number(item.priceUSD).toFixed(3)
       : null;
 
     return (
@@ -98,14 +99,14 @@ const AssetSelectorSheet: FunctionComponent<AssetSelectorSheetProps> = ({
           {item.logoURI ? (
             <Image
               source={{ uri: item.logoURI }}
-              style={{ width: hp(5), height: hp(5), borderRadius: hp(2.5) }}
+              style={{ width: hp(4), height: hp(4), borderRadius: hp(2.5) }}
             />
           ) : (
             <View
               style={{ backgroundColor: colors.secondary }}
               className="w-10 h-10 rounded-full items-center justify-center"
             >
-              <ResponsiveUi.Text medium fontSize={hp(2.2)}>
+              <ResponsiveUi.Text medium fontSize={hp(1.3)}>
                 {item.symbol.slice(0, 3)}
               </ResponsiveUi.Text>
             </View>
@@ -118,27 +119,27 @@ const AssetSelectorSheet: FunctionComponent<AssetSelectorSheetProps> = ({
                 height: hp(2),
                 borderRadius: hp(1),
                 position: "absolute",
-                bottom: 0,
-                right: -2,
+                bottom: 5,
+                right: 0,
                 borderWidth: 1.5,
-                borderColor: colors.surface_overlay,
+                borderColor: colors.neutral_surface,
               }}
             />
           ) : null}
         </View>
 
-        <View className="ml-3 flex-1">
-          <ResponsiveUi.Text medium fontSize={hp(2.2)}>
+        <View className="ml-3 w-1/3 flex-1">
+          <ResponsiveUi.Text medium fontSize={hp(2)}>
             {item.symbol}
           </ResponsiveUi.Text>
-          <ResponsiveUi.Text fontSize={hp(2)} color={colors.secondary}>
-            {item.name}
+          <ResponsiveUi.Text fontSize={hp(1.8)} color={colors.secondary}>
+            {truncate(item.name, { length: 10 })}
           </ResponsiveUi.Text>
         </View>
 
-        <View className="items-end w-1/4 flex-row">
+        <View className="items-end w-1/3 flex-row">
           {formattedPrice ? (
-            <ResponsiveUi.Text fontSize={hp(2)} color={colors.secondary}>
+            <ResponsiveUi.Text fontSize={hp(1.8)} color={colors.secondary}>
               ${formattedPrice}
             </ResponsiveUi.Text>
           ) : null}
@@ -164,10 +165,12 @@ const AssetSelectorSheet: FunctionComponent<AssetSelectorSheetProps> = ({
               width: "100%",
               height: MODAL_HEIGHT,
               borderRadius: 30,
-              backgroundColor: colors.surface_overlay,
+              backgroundColor: colors.background,
               paddingHorizontal: 16,
               paddingTop: 28,
               paddingBottom: 12,
+              borderColor: colors.secondary,
+              borderWidth: 0.5,
             }}
           >
             <View className="flex-row items-center justify-between mb-4">
@@ -199,7 +202,7 @@ const AssetSelectorSheet: FunctionComponent<AssetSelectorSheetProps> = ({
                   paddingRight: 16,
                   paddingVertical: 14,
                   fontWeight: "500",
-                  fontSize: hp(2),
+                  fontSize: hp(1.8),
                 }}
                 value={searchQuery}
               />
@@ -209,7 +212,10 @@ const AssetSelectorSheet: FunctionComponent<AssetSelectorSheetProps> = ({
               {isLoading ? (
                 <View className="flex-1 items-center justify-center">
                   <ActivityIndicator color={colors.primary} />
-                  <ResponsiveUi.Text fontSize={hp(2)} color={colors.secondary}>
+                  <ResponsiveUi.Text
+                    fontSize={hp(1.8)}
+                    color={colors.secondary}
+                  >
                     Loading assets...
                   </ResponsiveUi.Text>
                 </View>
@@ -217,7 +223,7 @@ const AssetSelectorSheet: FunctionComponent<AssetSelectorSheetProps> = ({
                 <View className="flex-1 items-center justify-center px-6">
                   <ResponsiveUi.Text
                     center
-                    fontSize={hp(2)}
+                    fontSize={hp(1.8)}
                     color={colors.secondary}
                   >
                     {errorMessage}
@@ -234,7 +240,7 @@ const AssetSelectorSheet: FunctionComponent<AssetSelectorSheetProps> = ({
                       <ActivityIndicator color={colors.white} size="small" />
                     ) : (
                       <ResponsiveUi.Text
-                        fontSize={hp(2)}
+                        fontSize={hp(1.8)}
                         semiBold
                         color={colors.white}
                       >
@@ -256,7 +262,7 @@ const AssetSelectorSheet: FunctionComponent<AssetSelectorSheetProps> = ({
                     <View className="items-center justify-center py-10">
                       <ResponsiveUi.Text
                         color={colors.secondary}
-                        fontSize={hp(2)}
+                        fontSize={hp(1.8)}
                       >
                         No assets match your search.
                       </ResponsiveUi.Text>

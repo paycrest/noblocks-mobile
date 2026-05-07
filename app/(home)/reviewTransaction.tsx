@@ -261,7 +261,10 @@ const ReviewTransaction: FunctionComponent = () => {
         </View>
         <View style={{ flexDirection: "row", alignItems: "center" }}>
           <WalletIcon style={{ marginRight: wp(4) }} />
-          <X color={colors.secondary} onPress={() => router.back()} />
+          <X
+            color={colors.secondary}
+            onPress={() => router.navigate("/(tabs)")}
+          />
         </View>
       </View>
       <SwapChainRow

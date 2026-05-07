@@ -30,7 +30,7 @@ const DetailRow: React.FC<DetailRowProps> = ({
   valueColor,
   valueBold = false,
 }) => {
-  const { hp } = useAppDimensions();
+  const { hp, wp } = useAppDimensions();
   return (
     <View className="flex-row items-center mt-2 justify-between">
       <ResponsiveUi.Text fontSize={hp(1.8)} color={labelColor}>
@@ -46,7 +46,7 @@ const DetailRow: React.FC<DetailRowProps> = ({
 const TransactionSuccess: FunctionComponent = () => {
   const colors = useThemeColors();
   const insets = useSafeAreaInsets();
-  const { hp } = useAppDimensions();
+  const { hp, wp } = useAppDimensions();
   const { amount, token, recipientName } = useLocalSearchParams<{
     amount?: string;
     token?: string;
@@ -93,14 +93,14 @@ const TransactionSuccess: FunctionComponent = () => {
             left: 0,
             right: 0,
             top: -insets.top,
-            height: insets.top + 128,
+            bottom: 0,
           }}
         />
 
         <BaseSheet
           isVisible
           snapPoints={["92%"]}
-          topCornerRadius={40}
+          topCornerRadius={50}
           isDismissible={false}
           showBackdrop={false}
           hideHandle
@@ -110,18 +110,17 @@ const TransactionSuccess: FunctionComponent = () => {
               flex: 1,
               paddingHorizontal: hp(2.5),
               paddingTop: hp(2),
-              paddingBottom: insets.bottom + hp(2.5),
+              paddingBottom: Math.max(insets.bottom, hp(1.2)),
+              borderTopRightRadius: 50,
+              borderTopLeftRadius: 50,
             }}
           >
-            <X
-              size={28}
-              color={colors.text}
-              style={{ position: "absolute", right: 18, top: 18 }}
-              onPress={() => router.back()}
-            />
+            <View className="items-end">
+              <X size={28} color={colors.text} onPress={() => router.back()} />
+            </View>
 
-            <View style={{ marginTop: hp(3), alignItems: "center" }}>
-              <CheckCircle2 color={colors.teal} size={hp(3.2)} />
+            <View style={{ marginTop: hp(1), alignItems: "flex-start" }}>
+              <CheckCircle2 color={colors.teal} size={hp(4)} />
               <ResponsiveUi.Text
                 fontSize={hp(2)}
                 bold
@@ -152,8 +151,9 @@ const TransactionSuccess: FunctionComponent = () => {
             />
 
             <ResponsiveUi.Text
-              fontSize={hp(2)}
+              fontSize={hp(1.7)}
               style={{ marginTop: hp(1.2) }}
+              lineHeight={5}
               color={colors.secondary}
             >
               Your transfer of{" "}
@@ -225,7 +225,7 @@ const TransactionSuccess: FunctionComponent = () => {
             >
               <HeartIcon width={26} height={26} />
               <ResponsiveUi.Text
-                fontSize={hp(2)}
+                fontSize={hp(1.5)}
                 tailwind="ml-3 flex-1"
                 color={colors.secondary}
               >
@@ -236,8 +236,7 @@ const TransactionSuccess: FunctionComponent = () => {
 
             <View
               style={{
-                width: "80%",
-                paddingTop: hp(1.5),
+                marginTop: hp(2.5),
                 flexDirection: "row",
                 gap: hp(1),
               }}
@@ -248,9 +247,10 @@ const TransactionSuccess: FunctionComponent = () => {
                 bold
                 color={colors.text}
                 backgroundColor={colors.subtle_surface}
-                iconLeft={<XIcon width={16} height={16} />}
-                style={{ width: "50%", height: 40 }}
-                tailwind="w-full ml-8"
+                iconLeft={<XIcon color={colors.text} width={16} height={16} />}
+                style={{ height: 44, width: wp(35) }}
+                fontSize={12}
+                tailwind="w-20 ml-8"
               />
               <ResponsiveUi.Button
                 title="Warpcast"
@@ -258,9 +258,13 @@ const TransactionSuccess: FunctionComponent = () => {
                 bold
                 color={colors.text}
                 backgroundColor={colors.subtle_surface}
-                iconLeft={<WarpcastIcon width={16} height={16} />}
-                style={{ width: "48%", height: 40 }}
-                tailwind="w-full ml-8"
+                iconLeft={
+                  <WarpcastIcon color={colors.text} width={16} height={16} />
+                }
+                style={{ height: 44, width: wp(35) }}
+                fontSize={12}
+                tailwind="w-20 ml-8"
+                containerStyle="w-20"
               />
             </View>
 

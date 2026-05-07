@@ -5,6 +5,7 @@ import React, { FunctionComponent } from "react";
 import { TouchableOpacity, View } from "react-native";
 import { ResponsiveUi } from "../ResponsiveUi";
 import _ from "lodash";
+import { useAppDimensions } from "@/hooks/useAppDimensions";
 
 interface WalletBalanceProps {
   selectedAsset?: {
@@ -26,6 +27,7 @@ const WalletBalance: FunctionComponent<WalletBalanceProps> = ({
   chainLogoURI,
 }) => {
   const colors = useThemeColors();
+  const { hp } = useAppDimensions();
 
   return (
     <View className="flex-row px-4  w-full items-center justify-between">
@@ -46,7 +48,13 @@ const WalletBalance: FunctionComponent<WalletBalanceProps> = ({
                 style={{ backgroundColor: colors.secondary }}
                 className="w-10 h-10 rounded-full items-center justify-center"
               >
-                <Plus size={18} color={colors.text} />
+                {selectedAsset ? (
+                  <ResponsiveUi.Text medium fontSize={hp(1.3)}>
+                    {selectedAsset.symbol.slice(0, 3)}
+                  </ResponsiveUi.Text>
+                ) : (
+                  <Plus size={18} color={colors.text} />
+                )}
               </View>
             )}
             {chainLogoURI ? (
@@ -60,7 +68,7 @@ const WalletBalance: FunctionComponent<WalletBalanceProps> = ({
                   top: 0,
                   left: -2,
                   borderWidth: 1.5,
-                  borderColor: colors.surface_overlay,
+                  borderColor: colors.subtle_surface,
                 }}
               />
             ) : null}
@@ -72,8 +80,8 @@ const WalletBalance: FunctionComponent<WalletBalanceProps> = ({
           />
         </TouchableOpacity>
 
-        <View className="ml-4">
-          <ResponsiveUi.Text fontSize={18} tailwind="mb-2">
+        <View className="ml-4 w-[45%]">
+          <ResponsiveUi.Text fontSize={18} numberOfLines={1} tailwind="mb-2">
             {_.truncate(selectedAsset?.name, { length: 20 }) ?? "Select Asset"}
           </ResponsiveUi.Text>
           <ResponsiveUi.Text color={colors.secondary} light fontSize={18} bold>
@@ -82,7 +90,7 @@ const WalletBalance: FunctionComponent<WalletBalanceProps> = ({
         </View>
       </View>
       <TouchableOpacity
-        className="max-w-2/5 bg-dark-gray-hover items-center justify-center px-4 py-3 rounded-3xl"
+        className="max-w-[45%] bg-dark-gray-hover items-center justify-center px-4 py-3 rounded-3xl"
         activeOpacity={0.8}
         onPress={onUseMaxPress}
       >

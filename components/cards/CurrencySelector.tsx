@@ -1,6 +1,6 @@
 import { useThemeColors } from "@/hooks/useThemeColor";
 import { Image } from "expo-image";
-import { truncate } from "lodash";
+import truncate from "lodash/truncate";
 import { ChevronDown, Plus } from "lucide-react-native";
 import React, { FunctionComponent } from "react";
 import { Pressable, TouchableOpacity, View } from "react-native";
@@ -18,6 +18,7 @@ interface CurrencySelectorProps {
   isLoading?: boolean;
   onPress?: () => void;
   chainLogoURI?: string;
+  compact?: boolean;
 }
 
 const CurrencySelector: FunctionComponent<CurrencySelectorProps> = ({
@@ -28,24 +29,49 @@ const CurrencySelector: FunctionComponent<CurrencySelectorProps> = ({
   isLoading = false,
   onPress,
   chainLogoURI,
+  compact = false,
 }) => {
   const colors = useThemeColors();
   const parsedRightValue = (rightValue ?? "").replace(/[^\d.,-]/g, "").trim();
   const displayRightValue = parsedRightValue || "0";
+  const hasSelectedAsset = Boolean(selectedAsset);
+  const valueLabel = hasSelectedAsset
+    ? truncate(displayRightValue, { length: 15 })
+    : "Select";
+  const rowMinHeight = compact ? 68 : 80;
+  const horizontalPadding = compact ? 16 : 20;
+  const verticalPadding = compact ? 10 : 16;
+  const iconSize = compact ? 34 : 40;
+  const iconRadius = iconSize / 2;
+  const textSize = compact ? 14 : 16;
+  const subtitleSize = compact ? 12 : 14;
+  const valueSize = compact ? 16 : 18;
+  const valueLines = compact ? 1 : 2;
 
   return (
-    <View className="mt-4 flex-1 h-20 border border-subtle_surface px-5 py-4 rounded-2xl bg-neutral_surface  flex-row justify-between items-center">
+    <View
+      className="mt-4 border border-subtle_surface rounded-2xl bg-neutral_surface flex-row justify-between items-center"
+      style={{
+        minHeight: rowMinHeight,
+        paddingHorizontal: horizontalPadding,
+        paddingVertical: verticalPadding,
+      }}
+    >
       <TouchableOpacity
         activeOpacity={0.8}
         className="flex-row items-center"
         onPress={onPress}
       >
-        <View style={{ width: 40, height: 40 }}>
+        <View style={{ width: iconSize, height: iconSize }}>
           {selectedAsset?.logoURI ? (
             <Image
               source={{ uri: selectedAsset.logoURI }}
               contentFit="fill"
-              style={{ width: 40, height: 40, borderRadius: 20 }}
+              style={{
+                width: iconSize,
+                height: iconSize,
+                borderRadius: iconRadius,
+              }}
             />
           ) : (
             <View
@@ -54,8 +80,11 @@ const CurrencySelector: FunctionComponent<CurrencySelectorProps> = ({
                 borderColor: colors.gray,
                 backgroundColor: colors.subtle_surface,
                 borderStyle: "dashed",
+                width: iconSize,
+                height: iconSize,
+                borderRadius: iconRadius,
               }}
-              className="w-10 h-10 rounded-full items-center justify-center"
+              className="items-center justify-center"
             >
               <Plus size={18} color={colors.text} />
             </View>
@@ -65,9 +94,9 @@ const CurrencySelector: FunctionComponent<CurrencySelectorProps> = ({
               source={{ uri: chainLogoURI }}
               contentFit="contain"
               style={{
-                width: 16,
-                height: 16,
-                borderRadius: 8,
+                width: compact ? 14 : 16,
+                height: compact ? 14 : 16,
+                borderRadius: compact ? 7 : 8,
                 position: "absolute",
                 top: 0,
                 left: -2,
@@ -85,13 +114,13 @@ const CurrencySelector: FunctionComponent<CurrencySelectorProps> = ({
       </TouchableOpacity>
 
       <View className="ml-4 ">
-        <ResponsiveUi.Text medium fontSize={16}>
+        <ResponsiveUi.Text medium fontSize={textSize}>
           {label ?? "Receive"}
         </ResponsiveUi.Text>
         <ResponsiveUi.Text
           medium
-          fontSize={14}
-          tailwind="mt-2"
+          fontSize={subtitleSize}
+          tailwind={compact ? "mt-1" : "mt-2"}
           color={colors.secondary}
         >
           {truncate(subtitle ?? selectedAsset?.name ?? "Select Currency", {
@@ -99,22 +128,41 @@ const CurrencySelector: FunctionComponent<CurrencySelectorProps> = ({
           })}
         </ResponsiveUi.Text>
       </View>
-      <View className="ml-auto w-1/3  flex items-end ">
-        <Pressable
-          className={`bg-${!selectedAsset ? "dark-gray-hover" : "transparent"} px-4 py-3 rounded-3xl`}
-        >
-          {isLoading ? (
-            <ActivityIndicator size="small" color={colors.primary} />
-          ) : (
-            <ResponsiveUi.Text medium fontSize={18}>
-              {!selectedAsset
-                ? "Select"
-                : truncate(displayRightValue, {
-                    length: 15,
-                  })}
+      <View
+        className="ml-auto flex items-end"
+        style={{ width: compact ? "42%" : "33%" }}
+      >
+        {isLoading ? (
+          <ActivityIndicator size="small" color={colors.primary} />
+        ) : !hasSelectedAsset ? (
+          <Pressable
+            className="px-4 rounded-3xl"
+            style={{
+              height: 44,
+              width: "100%",
+              justifyContent: "center",
+              alignItems: "center",
+              backgroundColor: colors.gray_hover,
+            }}
+            onPress={onPress}
+          >
+            <ResponsiveUi.Text
+              numberOfLines={valueLines}
+              medium
+              fontSize={valueSize}
+            >
+              {valueLabel}
             </ResponsiveUi.Text>
-          )}
-        </Pressable>
+          </Pressable>
+        ) : (
+          <ResponsiveUi.Text
+            numberOfLines={valueLines}
+            medium
+            fontSize={valueSize}
+          >
+            {valueLabel}
+          </ResponsiveUi.Text>
+        )}
       </View>
     </View>
   );

@@ -121,7 +121,11 @@ const TransactionProgress: FunctionComponent = () => {
           hideHandle
         >
           <View
-            style={{ flex: 1, paddingHorizontal: wp(4), paddingTop: hp(1.5) }}
+            style={{
+              flex: 1,
+              paddingHorizontal: wp(4),
+              paddingTop: hp(1.5),
+            }}
           >
             <X
               size={hp(3.5)}
@@ -180,6 +184,9 @@ const TransactionProgress: FunctionComponent = () => {
               style={{
                 flexDirection: "row",
                 borderRadius: 12,
+                borderTopLeftRadius: 40,
+                borderTopRightRadius: 40,
+                overflow: "hidden",
                 width: wp(32),
                 marginTop: hp(7),
                 paddingHorizontal: wp(2),

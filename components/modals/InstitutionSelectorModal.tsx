@@ -127,7 +127,7 @@ const InstitutionSelectorModal: FunctionComponent<
               width: "100%",
               height: MODAL_HEIGHT,
               borderRadius: 36,
-              backgroundColor: colors.surface_overlay,
+              backgroundColor: colors.background,
               borderWidth: 1,
               borderColor: colors.secondary,
               paddingHorizontal: 18,
@@ -191,7 +191,7 @@ const InstitutionSelectorModal: FunctionComponent<
 
               {isLoading ? (
                 <View className="absolute top-0 right-0 bottom-0 left-0 items-center justify-center">
-                  <ActivityIndicator color={colors.primary} size="large" />
+                  <ActivityIndicator color={colors.primary} size="small" />
                   <ResponsiveUi.Text
                     fontSize={14}
                     color={colors.secondary}
