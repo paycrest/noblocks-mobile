@@ -30,7 +30,7 @@ import { useAppDimensions } from "@/hooks/useAppDimensions";
 import { ActivityIndicator } from "react-native-paper";
 
 import PersonIcon from "@/components/svgs/person-icon";
-import _ from "lodash";
+import _, { truncate } from "lodash";
 
 const ACCOUNT_NUMBER_LENGTH = 10;
 const ACCOUNT_VERIFICATION_DELAY_MS = 500;
@@ -337,10 +337,11 @@ const SwapDetails: FunctionComponent = () => {
           ) : null}
           <ResponsiveUi.Text
             medium
-            style={{ marginLeft: wp(3) }}
-            fontSize={hp(2.2)}
+            style={{ marginLeft: wp(1), width: "75%" }}
+            fontSize={hp(2)}
+            numberOfLines={1}
           >
-            ${amount}
+            ${truncate(amount ?? "0", { length: 10 })}
           </ResponsiveUi.Text>
         </View>
         <View className="bg-neutral_surface border border-subtle_surface p-1 rounded-full">
@@ -356,10 +357,13 @@ const SwapDetails: FunctionComponent = () => {
           ) : null}
           <ResponsiveUi.Text
             medium
-            style={{ marginLeft: wp(3) }}
-            fontSize={hp(2.2)}
+            style={{ marginLeft: wp(1), width: "75%" }}
+            fontSize={hp(2)}
+            numberOfLines={1}
           >
-            {fiatEstimate}
+            {truncate(`${fiatEstimate ?? "0"}`, {
+              length: 15,
+            })}
           </ResponsiveUi.Text>
         </View>
       </View>
