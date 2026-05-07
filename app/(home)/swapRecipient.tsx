@@ -366,7 +366,7 @@ const SwapDetails: FunctionComponent = () => {
       {/* Add Recipient Section */}
       <View
         style={{
-          marginTop: hp(3),
+          marginTop: hp(2),
           alignItems: "center",
           backgroundColor: colors.neutral_surface,
           paddingHorizontal: wp(2),
@@ -505,7 +505,7 @@ const SwapDetails: FunctionComponent = () => {
             ) : null}
           </View>
 
-          <View style={{ marginTop: hp(2) }}>
+          <View style={{ marginTop: hp(1) }}>
             <AddBeneficiaryCard
               onPress={() => setIsBeneficiaryModalVisible(true)}
             />

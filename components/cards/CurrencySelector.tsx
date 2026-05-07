@@ -32,9 +32,16 @@ const CurrencySelector: FunctionComponent<CurrencySelectorProps> = ({
   const colors = useThemeColors();
   const parsedRightValue = (rightValue ?? "").replace(/[^\d.,-]/g, "").trim();
   const displayRightValue = parsedRightValue || "0";
+  const hasSelectedAsset = Boolean(selectedAsset);
+  const valueLabel = hasSelectedAsset
+    ? truncate(displayRightValue, { length: 15 })
+    : "Select";
 
   return (
-    <View className="mt-4 flex-1 h-20 border border-subtle_surface px-5 py-4 rounded-2xl bg-neutral_surface  flex-row justify-between items-center">
+    <View
+      className="mt-4 border border-subtle_surface px-5 py-4 rounded-2xl bg-neutral_surface flex-row justify-between items-center"
+      style={{ minHeight: 80 }}
+    >
       <TouchableOpacity
         activeOpacity={0.8}
         className="flex-row items-center"
@@ -99,22 +106,30 @@ const CurrencySelector: FunctionComponent<CurrencySelectorProps> = ({
           })}
         </ResponsiveUi.Text>
       </View>
-      <View className="ml-auto w-1/3  flex items-end ">
-        <Pressable
-          className={`bg-${!selectedAsset ? "dark-gray-hover" : "transparent"} px-4 py-3 rounded-3xl`}
-        >
-          {isLoading ? (
-            <ActivityIndicator size="small" color={colors.primary} />
-          ) : (
-            <ResponsiveUi.Text medium fontSize={18}>
-              {!selectedAsset
-                ? "Select"
-                : truncate(displayRightValue, {
-                    length: 15,
-                  })}
+      <View className="ml-auto w-1/3 flex items-end">
+        {isLoading ? (
+          <ActivityIndicator size="small" color={colors.primary} />
+        ) : !hasSelectedAsset ? (
+          <Pressable
+            className="px-4 rounded-3xl"
+            style={{
+              height: 44,
+              width: "100%",
+              justifyContent: "center",
+              alignItems: "center",
+              backgroundColor: colors.gray_hover,
+            }}
+            onPress={onPress}
+          >
+            <ResponsiveUi.Text numberOfLines={2} medium fontSize={18}>
+              {valueLabel}
             </ResponsiveUi.Text>
-          )}
-        </Pressable>
+          </Pressable>
+        ) : (
+          <ResponsiveUi.Text numberOfLines={2} medium fontSize={18}>
+            {valueLabel}
+          </ResponsiveUi.Text>
+        )}
       </View>
     </View>
   );
