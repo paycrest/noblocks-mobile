@@ -617,7 +617,7 @@ export default function HomeScreen() {
 
               setSelectedFromAsset(asset);
               setIsAssetSheetVisible(false);
-              // setIsKeyboardVisible(true);
+              setIsKeyboardVisible(true);
             }}
             selectedAssetAddress={selectedFromAsset?.address}
             chainLogoURI={selectedChain.logoURI}
@@ -639,7 +639,7 @@ export default function HomeScreen() {
                 setSelectedFromAsset(DEFAULT_ASSET);
                 return;
               }
-
+              setIsKeyboardVisible(true);
               setSelectedFromAsset(null);
             }}
             selectedChainId={selectedChain.id}
@@ -657,8 +657,8 @@ export default function HomeScreen() {
               if (!ACTIVE_FIAT_CODES.has(currency.code.toUpperCase())) {
                 return;
               }
-
               setSelectedFiatCurrency(currency.code);
+              setIsKeyboardVisible(true);
             }}
           />
 

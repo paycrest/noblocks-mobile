@@ -13,6 +13,7 @@ import {
   View,
 } from "react-native";
 import { ActivityIndicator } from "react-native-paper";
+import truncate from "lodash/truncate";
 
 import { ResponsiveUi } from "../ResponsiveUi";
 import BackdropBlur from "./BackdropBlur";
@@ -82,7 +83,7 @@ const AssetSelectorSheet: FunctionComponent<AssetSelectorSheetProps> = ({
     const isSelected =
       selectedAssetAddress?.toLowerCase() === item.address.toLowerCase();
     const formattedPrice = item.priceUSD
-      ? Number(item.priceUSD).toFixed(Number(item.priceUSD) >= 1 ? 2 : 4)
+      ? Number(item.priceUSD).toFixed(3)
       : null;
 
     return (
@@ -105,7 +106,7 @@ const AssetSelectorSheet: FunctionComponent<AssetSelectorSheetProps> = ({
               style={{ backgroundColor: colors.secondary }}
               className="w-10 h-10 rounded-full items-center justify-center"
             >
-              <ResponsiveUi.Text medium fontSize={hp(2.2)}>
+              <ResponsiveUi.Text medium fontSize={hp(1.3)}>
                 {item.symbol.slice(0, 3)}
               </ResponsiveUi.Text>
             </View>
@@ -121,22 +122,22 @@ const AssetSelectorSheet: FunctionComponent<AssetSelectorSheetProps> = ({
                 bottom: 0,
                 right: -2,
                 borderWidth: 1.5,
-                borderColor: colors.surface_overlay,
+                borderColor: colors.neutral_surface,
               }}
             />
           ) : null}
         </View>
 
-        <View className="ml-3 flex-1">
+        <View className="ml-3 w-1/3 flex-1">
           <ResponsiveUi.Text medium fontSize={hp(2.2)}>
             {item.symbol}
           </ResponsiveUi.Text>
           <ResponsiveUi.Text fontSize={hp(2)} color={colors.secondary}>
-            {item.name}
+            {truncate(item.name, { length: 10 })}
           </ResponsiveUi.Text>
         </View>
 
-        <View className="items-end w-1/4 flex-row">
+        <View className="items-end w-1/3 flex-row">
           {formattedPrice ? (
             <ResponsiveUi.Text fontSize={hp(2)} color={colors.secondary}>
               ${formattedPrice}
@@ -164,7 +165,7 @@ const AssetSelectorSheet: FunctionComponent<AssetSelectorSheetProps> = ({
               width: "100%",
               height: MODAL_HEIGHT,
               borderRadius: 30,
-              backgroundColor: colors.surface_overlay,
+              backgroundColor: colors.subtle_surface,
               paddingHorizontal: 16,
               paddingTop: 28,
               paddingBottom: 12,

@@ -1,6 +1,6 @@
 import { useThemeColors } from "@/hooks/useThemeColor";
 import { Image } from "expo-image";
-import { truncate } from "lodash";
+import truncate from "lodash/truncate";
 import { ChevronDown, Plus } from "lucide-react-native";
 import React, { FunctionComponent } from "react";
 import { Pressable, TouchableOpacity, View } from "react-native";
