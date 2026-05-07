@@ -6,6 +6,7 @@ import { Image } from "expo-image";
 import { ChevronDown } from "lucide-react-native";
 import React, { FunctionComponent } from "react";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
+import truncate from "lodash/truncate";
 
 interface SwapChainRowProps {
   title?: string;
@@ -56,7 +57,7 @@ const SwapChainRow: FunctionComponent<SwapChainRowProps> = ({
         fontSize={chainFontSize}
         style={isStatic ? { marginLeft: chainLogoMargin } : undefined}
       >
-        {chainName}
+        {truncate(chainName, { length: 15 })}
       </ResponsiveUi.Text>
       {!isStatic && showChevron ? (
         <ChevronDown
@@ -107,7 +108,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.neutral_surface,
     borderWidth: 1,
     borderColor: Colors.subtle_surface,
-    paddingHorizontal: 5,
+    paddingHorizontal: 10,
     paddingVertical: 8,
     borderRadius: 20,
   },
