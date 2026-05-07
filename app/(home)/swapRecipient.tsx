@@ -65,7 +65,7 @@ const getAccountVerificationErrorMessage = (error: unknown) => {
 
 const SwapDetails: FunctionComponent = () => {
   const colors = useThemeColors();
-  const { hp, wp } = useAppDimensions();
+  const { hp, wp, width, isLargeScreen } = useAppDimensions();
   const [isInstitutionModalVisible, setIsInstitutionModalVisible] =
     useState(false);
   const [isBeneficiaryModalVisible, setIsBeneficiaryModalVisible] =
@@ -220,6 +220,12 @@ const SwapDetails: FunctionComponent = () => {
 
   const walletDotSize = wp(3.5);
   const walletDotMargin = wp(1.2);
+  const isSmallScreen = width < 390;
+  const progressHeaderWidth = isSmallScreen ? wp(48) : wp(40);
+  const recipientContentWidth = isLargeScreen ? Math.min(wp(82), 520) : wp(100);
+  const recipientControlWidth = isSmallScreen ? "92%" : "80%";
+  const amountValueFontSize = isSmallScreen ? hp(1.8) : hp(2);
+  const sectionBottomSpacing = isSmallScreen ? hp(2.5) : hp(2);
 
   const walletDotStyle = {
     borderWidth: 1,
@@ -232,13 +238,13 @@ const SwapDetails: FunctionComponent = () => {
   const amountPillStyle = {
     flexDirection: "row" as const,
     alignItems: "center" as const,
-    width: "45%" as const,
+    flex: 1,
     backgroundColor: colors.neutral_surface,
     borderWidth: 1,
     borderColor: colors.subtle_surface,
     justifyContent: "space-between" as const,
     paddingHorizontal: wp(3),
-    paddingVertical: hp(1.5),
+    paddingVertical: isSmallScreen ? hp(1.1) : hp(1.5),
     borderRadius: 16,
   };
 
@@ -274,29 +280,25 @@ const SwapDetails: FunctionComponent = () => {
           justifyContent: "space-between",
         }}
       >
-        <View
-          style={{
-            flexDirection: "row",
-            width: "50%",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          <View className="flex-row w-36 justify-between items-center">
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <View
+            className="flex-row justify-between items-center"
+            style={{ width: progressHeaderWidth }}
+          >
             <View style={walletDotStyle} />
             <View
               style={{
                 backgroundColor: colors.primary_2,
                 borderRadius: 16,
-                paddingVertical: 4,
-                paddingHorizontal: 12,
+                paddingVertical: isSmallScreen ? hp(0.35) : hp(0.5),
+                paddingHorizontal: isSmallScreen ? wp(2.5) : wp(3),
                 marginHorizontal: 5,
               }}
             >
               <ResponsiveUi.Text
                 medium
                 color={colors.primary}
-                fontSize={hp(2.3)}
+                fontSize={isSmallScreen ? hp(2) : hp(2.3)}
               >
                 Recipient
               </ResponsiveUi.Text>
@@ -325,6 +327,9 @@ const SwapDetails: FunctionComponent = () => {
           flexDirection: "row",
           alignItems: "center",
           justifyContent: "space-between",
+          gap: wp(2),
+          width: recipientContentWidth,
+          alignSelf: "center",
         }}
       >
         <View style={amountPillStyle}>
@@ -337,8 +342,8 @@ const SwapDetails: FunctionComponent = () => {
           ) : null}
           <ResponsiveUi.Text
             medium
-            style={{ marginLeft: wp(1), width: "75%" }}
-            fontSize={hp(2)}
+            style={{ marginLeft: wp(1), flex: 1 }}
+            fontSize={amountValueFontSize}
             numberOfLines={1}
           >
             ${truncate(amount ?? "0", { length: 10 })}
@@ -357,8 +362,8 @@ const SwapDetails: FunctionComponent = () => {
           ) : null}
           <ResponsiveUi.Text
             medium
-            style={{ marginLeft: wp(1), width: "75%" }}
-            fontSize={hp(2)}
+            style={{ marginLeft: wp(1), flex: 1 }}
+            fontSize={amountValueFontSize}
             numberOfLines={1}
           >
             {truncate(`${fiatEstimate ?? "0"}`, {
@@ -374,8 +379,11 @@ const SwapDetails: FunctionComponent = () => {
           alignItems: "center",
           backgroundColor: colors.neutral_surface,
           paddingHorizontal: wp(2),
-          paddingVertical: hp(3),
+          paddingVertical: isSmallScreen ? hp(2.4) : hp(3),
           borderRadius: 16,
+          width: recipientContentWidth,
+          alignSelf: "center",
+          marginBottom: sectionBottomSpacing,
         }}
       >
         <ResponsiveUi.Text
@@ -389,7 +397,7 @@ const SwapDetails: FunctionComponent = () => {
         <TouchableOpacity
           style={{
             marginTop: hp(4),
-            width: "80%",
+            width: recipientControlWidth,
             borderWidth: 0.5,
             borderColor: colors.secondary,
             backgroundColor: colors.subtle_surface,
@@ -448,7 +456,7 @@ const SwapDetails: FunctionComponent = () => {
               fontSize: hp(2.2),
               lineHeight: hp(2.7),
               height: hp(6.5),
-              width: "80%",
+              width: recipientControlWidth,
               paddingHorizontal: wp(3),
               backgroundColor: colors.subtle_surface,
             }}
@@ -474,7 +482,7 @@ const SwapDetails: FunctionComponent = () => {
 
           <View
             style={{
-              width: "80%",
+              width: recipientControlWidth,
               marginTop: hp(1.5),
               minHeight: hp(3),
               justifyContent: "center",
@@ -521,7 +529,7 @@ const SwapDetails: FunctionComponent = () => {
           position: "absolute",
           left: 0,
           right: 0,
-          bottom: 15,
+          bottom: hp(2),
           paddingHorizontal: wp(4),
         }}
       >

@@ -154,7 +154,7 @@ export default function HomeScreen() {
   });
   const [isSmartWalletScreenVisible, setIsSmartWalletScreenVisible] =
     useState(false);
-  const { hp, wp } = useAppDimensions();
+  const { hp, wp, width, isLargeScreen } = useAppDimensions();
 
   const sendAssetBalanceLabel = useMemo(() => {
     if (!selectedFromAsset) {
@@ -355,6 +355,15 @@ export default function HomeScreen() {
   const walletDotMargin = wp(1.2);
   const arrowSize = wp(4);
   const mt8 = hp(2);
+  const progressHeaderWidth = Math.min(Math.max(wp(34), 150), 230);
+  const detailPillRadius = hp(2);
+  const detailPillVertical = hp(0.5);
+  const detailPillHorizontal = wp(3);
+  const contentMaxWidth = isLargeScreen ? Math.min(wp(92), 620) : undefined;
+  const isSmallScreen = width < 390;
+  const compactKeyboardLayout = isKeyboardVisible && isSmallScreen;
+  const sectionTopSpacing = compactKeyboardLayout ? hp(0.8) : mt8;
+  const rateRowTopSpacing = compactKeyboardLayout ? hp(1) : mt8 * 1.4;
 
   return (
     <>
@@ -381,15 +390,21 @@ export default function HomeScreen() {
               key="swap-ui"
               entering={FadeIn.duration(400).delay(80)}
               exiting={FadeOut.duration(250)}
-              className={`flex-row items-center m justify-${isKeyboardVisible ? "between" : "center"}`}
+              className="flex-row items-center"
+              style={{
+                justifyContent: isKeyboardVisible ? "space-between" : "center",
+              }}
             >
-              <View className="flex-row w-36 justify-between items-center">
+              <View
+                className="flex-row justify-between items-center"
+                style={{ width: progressHeaderWidth }}
+              >
                 <View
                   style={{
                     backgroundColor: colors.primary_2,
-                    borderRadius: 16,
-                    paddingVertical: 4,
-                    paddingHorizontal: 12,
+                    borderRadius: detailPillRadius,
+                    paddingVertical: detailPillVertical,
+                    paddingHorizontal: detailPillHorizontal,
                   }}
                 >
                   <ResponsiveUi.Text
@@ -481,7 +496,14 @@ export default function HomeScreen() {
                     />
                   </View> */}
               {!isSmartWalletScreenVisible && (
-                <View style={{ marginTop: mt8 }}>
+                <View
+                  style={{
+                    marginTop: sectionTopSpacing,
+                    width: "100%",
+                    maxWidth: contentMaxWidth,
+                    alignSelf: "center",
+                  }}
+                >
                   <View
                     style={{
                       backgroundColor: colors.neutral_surface,
@@ -510,7 +532,15 @@ export default function HomeScreen() {
                             setIsKeyboardVisible(false);
                           }}
                         />
-                        <View className=" w-full self-center border-t my-3 h-1 border-subtle_surface" />
+                        <View
+                          className="w-full self-center border-t border-subtle_surface"
+                          style={{
+                            marginVertical: compactKeyboardLayout
+                              ? hp(1)
+                              : hp(1.5),
+                            height: compactKeyboardLayout ? hp(0.5) : hp(0),
+                          }}
+                        />
                         <SwapInput
                           value={amount}
                           selectedAssetSymbol={selectedFromAsset?.symbol}
@@ -538,6 +568,7 @@ export default function HomeScreen() {
                       </View>
                     </View>
                     <CurrencySelector
+                      compact={compactKeyboardLayout}
                       selectedAsset={
                         selectedFiatOption
                           ? {
@@ -566,7 +597,7 @@ export default function HomeScreen() {
                   {selectedFiatOption && (
                     <View
                       style={{
-                        marginTop: mt8 * 1.4,
+                        marginTop: rateRowTopSpacing,
                         flexDirection: "row",
                         alignItems: "center",
                         justifyContent: "center",

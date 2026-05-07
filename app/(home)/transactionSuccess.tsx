@@ -236,7 +236,7 @@ const TransactionSuccess: FunctionComponent = () => {
 
             <View
               style={{
-                paddingTop: hp(1.5),
+                marginTop: hp(2.5),
                 flexDirection: "row",
                 gap: hp(1),
               }}

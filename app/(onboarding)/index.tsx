@@ -6,16 +6,26 @@ import { ResponsiveUi } from "@/components/ResponsiveUi";
 import { View } from "react-native";
 import { router } from "expo-router";
 import { useSelector } from "../store/Store";
+import { useAppDimensions } from "@/hooks/useAppDimensions";
 
 const Index: FunctionComponent = () => {
   const { setNewInstall } = useSelector(["setLaunchState", "setNewInstall"]);
+  const { hp, wp, isLargeScreen } = useAppDimensions();
+
+  const iconTopMargin = isLargeScreen ? hp(8) : hp(12);
+  const titleTopMargin = isLargeScreen ? hp(5) : hp(9);
+  const descriptionWidth = Math.min(wp(78), 360);
+  const ctaWidth = Math.min(wp(70), 320);
+  const legalWidth = Math.min(wp(82), 380);
 
   return (
     <AppLayout bottomPadding>
-      <View className="flex-1 justify-center  items-center">
-        <OnboardingIcon1 className="mt-32" />
+      <View className="flex-1 justify-center items-center">
+        <View style={{ marginTop: iconTopMargin }}>
+          <OnboardingIcon1 />
+        </View>
         <View className="flex-1 justify-center items-center">
-          <View className="mt-28 items-center">
+          <View style={{ marginTop: titleTopMargin }} className="items-center">
             <ResponsiveUi.Text xl semiBold>
               Crypto to Fiat
             </ResponsiveUi.Text>
@@ -23,12 +33,15 @@ const Index: FunctionComponent = () => {
               Easy-Peeazzy
             </ResponsiveUi.Text>
           </View>
-          <View className="my-5 w-72">
+          <View style={{ marginVertical: hp(2.2), width: descriptionWidth }}>
             <ResponsiveUi.Text small center tailwind="font-inter-regular">
               Converting your crypto to has never been easier. No long processes
             </ResponsiveUi.Text>
           </View>
-          <View className="items-center justify-center w-64">
+          <View
+            style={{ width: ctaWidth }}
+            className="items-center justify-center"
+          >
             <ResponsiveUi.Button
               btnClassName="mt-4"
               title="Continue"
@@ -38,7 +51,7 @@ const Index: FunctionComponent = () => {
               }}
             />
           </View>
-          <View className="mt-9 w-72">
+          <View style={{ marginTop: hp(4), width: legalWidth }}>
             <ResponsiveUi.Text
               secondary
               xs
