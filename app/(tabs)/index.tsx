@@ -434,7 +434,11 @@ export default function HomeScreen() {
                     color={colors.secondary}
                     height={hp(3.5)}
                     width={hp(3.5)}
-                    onPress={() => setIsKeyboardVisible(false)}
+                    onPress={() =>
+                      isSmartWalletScreenVisible
+                        ? setIsSmartWalletScreenVisible(false)
+                        : setIsKeyboardVisible(false)
+                    }
                   />
                 </View>
               )}
