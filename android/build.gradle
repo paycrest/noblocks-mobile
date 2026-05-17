@@ -6,9 +6,18 @@ buildscript {
     mavenCentral()
   }
   dependencies {
-    classpath 'com.android.tools.build:gradle:8.9.1'  
+    classpath 'com.android.tools.build:gradle:8.9.1'
     classpath('com.facebook.react:react-native-gradle-plugin')
-    classpath('org.jetbrains.kotlin:kotlin-gradle-plugin:2.0.21')
+    classpath('org.jetbrains.kotlin:kotlin-gradle-plugin:2.2.21')
+  }
+
+  configurations.classpath {
+    resolutionStrategy.eachDependency { details ->
+      if (details.requested.group == 'com.google.devtools.ksp') {
+        details.useVersion '2.2.21-2.0.5'
+        details.because 'Match the Kotlin Gradle plugin version used above'
+      }
+    }
   }
 }
 
