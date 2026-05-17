@@ -17,6 +17,13 @@ target 'noblocks' do
   use_expo_modules!
   use_modular_headers!
 
+  # SmileID is pulled in transitively by SmileIDExpo and react-native-smile-id.
+  # Declare it explicitly with modular_headers so its Swift imports resolve
+  # ("underlying Objective-C module 'SmileID' not found" otherwise). The same
+  # applies to the underlying SmileIDSDK binary pod.
+  pod 'SmileID', :modular_headers => true
+  pod 'SmileIDSDK', :modular_headers => true
+
   if ENV['EXPO_USE_COMMUNITY_AUTOLINKING'] == '1'
     config_command = ['node', '-e', "process.argv=['', '', 'config'];require('@react-native-community/cli').run()"];
   else

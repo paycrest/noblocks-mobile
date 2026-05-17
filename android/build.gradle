@@ -1,5 +1,10 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
+// Override the KSP version that expo-modules-core (ExpoModulesCorePlugin.gradle)
+// would otherwise pick from its hardcoded Kotlin → KSP map. Required because the
+// Kotlin Gradle plugin below is 2.2.21, but Expo's default KSP is 2.0.21-1.0.28.
+ext.kspVersion = "2.2.21-2.0.5"
+
 buildscript {
   repositories {
     google()
@@ -9,15 +14,6 @@ buildscript {
     classpath 'com.android.tools.build:gradle:8.9.1'
     classpath('com.facebook.react:react-native-gradle-plugin')
     classpath('org.jetbrains.kotlin:kotlin-gradle-plugin:2.2.21')
-  }
-
-  configurations.classpath {
-    resolutionStrategy.eachDependency { details ->
-      if (details.requested.group == 'com.google.devtools.ksp') {
-        details.useVersion '2.2.21-2.0.5'
-        details.because 'Match the Kotlin Gradle plugin version used above'
-      }
-    }
   }
 }
 
