@@ -11,13 +11,19 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.paycrest.noblocks",
-      "associatedDomains": ["webcredentials:roosta-landing-page.vercel.app"],
+      "associatedDomains": [
+        "webcredentials:roosta-landing-page.vercel.app"
+      ],
       "appleTeamId": "5RHBQ5CR25"
     },
     "extra": {
       "passkeyAssociatedDomain": "https://roosta-landing-page.vercel.app",
       "privyAppId": "cmfgv67190088jx0bl9boahgl",
-      "privyClientId": "client-WY6QhUcguZYygmFFCzRW8kqCjPeT9XkDWS6UwxKHKxYnV"
+      "privyClientId": "client-WY6QhUcguZYygmFFCzRW8kqCjPeT9XkDWS6UwxKHKxYnV",
+      "router": {},
+      "eas": {
+        "projectId": "56cc359e-330a-4cec-acc7-e4ce6bc71e3b"
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -59,6 +65,7 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "owner": "paycrest-dev"
   }
 }
