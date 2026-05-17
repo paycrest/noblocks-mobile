@@ -2042,15 +2042,15 @@
   dependencies:
     "@sinonjs/commons" "^3.0.0"
 
-"@smile_identity/react-native-expo@^11.2.8":
-  version "11.2.10"
-  resolved "https://registry.npmjs.org/@smile_identity/react-native-expo/-/react-native-expo-11.2.10.tgz"
-  integrity sha512-4QahRyL8uTiXCscj5XNujkvMfFB2/cMrZrHFuapfTO9VFE/OEoek+Bz7r+RhCuNQpXriDofa4MXH78O/H/ZSqg==
+"@smile_identity/react-native-expo@11.2.8":
+  version "11.2.8"
+  resolved "https://registry.yarnpkg.com/@smile_identity/react-native-expo/-/react-native-expo-11.2.8.tgz#09c5153f8ca0610fad0a8a18a436b97894853ebd"
+  integrity sha512-MQ7Lmlo/z2kpjkF1OZbWIVLUo7vTwHw/tkzW+RVDaXU15Qlc62Ob+1W4mFNdKms6ag1nr9PPKT7/PXlS57rWRA==
 
-"@smile_identity/react-native@^11.1.7":
-  version "11.1.9"
-  resolved "https://registry.npmjs.org/@smile_identity/react-native/-/react-native-11.1.9.tgz"
-  integrity sha512-UsveYVP3gK6vj3Z6DIWluXGinPJGTltAVFLue3RagVTtDVkpEgOM27rHcJ5rjzUfygWx3NW4bbtaW737evnbmw==
+"@smile_identity/react-native@11.1.7":
+  version "11.1.7"
+  resolved "https://registry.yarnpkg.com/@smile_identity/react-native/-/react-native-11.1.7.tgz#8b191bcabcf6b3063388d377059048080f555cac"
+  integrity sha512-l0dxrIdBmLDsykiUI/2UeXkt279D4eEKvkrIveG8iGpLDKSeX+MER+HxGWeNnQrVSxqu6Nzwi/KGnUuiHTEMbQ==
 
 "@standard-schema/utils@^0.3.0":
   version "0.3.0"
