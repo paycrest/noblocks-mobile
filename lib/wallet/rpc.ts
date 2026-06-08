@@ -28,10 +28,6 @@ export function getRpcUrl(networkName: string): string {
       return rpcUrlKey
         ? `https://api-ethereum-mainnet.n.dwellir.com/${rpcUrlKey}`
         : "https://ethereum.publicnode.com";
-    case "BNB Smart Chain":
-      return rpcUrlKey
-        ? `https://api-bsc-mainnet-full.n.dwellir.com/${rpcUrlKey}`
-        : "https://bsc-dataseed.bnbchain.org";
     case "Celo":
       return "https://forno.celo.org";
     case "Scroll":

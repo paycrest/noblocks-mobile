@@ -259,11 +259,11 @@ const ReviewTransaction: FunctionComponent = () => {
       router.push({
         pathname: "/(home)/transactionProgress",
         params: {
-          amount: amount ?? "",
-          token: fromAssetSymbol ?? "",
+          amount,
+          token: fromAssetSymbol,
           recipientName: recipientAccountName ?? "",
           orderId,
-          network: fromChainKey ?? "",
+          network: fromChainKey,
         },
       });
     } catch (error: unknown) {

@@ -84,7 +84,7 @@ const useAuth = () => {
       await linkWithPasskey({
         relyingParty: "roosta-landing-page.vercel.app",
       });
-      const options = await initMfaEnrollment({ method: "passkey" });
+      await initMfaEnrollment({ method: "passkey" });
       const credentialIds = user?.linked_accounts
         .filter((account): account is any => account.type === "passkey")
         .map((account) => account.credentialId);
