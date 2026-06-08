@@ -13,6 +13,8 @@ interface BaseSheetProps {
   showBackdrop?: boolean;
   hideHandle?: boolean;
   topCornerRadius?: number;
+  backgroundColor?: string;
+  borderColor?: string;
 }
 
 const BaseSheet: React.FC<BaseSheetProps> = ({
@@ -24,6 +26,8 @@ const BaseSheet: React.FC<BaseSheetProps> = ({
   showBackdrop = true,
   hideHandle = false,
   topCornerRadius,
+  backgroundColor,
+  borderColor,
 }) => {
   const colors = useThemeColors();
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
@@ -76,7 +80,9 @@ const BaseSheet: React.FC<BaseSheetProps> = ({
       enableOverDrag={false}
       enableDynamicSizing={false}
       backgroundStyle={{
-        backgroundColor: colors.neutral_surface,
+        backgroundColor: backgroundColor ?? colors.neutral_surface,
+        borderWidth: borderColor ? 0.5 : 0,
+        borderColor: borderColor ?? "transparent",
         ...cornerStyle,
       }}
       handleIndicatorStyle={

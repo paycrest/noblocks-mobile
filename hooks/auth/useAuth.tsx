@@ -5,11 +5,12 @@ import {
   usePrivy,
 } from "@privy-io/expo";
 
-import { useSelector } from "@/app/store/Store";
+import { useSelector } from "@/store/Store";
 import { useEmbeddedEthereumWallet } from "@privy-io/expo";
 import { useLinkWithPasskey } from "@privy-io/expo/passkey";
 import { router } from "expo-router";
 import { useCallback } from "react";
+import { Alert } from "react-native";
 
 const useAuth = () => {
   const { create } = useEmbeddedEthereumWallet();
@@ -26,8 +27,6 @@ const useAuth = () => {
   ]);
   const { logout, user } = usePrivy();
   const { initMfaEnrollment, submitMfaEnrollment } = useMfaEnrollment();
-  const appId = process.env.EXPO_PUBLIC_PRIVY_APP_ID;
-  const client_id = process.env.EXPO_PUBLIC_PRIVY_CLIENT_ID;
 
   const navigateAfterLogin = async (user: PrivyUser, isNewUser: boolean) => {
     saveUserInfo(user);
@@ -40,121 +39,67 @@ const useAuth = () => {
     setNewInstall(false);
   };
 
-  const loginUser = async (email: string, code: string) => {
+  const loginUser = async (email: string, code: string): Promise<boolean> => {
     try {
       await loginWithCode({
         code,
         email,
       });
-    } catch (error) {
-      console.log(error);
+      return true;
+    } catch {
+      return false;
     }
   };
 
-  const sendLoginCode = useCallback(async (email: string) => {
+  const sendLoginCode = useCallback(async (email: string): Promise<boolean> => {
     try {
-      await sendCode({
-        email,
-      });
+      await sendCode({ email });
       router.navigate({
         pathname: "/(auth)/otp-screen",
-        params: {
-          email,
-        },
+        params: { email },
       });
+      return true;
     } catch (error) {
-      console.log(error);
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Failed to send login code.";
+      Alert.alert("Unable to send code", message);
+      return false;
     }
-  }, []);
+  }, [sendCode]);
 
   const logoutUser = useCallback(async () => {
     await logout();
     logoutAndClearState();
     router.replace("/(auth)/login");
-  }, []);
-
-  // const useBiometricAuth = useCallback(async () => {
-  //   // Step 1: check if biometrics is available
-  //   const compatible = await LocalAuthentication.hasHardwareAsync();
-  //   const enrolled = await LocalAuthentication.isEnrolledAsync();
-
-  //   if (!compatible || !enrolled) {
-  //     Alert.alert("Biometric authentication not available");
-  //     return;
-  //   }
-
-  //   // Step 2: prompt biometric
-  //   const result = await LocalAuthentication.authenticateAsync({
-  //     promptMessage: "Authenticate to continue",
-  //     fallbackLabel: "Use passcode", // iOS only
-  //     cancelLabel: "Cancel",
-  //   });
-
-  //   if (!result.success) {
-  //     Alert.alert("Authentication failed or cancelled");
-  //     return;
-  //   }
-
-  //   // Step 3: call Privy
-  //   try {
-  //     if (!authenticated) {
-  //       await login(); // trigger Privy login
-  //     }
-
-  //     Alert.alert("Authenticated with Privy", `Welcome ${user?.id}`);
-  //     // You could also trigger a wallet action here
-  //   } catch (e: any) {
-  //     console.error("Privy error:", e);
-  //     Alert.alert("Privy error", e.message ?? "Something went wrong");
-  //   }
-  // }, [])
+  }, [logout, logoutAndClearState]);
 
   const acceptTermsOfService = useCallback(async () => {
     router.replace("/(tabs)");
-    // const token = await getAccessToken();
-    // console.log(token);
-    // try {
-    //   const response = await axios.post(
-    //     `https://api.privy.io/v1/users/${user?.id}/fiat/tos`,
-    //     {
-    //       provider: "bridge-sandbox",
-    //     },
-    //     {
-    //       headers: {
-    //         Authorization:
-    //           "Basic 3vxPyaX4gswMK3L8Z9EhxJYU6wek3fzst74qgNVuLvPkPGVwiasxsN79nvYoUSUwJtLutCi4RnioPEcy3rJTzZjt", // your base64-encoded API key
-    //         "Content-Type": "application/json",
-    //         "privy-app-id": appId,
-    //       },
-    //     }
-    //   );
-    //   console.log("TOS accepted:", response.data);
-    //   return response.data;
-    // } catch (error: any) {
-    //   console.error(
-    //     "Failed to accept terms:",
-    //     error.response?.data || error.message
-    //   );
-    //   throw error;
-    // }
   }, []);
 
   const handleEnrollmentWithPasskey = async () => {
-    const linkPassKey = await linkWithPasskey({
-      relyingParty: "roosta-landing-page.vercel.app",
-    });
-    console.log("link pass key", linkPassKey);
-    const options = await initMfaEnrollment({ method: "passkey" });
-    console.log("options", options);
+    try {
+      await linkWithPasskey({
+        relyingParty: "roosta-landing-page.vercel.app",
+      });
+      const options = await initMfaEnrollment({ method: "passkey" });
+      const credentialIds = user?.linked_accounts
+        .filter((account): account is any => account.type === "passkey")
+        .map((account) => account.credentialId);
 
-    const credentialIds = user?.linked_accounts
-      .filter((account): account is any => account.type === "passkey")
-      .map((x) => x.credentialId);
-
-    const response = await submitMfaEnrollment({
-      method: "passkey",
-      credentialIds: credentialIds as string[],
-    });
+      await submitMfaEnrollment({
+        method: "passkey",
+        credentialIds: credentialIds as string[],
+      });
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Passkey enrollment failed.";
+      Alert.alert("Passkey setup failed", message);
+    }
   };
 
   return {

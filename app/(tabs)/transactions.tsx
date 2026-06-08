@@ -10,7 +10,6 @@ import {
 } from "react-native";
 import { ResponsiveUi } from "@/components/ResponsiveUi";
 import { ITransaction, transactions } from "@/utils/sampleData";
-import { Colors } from "@/constants/Colors";
 import { formatAmount, setTransactionStatusColor } from "@/utils/general";
 import Coins from "@/components/svgs/coins";
 import { ActivityIndicator } from "react-native-paper";
@@ -21,7 +20,7 @@ import { useRouter } from "expo-router";
 type TransactionDetailsParams = Omit<ITransaction, "icon"> & { icon?: string };
 
 const transactionItem =
-  (hp: any, wp: any): ListRenderItem<ITransaction> =>
+  (hp: any, wp: any, secondaryColor: string): ListRenderItem<ITransaction> =>
   ({ item }) => {
     const { icon: Icon, amountNGN, amountUSD, status, token } = item;
     const statusColor = setTransactionStatusColor(status);
@@ -52,7 +51,7 @@ const transactionItem =
                 <ActivityIndicator size={wp(2.5)} />
               )}
               <ResponsiveUi.Text
-                color={Colors.light.secondary}
+                color={secondaryColor}
                 style={{ marginLeft: wp(2) }}
                 fontSize={wp(3.5)}
               >
@@ -69,7 +68,7 @@ const transactionItem =
             medium
             fontSize={wp(3.8)}
             style={{ marginLeft: wp(2) }}
-            color={Colors.light.secondary}
+            color={secondaryColor}
           >
             {formatAmount(amountNGN, "NGN ")}
           </ResponsiveUi.Text>
@@ -122,7 +121,7 @@ const Transactions: FunctionComponent = () => {
         <SectionList
           showsVerticalScrollIndicator={false}
           sections={sections}
-          renderItem={transactionItem(hp, wp)}
+          renderItem={transactionItem(hp, wp, colors.secondary)}
           keyExtractor={(item, index) => index.toString()}
           contentContainerStyle={{ marginTop: hp(2) }}
           renderSectionHeader={({ section: { title } }) => (
@@ -137,7 +136,7 @@ const Transactions: FunctionComponent = () => {
               <ResponsiveUi.Text
                 fontSize={wp(3.5)}
                 medium
-                color={Colors.light.secondary}
+                color={colors.secondary}
               >
                 {title}
               </ResponsiveUi.Text>

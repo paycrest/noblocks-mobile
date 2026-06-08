@@ -1,7 +1,6 @@
 import { get, post } from "@/api/apiClient";
 import {
   CURRENCY_FLAG_MAP,
-  FEATURED_CHAIN_ORDER,
   FEATURED_SYMBOL_ORDER,
   LIFI_API_BASE_URL,
   NIGERIAN_BANKS_API_URL,
@@ -22,15 +21,24 @@ import type {
   NigerianBank,
   PaycrestCurrency,
   PaycrestInstitution,
+  PaycrestOrderDetailsResponse,
   PaycrestRateResponse,
+  PrivyBalance,
   PrivySwapBody,
   StartSwapAuth,
   StartSwapParams,
   SwapAction,
+  SwapStatus,
   VerifyAccountResponse,
   WalletBalanceOptions,
 } from "@/api/queryTypes";
-import { isPrivySupportedAsset, isPrivySupportedChain } from "@/utils/privy";
+import {
+  isSupportedSwapChainId,
+  sortSwapChainsByProductOrder,
+  toPaycrestNetworkKey,
+} from "@/lib/chains/supportedSwapChains";
+import { getPaycrestClient } from "@/lib/paycrest/client";
+import { isPrivySupportedAsset } from "@/utils/privy";
 import axios from "axios";
 
 let nigerianBankLogoMapPromise: Promise<Record<string, string>> | null = null;
@@ -54,10 +62,13 @@ export type {
   LifiToken,
   PaycrestCurrency,
   PaycrestInstitution,
+  PaycrestOrderDetailsResponse,
   PaycrestRateResponse,
+  PrivyBalance,
   StartSwapAuth,
   StartSwapParams,
   SwapAction,
+  SwapStatus,
   VerifyAccountResponse,
   WalletBalanceOptions,
 };
@@ -213,25 +224,16 @@ export async function fetchLifiChains(
 
   const data = (await response.json()) as LifiChainsResponse;
 
-  return (data.chains ?? [])
-    .filter(
-      (chain) =>
-        chain.mainnet === !includeTestnets &&
-        chain.chainType === "EVM" &&
-        isPrivySupportedChain(chain.key),
-    )
-    .sort((left, right) => {
-      const leftFeaturedIndex = FEATURED_CHAIN_ORDER.indexOf(left.name);
-      const rightFeaturedIndex = FEATURED_CHAIN_ORDER.indexOf(right.name);
+  const chains = (data.chains ?? []).filter(
+    (chain) =>
+      chain.chainType === "EVM" &&
+      (includeTestnets
+        ? !chain.mainnet
+        : chain.mainnet) &&
+      isSupportedSwapChainId(chain.id, includeTestnets),
+  );
 
-      if (leftFeaturedIndex !== -1 || rightFeaturedIndex !== -1) {
-        if (leftFeaturedIndex === -1) return 1;
-        if (rightFeaturedIndex === -1) return -1;
-        return leftFeaturedIndex - rightFeaturedIndex;
-      }
-
-      return left.name.localeCompare(right.name);
-    });
+  return sortSwapChainsByProductOrder(chains);
 }
 
 /**
@@ -296,13 +298,48 @@ export async function fetchLifiTokens(chainId: number): Promise<LifiToken[]> {
  * @param network Paycrest network key, for example base.
  * @param token Token symbol used by Paycrest rate endpoint, usually lowercase.
  * @param fiat Fiat currency code, for example NGN.
+ * @param amount Token amount used for the quote (defaults to 1).
+ * @param side Quote side — off-ramp uses sell, on-ramp uses buy.
  */
 export async function fetchPaycrestRate(
   network: string,
   token: string,
   fiat: string,
+  amount = 1,
+  side: "buy" | "sell" = "sell",
 ): Promise<PaycrestRateResponse> {
-  return get<PaycrestRateResponse>(`/rates/${network}/${token}/1/${fiat}`);
+  const normalizedNetwork =
+    toPaycrestNetworkKey(network) ?? network.trim().toLowerCase();
+
+  const quote = await getPaycrestClient().sender().getTokenRate({
+    network: normalizedNetwork,
+    token,
+    fiat,
+    amount: String(amount),
+    side,
+  });
+
+  return {
+    status: "success",
+    message: "Rate fetched",
+    data: quote,
+  };
+}
+
+/**
+ * Fetches the current status of a Paycrest sender order.
+ * @param orderId Order id returned from createPaycrestSenderOrder.
+ */
+export async function fetchPaycrestOrderStatus(
+  orderId: string,
+): Promise<PaycrestOrderDetailsResponse> {
+  const order = await getPaycrestClient().sender().getOrder(orderId);
+
+  return {
+    status: "success",
+    message: "Order fetched",
+    data: order,
+  };
 }
 
 /**
@@ -314,7 +351,15 @@ export async function verifyPaycrestAccount(params: {
   institution: string;
   accountIdentifier: string;
 }): Promise<VerifyAccountResponse> {
-  return post<VerifyAccountResponse>("/verify-account", params);
+  const accountName = await getPaycrestClient()
+    .sender()
+    .verifyAccount(params);
+
+  return {
+    status: "success",
+    message: "Account verified",
+    data: accountName,
+  };
 }
 
 /**
@@ -333,40 +378,36 @@ export async function verifyPaycrestAccount(params: {
 export async function createPaycrestSenderOrder(
   params: CreateSenderOrderParams,
 ): Promise<CreateSenderOrderResponse> {
-  const apiKey = process.env.EXPO_PUBLIC_API_KEY;
+  const normalizedNetwork =
+    toPaycrestNetworkKey(params.network) ??
+    params.network.trim().toLowerCase();
 
-  return post<CreateSenderOrderResponse>(
-    "/sender/orders",
-    {
-      amount: params.amount,
-      source: {
-        type: "crypto",
-        currency: params.token,
-        network: params.network,
-        ...(params.refundAddress
-          ? { refundAddress: params.refundAddress }
-          : {}),
-      },
-      destination: {
-        type: "fiat",
-        currency: params.fiatCurrency,
-        recipient: {
-          institution: params.institution,
-          accountIdentifier: params.accountIdentifier,
-          ...(params.accountName ? { accountName: params.accountName } : {}),
-          ...(params.memo ? { memo: params.memo } : {}),
-        },
-      },
-      ...(params.rate ? { rate: params.rate } : {}),
+  const order = await getPaycrestClient().sender().createOfframpOrder({
+    amount: params.amount,
+    ...(params.rate ? { rate: params.rate } : {}),
+    source: {
+      type: "crypto",
+      currency: params.token,
+      network: normalizedNetwork,
+      refundAddress: params.refundAddress ?? "",
     },
-    apiKey
-      ? {
-          headers: {
-            "API-Key": apiKey,
-          },
-        }
-      : undefined,
-  );
+    destination: {
+      type: "fiat",
+      currency: params.fiatCurrency,
+      recipient: {
+        institution: params.institution,
+        accountIdentifier: params.accountIdentifier,
+        accountName: params.accountName ?? "",
+        memo: params.memo ?? "",
+      },
+    },
+  });
+
+  return {
+    status: "success",
+    message: "Order created",
+    data: order,
+  };
 }
 
 /**

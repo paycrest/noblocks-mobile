@@ -7,7 +7,7 @@ import "../../global.css";
 
 import { RATE_QUERY_STALE_TIME_MS } from "@/api/queryConstants";
 import { fetchPaycrestRate } from "@/api/queryFns";
-import { useSelector } from "@/app/store/Store";
+import { useSelector } from "@/store/Store";
 import CurrencySelector from "@/components/cards/CurrencySelector";
 import SwapChainRow from "@/components/cards/SwapChainRow";
 import CustomKeyBoard from "@/components/inputs/CustomKeyBoard";
@@ -22,39 +22,27 @@ import ChainSelectorSheet, {
 } from "@/components/modals/ChainSelectorSheet";
 import FiatCurrencySelectorModal from "@/components/modals/FiatCurrencySelectorModal";
 import { ResponsiveUi } from "@/components/ResponsiveUi";
-import WalletIcon from "@/components/svgs/wallet";
+import SwapFlowStepper from "@/components/swap/SwapFlowStepper";
+import SwapScreenSheet from "@/components/swap/SwapScreenSheet";
 import useCustomFonts from "@/hooks/useCustomFonts";
 import useFiatCurrencies from "@/hooks/useFiatCurrencies";
 import { useThemeColors } from "@/hooks/useThemeColor";
 import useWallet from "@/hooks/useWallet";
-import { isPrivySupportedAsset, isPrivySupportedChain } from "@/utils/privy";
+import {
+  isSupportedSwapChain,
+  toPaycrestNetworkKey,
+} from "@/lib/chains/supportedSwapChains";
+import { isPrivySupportedAsset } from "@/utils/privy";
 import { useIsFocused } from "@react-navigation/native";
 import { useQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
-import { ChevronDown, X } from "lucide-react-native";
+import { ChevronDown } from "lucide-react-native";
 import React, { useEffect, useMemo, useState } from "react";
 import { Alert, View } from "react-native";
 import ArrowDataTransfer from "../../components/svgs/arrow-data-transfer";
 import SmartWallet from "../(home)/smartWallet";
 import Animated, { FadeIn, FadeOut, Layout } from "react-native-reanimated";
 import { useAppDimensions } from "@/hooks/useAppDimensions";
-
-const toDecimalString = (rawValue: string, decimals: number) => {
-  if (!rawValue || !/^\d+$/.test(rawValue)) {
-    return "0";
-  }
-
-  const normalizedDecimals = Math.max(0, decimals);
-  if (normalizedDecimals === 0) {
-    return rawValue;
-  }
-
-  const padded = rawValue.padStart(normalizedDecimals + 1, "0");
-  const whole = padded.slice(0, -normalizedDecimals) || "0";
-  const fraction = padded.slice(-normalizedDecimals).replace(/0+$/, "");
-
-  return fraction ? `${whole}.${fraction}` : whole;
-};
 
 const DEFAULT_CHAIN: LifiChain = {
   id: 8453,
@@ -88,18 +76,6 @@ const DEFAULT_TESTNET_CHAIN: LifiChain = {
     "https://raw.githubusercontent.com/lifinance/types/main/src/assets/icons/chains/base.svg",
 };
 
-const SUPPORTED_RATE_NETWORKS: Record<string, string> = {
-  base: "base",
-  base_sepolia: "base",
-  eth: "ethereum",
-  ethereum: "ethereum",
-  arb: "arbitrum",
-  arbitrum: "arbitrum",
-  opt: "optimism",
-  optimism: "optimism",
-  pol: "polygon",
-  polygon: "polygon",
-};
 const ACTIVE_FIAT_CODES = new Set(["KES", "NGN"]);
 
 export default function HomeScreen() {
@@ -148,9 +124,9 @@ export default function HomeScreen() {
   const [selectedFiatCurrency, setSelectedFiatCurrency] =
     useState<string>("NGN");
   const [didRestoreDraft, setDidRestoreDraft] = useState(false);
-  const { walletBalance } = useWallet({
+  const { getBalanceLabel, getMaxAmount } = useWallet({
     chain: selectedChain.key,
-    asset: selectedFromAsset?.symbol?.toLowerCase() ?? "eth",
+    asset: selectedFromAsset?.symbol?.toLowerCase() ?? "usdc",
   });
   const [isSmartWalletScreenVisible, setIsSmartWalletScreenVisible] =
     useState(false);
@@ -161,49 +137,19 @@ export default function HomeScreen() {
       return "--";
     }
 
-    const firstBalance = walletBalance?.[0];
-    if (!firstBalance) {
-      return "--";
-    }
-
-    const symbol = selectedFromAsset.symbol;
-    const symbolLower = symbol.toLowerCase();
-    const displayValue =
-      firstBalance.display_values?.[symbolLower] ??
-      firstBalance.display_values?.[symbol];
-
-    if (displayValue) {
-      return `${displayValue} ${symbol}`;
-    }
-
-    const decimals =
-      firstBalance.raw_value_decimals ?? selectedFromAsset.decimals ?? 18;
-    const numericValue = Number(firstBalance.raw_value) / 10 ** decimals;
-
-    if (!Number.isFinite(numericValue)) {
-      return "--";
-    }
-
-    return `${numericValue.toLocaleString(undefined, {
-      maximumFractionDigits: 6,
-    })} ${symbol}`;
-  }, [selectedFromAsset, walletBalance]);
+    return getBalanceLabel(selectedFromAsset.symbol);
+  }, [getBalanceLabel, selectedFromAsset]);
 
   const maxSendAmount = useMemo(() => {
     if (!selectedFromAsset) {
       return "";
     }
 
-    const firstBalance = walletBalance?.[0];
-    if (!firstBalance?.raw_value) {
-      return "";
-    }
-
-    const decimals =
-      firstBalance.raw_value_decimals ?? selectedFromAsset.decimals ?? 18;
-
-    return toDecimalString(firstBalance.raw_value, decimals);
-  }, [selectedFromAsset, walletBalance]);
+    return getMaxAmount(
+      selectedFromAsset.symbol,
+      selectedFromAsset.decimals ?? 18,
+    );
+  }, [getMaxAmount, selectedFromAsset]);
 
   const selectedFiatOption = useMemo(() => {
     const activeFiatCurrencies = fiatCurrencies.filter((item) =>
@@ -217,9 +163,20 @@ export default function HomeScreen() {
     );
   }, [selectedFiatCurrency, fiatCurrencies]);
 
-  const selectedRateNetwork = SUPPORTED_RATE_NETWORKS[selectedChain.key];
+  const selectedRateNetwork = toPaycrestNetworkKey(
+    selectedChain.key,
+    selectedChain.id,
+  );
   const selectedRateToken = selectedFromAsset?.symbol?.toLowerCase();
   const selectedRateFiat = selectedFiatOption?.code;
+
+  const rateQueryAmount = useMemo(() => {
+    const parsedAmount = Number(amount.trim());
+    if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
+      return 1;
+    }
+    return parsedAmount;
+  }, [amount]);
 
   const { data: rateResponse, isLoading: isRateLoading } = useQuery({
     queryKey: [
@@ -228,6 +185,8 @@ export default function HomeScreen() {
       selectedRateNetwork,
       selectedRateToken,
       selectedRateFiat,
+      rateQueryAmount,
+      "sell",
     ],
     enabled: Boolean(
       selectedRateNetwork && selectedRateToken && selectedRateFiat,
@@ -237,19 +196,21 @@ export default function HomeScreen() {
         selectedRateNetwork!,
         selectedRateToken!,
         selectedRateFiat!,
+        rateQueryAmount,
+        "sell",
       );
     },
     staleTime: RATE_QUERY_STALE_TIME_MS,
   });
 
   const activeRate = useMemo(() => {
-    const parsedRate = Number(rateResponse?.data?.buy?.rate ?? 0);
+    const parsedRate = Number(rateResponse?.data?.sell?.rate ?? 0);
     if (!Number.isFinite(parsedRate) || parsedRate <= 0) {
       return null;
     }
 
     return parsedRate;
-  }, [rateResponse?.data?.buy?.rate]);
+  }, [rateResponse?.data?.sell?.rate]);
 
   const isAmountZeroOrEmpty = useMemo(() => {
     const normalizedAmount = amount.trim();
@@ -350,284 +311,240 @@ export default function HomeScreen() {
   // Responsive values
   const chainLogoMargin = wp(2);
   const chainFontSize = hp(1.8);
-  const swapMarginTop = hp(3.5);
-  const walletDotSize = wp(3.5);
-  const walletDotMargin = wp(1.2);
   const arrowSize = wp(4);
   const mt8 = hp(2);
-  const progressHeaderWidth = Math.min(Math.max(wp(34), 150), 230);
-  const detailPillRadius = hp(2);
-  const detailPillVertical = hp(0.5);
-  const detailPillHorizontal = wp(3);
   const contentMaxWidth = isLargeScreen ? Math.min(wp(92), 620) : undefined;
   const compactKeyboardLayout = isKeyboardVisible && isSmallScreen;
-  const sectionTopSpacing = compactKeyboardLayout ? hp(0.8) : mt8;
   const rateRowTopSpacing = compactKeyboardLayout ? hp(1) : mt8 * 1.4;
+
+  const swapCardStyle = {
+    backgroundColor: colors.neutral_surface,
+    borderRadius: 24,
+    borderWidth: 0.5,
+    borderColor: colors.subtle_surface,
+    overflow: "hidden" as const,
+  };
 
   return (
     <>
       <Animated.View entering={FadeIn} exiting={FadeOut} style={{ flex: 1 }}>
-        <AppLayout scrollable={true}>
+        <AppLayout
+          scrollable={false}
+          horizontalPadding={false}
+          bottomPadding={false}
+          statusBarBackgroundColor={colors.canvas_background}
+          layoutStyle={{ backgroundColor: colors.canvas_background }}
+        >
           <Animated.View
-            // This single container controls the swap/smart-wallet section
             layout={Layout.springify().damping(18).stiffness(150)}
             entering={FadeIn.duration(400)}
             exiting={FadeOut.duration(250)}
             style={{ flex: 1 }}
           >
-            {isSmartWalletScreenVisible && (
-              <Animated.View
-                key="smart-wallet"
-                entering={FadeIn.duration(400).delay(80)}
-                exiting={FadeOut.duration(250)}
-                style={{ flex: 1 }}
-              >
-                <SmartWallet />
-              </Animated.View>
-            )}
-            <Animated.View
-              key="swap-ui"
-              entering={FadeIn.duration(400).delay(80)}
-              exiting={FadeOut.duration(250)}
-              className="flex-row items-center"
-              style={{
-                justifyContent: isKeyboardVisible ? "space-between" : "center",
-              }}
-            >
-              <View
-                className="flex-row justify-between items-center"
-                style={{ width: progressHeaderWidth }}
-              >
-                <View
-                  style={{
-                    backgroundColor: colors.primary_2,
-                    borderRadius: detailPillRadius,
-                    paddingVertical: detailPillVertical,
-                    paddingHorizontal: detailPillHorizontal,
-                  }}
-                >
-                  <ResponsiveUi.Text
-                    medium
-                    color={colors.primary}
-                    fontSize={hp(2.3)}
-                  >
-                    Details
-                  </ResponsiveUi.Text>
+            {isSmartWalletScreenVisible ? (
+              <>
+                <View style={{ paddingTop: 8, paddingHorizontal: 16 }}>
+                  <SwapFlowStepper
+                    activeLabel="Details"
+                    trailingDots={2}
+                    showActions
+                    onWalletPress={() => setIsSmartWalletScreenVisible(false)}
+                    onClosePress={() => setIsSmartWalletScreenVisible(false)}
+                  />
                 </View>
-                <View
-                  style={{
-                    borderWidth: 1,
-                    borderRadius: walletDotSize / 2,
-                    width: walletDotSize,
-                    height: walletDotSize,
-                    borderColor: colors.primary,
-                  }}
-                />
-                <View
-                  style={{
-                    borderWidth: 1,
-                    borderRadius: walletDotSize / 2,
-                    width: walletDotSize,
-                    height: walletDotSize,
-                    borderColor: colors.primary,
-                    marginLeft: walletDotMargin,
-                  }}
-                />
-              </View>
-              {isKeyboardVisible && (
-                <View className="flex-row items-center">
-                  <WalletIcon
-                    onPress={() =>
+                <Animated.View
+                  key="smart-wallet"
+                  entering={FadeIn.duration(400).delay(80)}
+                  exiting={FadeOut.duration(250)}
+                  style={{ flex: 1, paddingHorizontal: 16, paddingTop: 16 }}
+                >
+                  <SmartWallet />
+                </Animated.View>
+              </>
+            ) : (
+              <>
+                <View style={{ paddingTop: 8, paddingHorizontal: 16 }}>
+                  <SwapFlowStepper
+                    activeLabel="Details"
+                    trailingDots={isKeyboardVisible ? 2 : 3}
+                    showActions={isKeyboardVisible}
+                    centered={!isKeyboardVisible}
+                    onWalletPress={() =>
                       setIsSmartWalletScreenVisible((prev) => !prev)
                     }
-                    height={hp(3.5)}
-                    width={hp(3.5)}
-                    style={{ marginRight: walletDotMargin * 2 }}
-                  />
-                  <X
-                    color={colors.secondary}
-                    height={hp(3.5)}
-                    width={hp(3.5)}
-                    onPress={() =>
-                      isSmartWalletScreenVisible
-                        ? setIsSmartWalletScreenVisible(false)
-                        : setIsKeyboardVisible(false)
-                    }
+                    onClosePress={() => setIsKeyboardVisible(false)}
                   />
                 </View>
-              )}
-            </Animated.View>
-            <>
-              <SwapChainRow
-                title="Swap"
-                chainName={selectedChain.name}
-                chainLogoUri={selectedChain.logoURI}
-                marginTop={swapMarginTop}
-                onPress={() => {
-                  setIsChainSheetVisible(true);
-                  setIsKeyboardVisible(false);
-                }}
-                disableChevron={isSmartWalletScreenVisible}
-              />
-              {/* <View className="flex-row items-center justify-between mt-4 px-1">
-                    <ResponsiveUi.Text
-                      medium
-                      fontSize={14}
-                      color={colors.secondary}
-                    >
-                      Testnet mode
-                    </ResponsiveUi.Text>
-                    <Switch
-                      value={isTestnetMode}
-                      onValueChange={(enabled) => {
-                        setIsTestnetMode(enabled);
-                        setSelectedChain(
-                          enabled ? DEFAULT_TESTNET_CHAIN : DEFAULT_CHAIN,
-                        );
-                        setSelectedFromAsset(enabled ? null : DEFAULT_ASSET);
+                <SwapScreenSheet
+                  style={{ marginTop: 8 }}
+                  header={
+                    <SwapChainRow
+                      title="Swap"
+                      chainName={selectedChain.name}
+                      chainLogoUri={selectedChain.logoURI}
+                      marginTop={0}
+                      onPress={() => {
+                        setIsChainSheetVisible(true);
+                        setIsKeyboardVisible(false);
                       }}
-                      trackColor={{
-                        false: colors.secondary,
-                        true: colors.slate,
-                      }}
-                      thumbColor={colors.white}
-                      ios_backgroundColor={colors.gray_hover}
+                      disableChevron={isSmartWalletScreenVisible}
                     />
-                  </View> */}
-              {!isSmartWalletScreenVisible && (
-                <View
-                  style={{
-                    marginTop: sectionTopSpacing,
-                    width: "100%",
-                    maxWidth: contentMaxWidth,
-                    alignSelf: "center",
-                  }}
+                  }
                 >
                   <View
                     style={{
-                      backgroundColor: colors.neutral_surface,
-                      borderRadius: 16,
+                      marginTop: 17,
+                      width: "100%",
+                      maxWidth: contentMaxWidth,
+                      alignSelf: "center",
                     }}
                   >
                     <View style={{ position: "relative" }}>
-                      <View className="bg-neutral_surface rounded-2xl  py-3 border border-subtle_surface">
-                        <WalletBalance
-                          selectedAsset={selectedFromAsset}
-                          chainLogoURI={selectedChain.logoURI}
-                          privyBalanceLabel={sendAssetBalanceLabel}
-                          onUseMaxPress={() => {
-                            if (!maxSendAmount || maxSendAmount === "0") {
-                              Alert.alert(
-                                "No balance",
-                                "No available balance for the selected asset.",
-                              );
-                              return;
-                            }
+                      <View style={{ gap: 12 }}>
+                        <View style={swapCardStyle}>
+                          <View style={{ paddingVertical: 16, gap: 10 }}>
+                            <WalletBalance
+                              selectedAsset={selectedFromAsset}
+                              chainLogoURI={selectedChain.logoURI}
+                              privyBalanceLabel={sendAssetBalanceLabel}
+                              onUseMaxPress={() => {
+                                if (!maxSendAmount || maxSendAmount === "0") {
+                                  Alert.alert(
+                                    "No balance",
+                                    "No available balance for the selected asset.",
+                                  );
+                                  return;
+                                }
 
-                            setAmount(maxSendAmount);
-                          }}
-                          onAssetPress={() => {
-                            setIsAssetSheetVisible(true);
-                            setIsKeyboardVisible(false);
-                          }}
-                        />
-                        <View
-                          className="w-full self-center border-t border-subtle_surface"
-                          style={{
-                            marginVertical: compactKeyboardLayout
-                              ? hp(1)
-                              : hp(1.5),
-                            height: compactKeyboardLayout ? hp(0.5) : hp(0),
-                          }}
-                        />
-                        <SwapInput
-                          value={amount}
-                          selectedAssetSymbol={selectedFromAsset?.symbol}
-                          isDisabled={
-                            isAssetSheetVisible || isChainSheetVisible
+                                setAmount(maxSendAmount);
+                              }}
+                              onAssetPress={() => {
+                                setIsAssetSheetVisible(true);
+                                setIsKeyboardVisible(false);
+                              }}
+                            />
+                            <View
+                              style={{
+                                height: 0.5,
+                                backgroundColor: colors.subtle_surface,
+                                width: "100%",
+                              }}
+                            />
+                            <SwapInput
+                              value={amount}
+                              selectedAssetSymbol={selectedFromAsset?.symbol}
+                              fiatDisplay={fiatEstimate}
+                              isDisabled={
+                                isAssetSheetVisible || isChainSheetVisible
+                              }
+                              onFocus={() => {
+                                setIsKeyboardVisible(true);
+                              }}
+                            />
+                          </View>
+                        </View>
+                        <CurrencySelector
+                          selectedAsset={
+                            selectedFiatOption
+                              ? {
+                                  symbol: selectedFiatOption?.code,
+                                  name: selectedFiatOption?.name,
+                                  logoURI: selectedFiatOption.logoURI,
+                                }
+                              : null
                           }
-                          onFocus={() => {
-                            setIsKeyboardVisible(true);
+                          label={
+                            selectedFiatOption
+                              ? selectedFiatOption.name
+                              : "Receive"
+                          }
+                          subtitle={
+                            !selectedFiatOption
+                              ? "Select currency"
+                              : isRateLoading
+                                ? "Fetching rate..."
+                                : `Receive ${selectedFiatOption.code}`
+                          }
+                          rightValue={
+                            selectedFiatOption && !isAmountZeroOrEmpty
+                              ? fiatEstimate
+                              : undefined
+                          }
+                          isLoading={isRateLoading}
+                          onPress={() => {
+                            setIsFiatModalVisible(true);
+                            setIsKeyboardVisible(false);
                           }}
                         />
                       </View>
                       <View
                         style={{
                           position: "absolute",
-                          bottom: -26,
+                          top: "50%",
                           left: 0,
                           right: 0,
                           alignItems: "center",
                           zIndex: 22,
+                          marginTop: -14,
                         }}
                       >
-                        <View className="border border-subtle_surface rounded-full py-2 px-2 bg-neutral_surface  ">
+                        <View
+                          style={{
+                            width: 28,
+                            height: 28,
+                            borderRadius: 14,
+                            borderWidth: 0.5,
+                            borderColor: colors.subtle_surface,
+                            backgroundColor: colors.canvas_background,
+                            alignItems: "center",
+                            justifyContent: "center",
+                            shadowColor: "#121217",
+                            shadowOffset: { width: 0, height: 0 },
+                            shadowOpacity: 0.02,
+                            shadowRadius: 2,
+                            elevation: 1,
+                          }}
+                        >
                           <ChevronDown size={20} color={colors.secondary} />
                         </View>
                       </View>
                     </View>
-                    <CurrencySelector
-                      compact={compactKeyboardLayout}
-                      selectedAsset={
-                        selectedFiatOption
-                          ? {
-                              symbol: selectedFiatOption?.code,
-                              name: selectedFiatOption?.name,
-                              logoURI: selectedFiatOption.logoURI,
-                            }
-                          : null
-                      }
-                      label={selectedFiatOption?.name}
-                      subtitle={
-                        !selectedFiatOption
-                          ? "Select currency"
-                          : isRateLoading
-                            ? "Fetching rate..."
-                            : `Receive ${selectedFiatOption?.code}`
-                      }
-                      rightValue={fiatEstimate}
-                      isLoading={isRateLoading}
-                      onPress={() => {
-                        setIsFiatModalVisible(true);
-                        setIsKeyboardVisible(false);
-                      }}
-                    />
+                    {selectedFiatOption && (
+                      <View
+                        style={{
+                          marginTop: rateRowTopSpacing,
+                          flexDirection: "row",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <ResponsiveUi.Text
+                          color={colors.secondary}
+                          fontSize={chainFontSize}
+                        >
+                          1 {selectedFromAsset?.symbol}
+                        </ResponsiveUi.Text>
+                        <ArrowDataTransfer
+                          width={arrowSize}
+                          height={arrowSize}
+                          style={{ marginHorizontal: chainLogoMargin }}
+                        />
+                        <ResponsiveUi.Text
+                          color={colors.secondary}
+                          fontSize={chainFontSize}
+                        >
+                          {activeRate
+                            ? `${activeRate.toLocaleString(undefined, {
+                                maximumFractionDigits: 6,
+                              })} ${selectedFiatOption?.code}`
+                            : "N/A"}
+                        </ResponsiveUi.Text>
+                      </View>
+                    )}
                   </View>
-                  {selectedFiatOption && (
-                    <View
-                      style={{
-                        marginTop: rateRowTopSpacing,
-                        flexDirection: "row",
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
-                    >
-                      <ResponsiveUi.Text
-                        color={colors.secondary}
-                        fontSize={chainFontSize}
-                      >
-                        1 {selectedFromAsset?.symbol}
-                      </ResponsiveUi.Text>
-                      <ArrowDataTransfer
-                        width={arrowSize}
-                        height={arrowSize}
-                        style={{ marginHorizontal: chainLogoMargin }}
-                      />
-                      <ResponsiveUi.Text
-                        color={colors.secondary}
-                        fontSize={chainFontSize}
-                      >
-                        {activeRate
-                          ? `${activeRate.toLocaleString(undefined, {
-                              maximumFractionDigits: 6,
-                            })} ${selectedFiatOption?.code}`
-                          : "N/A"}
-                      </ResponsiveUi.Text>
-                    </View>
-                  )}
-                </View>
-              )}
-            </>
+                </SwapScreenSheet>
+              </>
+            )}
           </Animated.View>
         </AppLayout>
       </Animated.View>
@@ -657,10 +574,10 @@ export default function HomeScreen() {
             isVisible={isChainSheetVisible}
             onClose={() => setIsChainSheetVisible(false)}
             onSelect={(chain) => {
-              if (!isPrivySupportedChain(chain.key)) {
+              if (!isSupportedSwapChain(chain, isTestnetMode)) {
                 Alert.alert(
                   "Unsupported chain",
-                  "This chain is not supported by Privy balance yet.",
+                  "This chain is not supported for off-ramp yet.",
                 );
                 return;
               }
@@ -695,6 +612,7 @@ export default function HomeScreen() {
 
           <BaseSheet
             isVisible={isKeyboardVisible}
+            onVisibilityChange={setIsKeyboardVisible}
             snapPoints={["45%"]}
             showBackdrop={false}
             hideHandle

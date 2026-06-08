@@ -1,5 +1,4 @@
 import { ResponsiveUi } from "@/components/ResponsiveUi";
-import { useAppDimensions } from "@/hooks/useAppDimensions";
 import { useThemeColors } from "@/hooks/useThemeColor";
 import React, { FunctionComponent } from "react";
 import { TouchableOpacity, View } from "react-native";
@@ -13,81 +12,72 @@ const AddBeneficiaryCard: FunctionComponent<AddBeneficiaryCardProps> = ({
   onPress,
 }) => {
   const colors = useThemeColors();
-  const { hp, wp, isSmallScreen, isLargeScreen } = useAppDimensions();
-
-  const cardHorizontalPadding = isSmallScreen ? wp(3.5) : wp(4);
-  const cardVerticalPadding = isSmallScreen ? hp(1.5) : hp(1.8);
-  const iconContainerSize = isSmallScreen ? wp(11) : wp(10);
-  const iconSize = isSmallScreen ? wp(4.7) : wp(4.2);
-  const titleFontSize = isSmallScreen ? hp(1.9) : hp(2);
-  const subtitleFontSize = isSmallScreen ? hp(1.6) : hp(1.75);
-  const actionLabelFontSize = isSmallScreen ? hp(1.8) : hp(1.95);
-  const actionHorizontalPadding = isSmallScreen ? wp(4) : wp(5);
-  const actionVerticalPadding = isSmallScreen ? hp(0.9) : hp(1.1);
 
   return (
     <TouchableOpacity
       activeOpacity={0.85}
       onPress={onPress}
-      className="w-full mt-2 rounded-3xl flex-row items-center justify-between"
       style={{
-        backgroundColor: colors.subtle_surface,
+        width: "100%",
+        backgroundColor: colors.neutral_surface,
         borderWidth: 0.5,
-        borderColor: colors.gray,
-        paddingHorizontal: cardHorizontalPadding,
-        paddingVertical: cardVerticalPadding,
-        width: isLargeScreen ? "85%" : "100%",
-        alignSelf: "center",
+        borderColor: colors.subtle_surface,
+        borderRadius: 24,
+        paddingVertical: 16,
       }}
     >
-      <View className="flex-row items-center flex-1">
-        <View
-          className="rounded-full items-center justify-center"
-          style={{
-            borderWidth: 1,
-            borderColor: colors.gray,
-            width: iconContainerSize,
-            height: iconContainerSize,
-          }}
-        >
-          <UserSquareIcon width={iconSize} height={iconSize} />
-        </View>
-
-        <View className="flex-1" style={{ marginLeft: wp(3) }}>
-          <ResponsiveUi.Text
-            fontSize={titleFontSize}
-            tailwind="mb-1"
-            semiBold
-            color={colors.text}
-            numberOfLines={1}
-          >
-            Select beneficiary
-          </ResponsiveUi.Text>
-          <ResponsiveUi.Text
-            fontSize={subtitleFontSize}
-            color={colors.secondary}
-            numberOfLines={1}
-          >
-            From saved recipients
-          </ResponsiveUi.Text>
-        </View>
-      </View>
-
       <View
-        className="ml-4 rounded-full"
         style={{
-          backgroundColor: colors.gray_hover,
-          paddingHorizontal: actionHorizontalPadding,
-          paddingVertical: actionVerticalPadding,
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+          paddingHorizontal: 16,
         }}
       >
-        <ResponsiveUi.Text
-          fontSize={actionLabelFontSize}
-          medium
-          color={colors.text}
+        <View style={{ flexDirection: "row", alignItems: "center", flex: 1 }}>
+          <View
+            style={{
+              width: 44,
+              height: 44,
+              borderRadius: 22,
+              borderWidth: 1,
+              borderStyle: "dashed",
+              borderColor: colors.subtle_surface,
+              backgroundColor: colors.neutral_surface,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <UserSquareIcon width={20} height={20} />
+          </View>
+
+          <View style={{ marginLeft: 10, flex: 1 }}>
+            <ResponsiveUi.Text medium fontSize={16} color={colors.text}>
+              Select beneficiary
+            </ResponsiveUi.Text>
+            <ResponsiveUi.Text
+              fontSize={14}
+              color={colors.secondary}
+              style={{ marginTop: 2 }}
+            >
+              From saved recipients
+            </ResponsiveUi.Text>
+          </View>
+        </View>
+
+        <View
+          style={{
+            backgroundColor: colors.gray_hover,
+            borderRadius: 360,
+            paddingHorizontal: 12,
+            paddingVertical: 6,
+            marginLeft: 12,
+          }}
         >
-          Select
-        </ResponsiveUi.Text>
+          <ResponsiveUi.Text medium fontSize={16} color={colors.text}>
+            Select
+          </ResponsiveUi.Text>
+        </View>
       </View>
     </TouchableOpacity>
   );

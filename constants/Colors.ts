@@ -6,14 +6,17 @@
 interface ThemeColors {
   text: string;
   background: string;
+  canvas_background: string;
+  surface_canvas: string;
   place_holder: string;
   gray_hover: string;
   subtle_surface: string;
   secondary: string;
-  neutral?: string; // only exists in light
+  neutral?: string;
   slate: string;
   white: string;
   neutral_surface: string;
+  surface_overlay: string;
   gray: string;
   tint: string;
   primary: string;
@@ -51,7 +54,8 @@ export interface ColorsInterface extends GenericColors {
 
 export type ThemePalette = ThemeColors & GenericColors;
 
-import { useSelector } from "@/app/store/Store";
+import { useSelector } from "@/store/Store";
+import { useColorScheme } from "react-native";
 
 // ─── Raw palette ─────────────────────────────────────────────────────────────
 // Single source of truth for every hex value in the app.
@@ -78,22 +82,30 @@ const palette = {
 
   // light theme
   tintLight: "#0a7ea4",
-  textLight: "black",
+  textLight: "#121217",
   backgroundLight: "#ffff",
+  canvasBackgroundLight: "#F7F7F8",
+  surfaceCanvasLight: "#FFFFFF",
   placeholderLight: "#A9A9BC",
   grayHoverLight: "#EBEBEF",
-  subtleSurfaceLight: "#FFFFFF1A",
+  subtleSurfaceLight: "#EBEBEF",
   secondaryLight: "#6C6C89",
   neutralLight: "#F9FAFB",
+  neutralSurfaceLight: "#F9FAFB",
   surfaceOverlayLight: "#ffff",
   // dark theme
   tintDark: "#fff",
   textDark: "#ffff",
   backgroundDark: "#141414",
-  placeholderDark: "#FFFFFF33",
+  // Figma base frame: #141414 + 5% white overlay (dark grey chrome above the sheet).
+  canvasBackgroundDark: "#1F1F1F",
+  // Figma surface/canvas: solid #141414 bottom sheet (black card).
+  surfaceCanvasDark: "#141414",
+  placeholderDark: "#FFFFFF4D",
   grayHoverDark: "#FFFFFF33",
   subtleSurfaceDark: "#FFFFFF1A",
   secondaryDark: "#FFFFFF80",
+  neutralSurfaceDark: "#FFFFFF0D",
   surfaceOverlayDark: "#202020",
   white_10: "FFFFFF1A",
   white_5: "FFFFFF0D",
@@ -138,23 +150,29 @@ export const Colors: ColorsInterface = {
     ...sharedTheme,
     text: palette.textLight,
     background: palette.backgroundLight,
+    canvas_background: palette.canvasBackgroundLight,
+    surface_canvas: palette.surfaceCanvasLight,
     place_holder: palette.placeholderLight,
     gray_hover: palette.grayHoverLight,
     subtle_surface: palette.subtleSurfaceLight,
     secondary: palette.secondaryLight,
     neutral: palette.neutralLight,
-    neutral_surface: palette.surfaceOverlayLight,
+    neutral_surface: palette.neutralSurfaceLight,
+    surface_overlay: palette.surfaceOverlayLight,
     tint: palette.tintLight,
   },
   dark: {
     ...sharedTheme,
     text: palette.textDark,
     background: palette.backgroundDark,
+    canvas_background: palette.canvasBackgroundDark,
+    surface_canvas: palette.surfaceCanvasDark,
     place_holder: palette.placeholderDark,
     gray_hover: palette.grayHoverDark,
     subtle_surface: palette.subtleSurfaceDark,
     secondary: palette.secondaryDark,
-    neutral_surface: palette.surfaceOverlayDark,
+    neutral_surface: palette.neutralSurfaceDark,
+    surface_overlay: palette.surfaceOverlayDark,
     tint: palette.tintDark,
   },
   ...genericColors,
@@ -162,14 +180,12 @@ export const Colors: ColorsInterface = {
 
 export const colors = () => {
   const { appTheme } = useSelector(["appTheme"]);
-  if (appTheme === "dark") {
-    return {
-      ...genericColors,
-      ...Colors.dark,
-    };
-  }
+  const systemTheme = useColorScheme();
+  const scheme =
+    appTheme === "system" ? (systemTheme ?? "dark") : appTheme;
+
   return {
     ...genericColors,
-    ...Colors.light,
+    ...Colors[scheme],
   };
 };

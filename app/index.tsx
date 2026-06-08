@@ -1,7 +1,7 @@
 import { Href, Redirect } from "expo-router";
 import React, { FunctionComponent } from "react";
 
-import { useSelector } from "./store/Store";
+import { useSelector } from "@/store/Store";
 
 const Index: FunctionComponent = () => {
   const { user, newInstall } = useSelector(["user", "newInstall"]);

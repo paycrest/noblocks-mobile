@@ -1,7 +1,6 @@
 import { fetchLifiChains, type LifiChain } from "@/api/queryFns";
 import { QUERY_STALE_TIME_MS } from "@/api/queryConstants";
 import { useThemeColors } from "@/hooks/useThemeColor";
-import { isPrivySupportedChain } from "@/utils/privy";
 import { useQuery } from "@tanstack/react-query";
 import { Image } from "expo-image";
 import { CheckCircle2, Search, X } from "lucide-react-native";
@@ -19,13 +18,6 @@ import BackdropBlur from "./BackdropBlur";
 import BaseModal from "./BaseModal";
 import { ActivityIndicator } from "react-native-paper";
 
-const FEATURED_CHAIN_ORDER = [
-  "Base",
-  "Ethereum",
-  "Arbitrum",
-  "Optimism",
-  "Polygon",
-];
 const MODAL_HEIGHT = Math.min(420, Dimensions.get("screen").height * 0.46);
 export type { LifiChain };
 

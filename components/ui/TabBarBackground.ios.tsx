@@ -1,14 +1,18 @@
 import { useThemeColors } from "@/hooks/useThemeColor";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
-import { BlurView } from "expo-blur";
+import { View } from "react-native";
 
-export default function BlurTabBarBackground() {
+export default function TabBarBackground() {
   const colors = useThemeColors();
+
   return (
-    <BlurView
-      tint="systemChromeMaterial"
-      intensity={0} // adjust for stronger/weaker blur
-      style={{ flex: 1 }}
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: colors.surface_canvas,
+        borderTopWidth: 0.5,
+        borderTopColor: colors.subtle_surface,
+      }}
     />
   );
 }

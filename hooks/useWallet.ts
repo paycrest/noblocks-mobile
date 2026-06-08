@@ -1,10 +1,9 @@
-import { fetchPrivyWalletBalance, type PrivyBalance } from "@/api/queryFns";
-import { normalizePrivyAsset, normalizePrivyChain } from "@/utils/privy";
-import { useEmbeddedEthereumWallet, usePrivy } from "@privy-io/expo";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useMemo } from "react";
-
-const DEFAULT_PRIVY_BALANCE_ASSET = "eth";
+import {
+  formatTokenAmount,
+  weiToDecimalString,
+} from "@/lib/wallet/balances";
+import { useWalletBalances } from "@/hooks/useWalletBalances";
+import { useMemo } from "react";
 
 export interface UseWalletOptions {
   chain?: string;
@@ -13,86 +12,60 @@ export interface UseWalletOptions {
 
 const useWallet = ({
   chain = "base",
-  asset = DEFAULT_PRIVY_BALANCE_ASSET,
+  asset = "usdc",
 }: UseWalletOptions = {}) => {
-  const queryClient = useQueryClient();
-  const { wallets } = useEmbeddedEthereumWallet();
-  const { user } = usePrivy();
-  const walletAddress = wallets?.[0]?.address;
-  const walletChain = wallets?.[0]?.chainType;
-  const walletId = useMemo(() => {
-    if (!walletAddress) {
-      return null;
+  const {
+    walletAddress,
+    chainName,
+    chainId,
+    balances,
+    isLoading,
+    isFetching,
+    refetch,
+  } = useWalletBalances(chain);
+
+  const resolvedAssetSymbol = useMemo(
+    () => asset?.trim().toUpperCase() ?? "USDC",
+    [asset],
+  );
+
+  const assetBalance = balances?.balances[resolvedAssetSymbol] ?? 0;
+
+  const getBalanceForSymbol = (symbol: string) =>
+    balances?.balances[symbol.trim().toUpperCase()] ?? 0;
+
+  const getBalanceLabel = (symbol?: string) => {
+    const normalizedSymbol = (symbol ?? resolvedAssetSymbol).trim().toUpperCase();
+    const amount = balances?.balances[normalizedSymbol];
+    if (amount === undefined) {
+      return "--";
     }
+    return `${formatTokenAmount(amount)} ${normalizedSymbol}`;
+  };
 
-    const linkedWallet = user?.linked_accounts.find((account) => {
-      return (
-        account.type === "wallet" &&
-        account.chain_type === "ethereum" &&
-        "id" in account &&
-        "connector_type" in account &&
-        account.connector_type === "embedded" &&
-        account.address.toLowerCase() === walletAddress.toLowerCase()
-      );
-    });
-
-    if (!linkedWallet || !("id" in linkedWallet)) {
-      return null;
+  const getMaxAmount = (symbol?: string, decimals = 18) => {
+    const normalizedSymbol = (symbol ?? resolvedAssetSymbol).trim().toUpperCase();
+    const raw = balances?.balancesInWei?.[normalizedSymbol];
+    if (raw === undefined) {
+      return "";
     }
-
-    return linkedWallet.id ?? null;
-  }, [user?.linked_accounts, walletAddress]);
-  const resolvedChain = useMemo(() => normalizePrivyChain(chain), [chain]);
-  const resolvedAsset = useMemo(() => normalizePrivyAsset(asset), [asset]);
-
-  useEffect(() => {
-    let cleanup: (() => void) | undefined;
-
-    wallets?.[0]?.getProvider()?.then((provider) => {
-      const handleAccountsChanged = (accounts: string[]) => {
-        if (accounts.length > 0) {
-          void queryClient.invalidateQueries({ queryKey: ["privy", "wallet"] });
-        }
-      };
-
-      provider.on("accountsChanged", handleAccountsChanged);
-      cleanup = () => {
-        if (typeof provider.removeListener === "function") {
-          provider.removeListener("accountsChanged", handleAccountsChanged);
-        }
-      };
-    });
-
-    return () => {
-      cleanup?.();
-    };
-  }, [queryClient, wallets]);
-
-  const { data } = useQuery({
-    queryKey: ["privy", "wallet", walletId, resolvedChain, resolvedAsset],
-    queryFn: async () => {
-      if (!walletId || !resolvedChain || !resolvedAsset) {
-        return null;
-      }
-
-      return fetchPrivyWalletBalance(walletId, {
-        chain: resolvedChain,
-        asset: resolvedAsset,
-      });
-    },
-    enabled: Boolean(walletId && resolvedChain && resolvedAsset),
-  });
-
-  const walletBalance = data?.balances ?? null;
+    return weiToDecimalString(raw, decimals);
+  };
 
   return {
-    asset: resolvedAsset ?? asset,
-    chain: resolvedChain ?? chain,
-    isAssetSupported: Boolean(resolvedAsset),
-    isChainSupported: Boolean(resolvedChain),
-    walletId,
+    asset,
+    chain,
+    chainName,
+    chainId,
     walletAddress,
-    walletBalance,
+    balances,
+    assetBalance,
+    isLoading,
+    isFetching,
+    refetch,
+    getBalanceForSymbol,
+    getBalanceLabel,
+    getMaxAmount,
   };
 };
 

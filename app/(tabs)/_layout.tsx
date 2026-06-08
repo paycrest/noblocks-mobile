@@ -32,7 +32,8 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: colors.slate,
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.secondary,
         headerShown: false,
         tabBarBackground: TabBarBackground,
         tabBarIconStyle: {
@@ -43,10 +44,14 @@ export default function TabLayout() {
           : Platform.select({
               ios: {
                 position: "absolute",
-                backgroundColor: "transparent",
+                backgroundColor: colors.surface_canvas,
+                borderTopWidth: 0.5,
+                borderTopColor: colors.subtle_surface,
               },
               default: {
-                backgroundColor: colors.background,
+                backgroundColor: colors.surface_canvas,
+                borderTopWidth: 0.5,
+                borderTopColor: colors.subtle_surface,
               },
             }),
       }}

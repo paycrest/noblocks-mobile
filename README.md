@@ -31,7 +31,7 @@ yarn start   # Metro bundler; opens a dev-client build
 
 ## Environments
 
-There are three environments: **development**, **staging**, and **production**. They share the same bundle identifier (`com.paycrest.noblocks`), so only one variant can be installed on a device at a time. They differ only by environment variables and EAS build channel.
+There are three environments: **development**, **staging**, and **production**. They share the same bundle identifier (`xyz.noblocks.app`), so only one variant can be installed on a device at a time. They differ only by environment variables and EAS build channel.
 
 | Environment | EAS profile  | Channel       | Notes                                      |
 | ----------- | ------------ | ------------- | ------------------------------------------ |
@@ -47,7 +47,7 @@ All variables are documented in [`.env.example`](./.env.example). The codebase r
 | ------------------------------- | ------------------------------------------ |
 | `EXPO_PUBLIC_APP_ENV`           | One of `development` / `staging` / `production` |
 | `EXPO_PUBLIC_API_BASE_URL`      | Paycrest API base URL                      |
-| `EXPO_PUBLIC_API_KEY`           | Paycrest API key                           |
+| `EXPO_PUBLIC_SENDER_API_KEY`    | Paycrest sender API key ID                 |
 | `EXPO_PUBLIC_PRIVY_BASE_URL`    | Privy REST base URL                        |
 | `EXPO_PUBLIC_PRIVY_APP_ID`      | Privy app ID                               |
 | `EXPO_PUBLIC_PRIVY_CLIENT_ID`   | Privy client ID                            |

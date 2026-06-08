@@ -39,6 +39,12 @@ const ASSET_ALIASES: Record<string, string> = {
 const CHAIN_ALIASES: Record<string, string> = {
   eth: "ethereum",
   mainnet: "ethereum",
+  bas: "base",
+  arb: "arbitrum",
+  opt: "optimism",
+  pol: "polygon",
+  lna: "linea",
+  era: "zksync_era",
 };
 
 export const normalizePrivyChain = (value?: string): string | null => {

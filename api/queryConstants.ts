@@ -6,14 +6,19 @@ export const NIGERIAN_BANKS_API_URL = "https://nigerianbanks.xyz";
 export const PRIVY_BASE_URL = process.env.EXPO_PUBLIC_PRIVY_BASE_URL;
 export const PRIVY_APP_ID = process.env.EXPO_PUBLIC_PRIVY_APP_ID!;
 export const PRIVY_APP_SECRET = process.env.EXPO_PUBLIC_PRIVY_APP_SECRET!;
+export const PAYCREST_SENDER_API_KEY =
+  process.env.EXPO_PUBLIC_SENDER_API_KEY?.trim() ?? "";
 
 export const FEATURED_SYMBOL_ORDER = ["ETH", "USDC", "USDT", "DAI", "WBTC"];
 export const FEATURED_CHAIN_ORDER = [
   "Base",
-  "Ethereum",
+  "BSC",
   "Arbitrum",
-  "Optimism",
   "Polygon",
+  "Lisk",
+  "Ethereum",
+  "Celo",
+  "Scroll",
 ];
 
 export const CURRENCY_FLAG_MAP: Record<string, string> = {

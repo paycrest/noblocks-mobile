@@ -2,10 +2,12 @@
 
 # dependencies
 node_modules/
+.pnpm-store/
 
 # Expo
 .expo/
 dist/
+dist-export-test/
 web-build/
 expo-env.d.ts
 
@@ -47,3 +49,6 @@ Smile_ID_Config.json
 
 # Editor
 .vscode/
+.cursor/
+
+agentic-web/

@@ -1,16 +1,22 @@
+import AmountPillIcon from "@/components/swap/AmountPillIcon";
 import { ResponsiveUi } from "@/components/ResponsiveUi";
-import { useAppDimensions } from "@/hooks/useAppDimensions";
+import { useThemeColors } from "@/hooks/useThemeColor";
 import _ from "lodash";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Animated, Easing, View } from "react-native";
-import { Image } from "expo-image";
 
-export const TRANSACTION_FLOW_ROW_CONNECTOR_DOT_COUNT = 12;
-export const TRANSACTION_FLOW_ROW_MOVING_DOT_SIZE = 10;
+export const TRANSACTION_FLOW_ROW_CONNECTOR_DOT_COUNT = 9;
+export const TRANSACTION_FLOW_ROW_MOVING_DOT_SIZE = 18;
+
+function getMovingDotBorderWidth(size: number) {
+  return size <= 10 ? 3 : 5;
+}
+const FLOW_PILL_ICON_SIZE = 14;
 
 interface TransactionFlowRowProps {
   amountLabel: string;
   tokenInitial: string;
+  tokenSymbol?: string;
   recipientLabel: string;
   connectorDotCount?: number;
   movingDotSize?: number;
@@ -26,6 +32,7 @@ interface TransactionFlowRowProps {
 const TransactionFlowRow: React.FC<TransactionFlowRowProps> = ({
   amountLabel,
   tokenInitial,
+  tokenSymbol,
   recipientLabel,
   connectorDotCount = TRANSACTION_FLOW_ROW_CONNECTOR_DOT_COUNT,
   movingDotSize = TRANSACTION_FLOW_ROW_MOVING_DOT_SIZE,
@@ -33,11 +40,12 @@ const TransactionFlowRow: React.FC<TransactionFlowRowProps> = ({
   colors,
   logoUri,
 }) => {
+  const themeColors = useThemeColors();
+  const movingDotBorderWidth = getMovingDotBorderWidth(movingDotSize);
   const staticConnectorProgress = useRef(new Animated.Value(0)).current;
   const resolvedConnectorProgress =
     connectorProgress ?? staticConnectorProgress;
   const [connectorWidth, setConnectorWidth] = useState(0);
-  const { hp } = useAppDimensions();
 
   useEffect(() => {
     if (connectorProgress) {
@@ -70,72 +78,108 @@ const TransactionFlowRow: React.FC<TransactionFlowRowProps> = ({
     });
   }, [connectorWidth, movingDotSize, resolvedConnectorProgress]);
 
+  const truncatedRecipient = useMemo(() => {
+    const formatted = _.startCase(_.toLower(recipientLabel));
+    return _.truncate(formatted, { length: 12, omission: ".." });
+  }, [recipientLabel]);
+
   return (
-    <View className="mt-4 w-full flex-row items-center justify-between">
-      <View className="px-4 w-[40%] py-3 rounded-full flex-row items-center">
-        {logoUri ? (
-          <Image
-            source={{ uri: logoUri }}
-            style={{ width: hp(2), height: hp(2), borderRadius: hp(2.5) }}
-          />
-        ) : (
-          <View
-            className="w-6 h-6 rounded-full items-center justify-center"
-            style={{ backgroundColor: colors.teal }}
-          >
-            <ResponsiveUi.Text color={colors.white} bold fontSize={14}>
-              {tokenInitial}
-            </ResponsiveUi.Text>
-          </View>
-        )}
-        <ResponsiveUi.Text
-          fontSize={14}
-          medium
-          tailwind="ml-2"
-          color={colors.text}
-        >
+    <View
+      style={{
+        width: "100%",
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 8,
+      }}
+    >
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          gap: 4,
+          backgroundColor: themeColors.neutral_surface,
+          borderRadius: 360,
+          paddingHorizontal: 8,
+          paddingVertical: 4,
+        }}
+      >
+        <AmountPillIcon
+          symbol={tokenSymbol ?? tokenInitial}
+          uri={logoUri}
+          size={FLOW_PILL_ICON_SIZE}
+        />
+        <ResponsiveUi.Text medium fontSize={14} color={colors.text}>
           {amountLabel}
         </ResponsiveUi.Text>
       </View>
 
       <View
-        className="flex-1 mx-3 h-6 items-center justify-center"
+        style={{
+          flex: 1,
+          height: movingDotSize + movingDotBorderWidth,
+          alignItems: "center",
+          justifyContent: "center",
+        }}
         onLayout={(event) => setConnectorWidth(event.nativeEvent.layout.width)}
       >
-        <View className="absolute inset-0 flex-row items-center justify-between px-2">
+        <View
+          style={{
+            position: "absolute",
+            left: 0,
+            right: 0,
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            paddingHorizontal: 2,
+          }}
+        >
           {Array.from({ length: connectorDotCount }).map((_, index) => (
             <View
               key={`connector-dot-${index}`}
-              className="w-1.5 h-1.5 rounded-full"
-              style={{ backgroundColor: colors.teal, opacity: 0.45 }}
+              style={{
+                width: 2.5,
+                height: 2.5,
+                borderRadius: 2.5,
+                backgroundColor: themeColors.subtle_surface,
+              }}
             />
           ))}
         </View>
 
         <Animated.View
-          className="absolute"
           style={{
+            position: "absolute",
+            left: 0,
             top: "50%",
             transform: [
               { translateX: connectorTranslateX },
-              { translateY: -movingDotSize / 2 },
+              { translateY: -(movingDotSize / 2) },
             ],
             width: movingDotSize,
             height: movingDotSize,
-            borderRadius: movingDotSize / 1.5,
+            borderRadius: movingDotSize / 2,
             backgroundColor: colors.teal,
-            shadowColor: colors.text,
-            shadowOpacity: 0.15,
-            shadowRadius: 4,
+            borderWidth: movingDotBorderWidth,
+            borderColor: themeColors.surface_overlay,
+            shadowColor: "#121217",
+            shadowOpacity: movingDotSize <= 10 ? 0.1 : 0.35,
+            shadowRadius: movingDotSize <= 10 ? 4 : 8,
             shadowOffset: { width: 0, height: 2 },
-            elevation: 2,
+            elevation: movingDotSize <= 10 ? 2 : 4,
           }}
         />
       </View>
 
-      <View className="px-4 py-3 rounded-full" style={{ maxWidth: "38%" }}>
-        <ResponsiveUi.Text fontSize={14} medium numberOfLines={1}>
-          {_.startCase(_.toLower(recipientLabel))}
+      <View
+        style={{
+          backgroundColor: themeColors.subtle_surface,
+          borderRadius: 360,
+          paddingHorizontal: 8,
+          paddingVertical: 4,
+        }}
+      >
+        <ResponsiveUi.Text fontSize={14} color={colors.text} numberOfLines={1}>
+          {truncatedRecipient}
         </ResponsiveUi.Text>
       </View>
     </View>

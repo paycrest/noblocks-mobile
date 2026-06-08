@@ -1,6 +1,10 @@
 import "react-native-get-random-values"; // Must be first
 import "react-native-reanimated"; // Keep this after polyfills
 
+if (__DEV__) {
+  require("../ReactotronConfig");
+}
+
 import {
   DarkTheme,
   DefaultTheme,
@@ -9,18 +13,28 @@ import {
 
 import { queryClient } from "@/api/queryClient";
 import useCustomFonts from "@/hooks/useCustomFonts";
+import { useResolvedTheme } from "@/hooks/useResolvedTheme";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
-import { PrivyProvider } from "@privy-io/expo"; // Uncomment now
+import { PrivyProvider } from "@privy-io/expo";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
-import { StatusBar } from "expo-status-bar";
+import * as SplashScreen from "expo-splash-screen";
+import { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { PaperProvider } from "react-native-paper";
-import { useSelector } from "./store/Store";
+import { View } from "react-native";
+
+SplashScreen.preventAutoHideAsync().catch(() => {});
 
 export default function RootLayout() {
   const { loaded } = useCustomFonts();
-  const { appTheme } = useSelector(["appTheme"]);
+  const resolvedTheme = useResolvedTheme();
+
+  useEffect(() => {
+    if (loaded) {
+      SplashScreen.hideAsync().catch(() => {});
+    }
+  }, [loaded]);
 
   if (!loaded) {
     return null;
@@ -30,24 +44,28 @@ export default function RootLayout() {
   const client_id = process.env.EXPO_PUBLIC_PRIVY_CLIENT_ID;
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <QueryClientProvider client={queryClient}>
-        <PrivyProvider appId={app_id ?? ""} clientId={client_id ?? ""}>
-          <ThemeProvider value={appTheme === "dark" ? DarkTheme : DefaultTheme}>
-            <BottomSheetModalProvider>
-              <PaperProvider>
-                <StatusBar style="dark" />
-                <Stack screenOptions={{ headerShown: false }}>
-                  <Stack.Screen name="(onboarding)/index" />
-                  <Stack.Screen name="(auth)/login" />
-                  <Stack.Screen name="(tabs)" />
-                  <Stack.Screen name="+not-found" />
-                </Stack>
-              </PaperProvider>
-            </BottomSheetModalProvider>
-          </ThemeProvider>
-        </PrivyProvider>
-      </QueryClientProvider>
-    </GestureHandlerRootView>
+    <View className={resolvedTheme === "dark" ? "dark flex-1" : "flex-1"}>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <QueryClientProvider client={queryClient}>
+          <PrivyProvider appId={app_id ?? ""} clientId={client_id ?? ""}>
+            <ThemeProvider
+              value={resolvedTheme === "dark" ? DarkTheme : DefaultTheme}
+            >
+              <BottomSheetModalProvider>
+                <PaperProvider>
+                  <Stack screenOptions={{ headerShown: false }}>
+                    <Stack.Screen name="(onboarding)/index" />
+                    <Stack.Screen name="(auth)/login" />
+                    <Stack.Screen name="(auth)/otp-screen" />
+                    <Stack.Screen name="(tabs)" />
+                    <Stack.Screen name="+not-found" />
+                  </Stack>
+                </PaperProvider>
+              </BottomSheetModalProvider>
+            </ThemeProvider>
+          </PrivyProvider>
+        </QueryClientProvider>
+      </GestureHandlerRootView>
+    </View>
   );
 }

@@ -2,7 +2,7 @@ import * as React from "react";
 
 import Svg, { G, Path, SvgProps } from "react-native-svg";
 
-import { useSelector } from "@/app/store/Store";
+import { useSelector } from "@/store/Store";
 import { useThemeColors } from "@/hooks/useThemeColor";
 
 function HomeIcon(props: SvgProps) {

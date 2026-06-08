@@ -1,11 +1,10 @@
 import { ResponsiveUi } from "@/components/ResponsiveUi";
-import { Colors } from "@/constants/Colors";
 import { useAppDimensions } from "@/hooks/useAppDimensions";
 import { useThemeColors } from "@/hooks/useThemeColor";
 import { Image } from "expo-image";
 import { ChevronDown } from "lucide-react-native";
 import React, { FunctionComponent } from "react";
-import { StyleSheet, TouchableOpacity, View } from "react-native";
+import { TouchableOpacity, View } from "react-native";
 import truncate from "lodash/truncate";
 
 interface SwapChainRowProps {
@@ -26,18 +25,30 @@ const SwapChainRow: FunctionComponent<SwapChainRowProps> = ({
   onPress,
   isStatic = false,
   showChevron = true,
-  marginTop,
+  marginTop = 0,
   disableChevron = false,
 }) => {
   const colors = useThemeColors();
-  const { hp, wp } = useAppDimensions();
+  const { wp } = useAppDimensions();
 
-  const chainLogoSize = wp(isStatic ? 6 : 7);
+  const chainLogoSize = wp(isStatic ? 6 : 5);
   const chainLogoRadius = chainLogoSize / 2;
-  const chainLogoMargin = wp(2);
-  const titleFontSize = hp(isStatic ? 2.2 : 2.3);
-  const chainFontSize = hp(isStatic ? 2.2 : 1.8);
+  const chainLogoMargin = wp(1);
+  const titleFontSize = 20;
+  const chainFontSize = 14;
   const chevronSize = wp(4.5);
+
+  const chainPillStyle = {
+    flexDirection: "row" as const,
+    alignItems: "center" as const,
+    backgroundColor: colors.neutral_surface,
+    borderWidth: 0.5,
+    borderColor: colors.subtle_surface,
+    paddingHorizontal: 4,
+    paddingRight: 8,
+    paddingVertical: 4,
+    borderRadius: 360,
+  };
 
   const content = (
     <>
@@ -52,11 +63,7 @@ const SwapChainRow: FunctionComponent<SwapChainRowProps> = ({
           }}
         />
       ) : null}
-      <ResponsiveUi.Text
-        medium
-        fontSize={chainFontSize}
-        style={isStatic ? { marginLeft: chainLogoMargin } : undefined}
-      >
+      <ResponsiveUi.Text medium fontSize={chainFontSize}>
         {truncate(chainName, { length: 15 })}
       </ResponsiveUi.Text>
       {!isStatic && showChevron ? (
@@ -72,26 +79,22 @@ const SwapChainRow: FunctionComponent<SwapChainRowProps> = ({
   return (
     <View
       style={{
-        marginTop: marginTop ?? hp(isStatic ? 4.5 : 3.5),
+        marginTop,
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-between",
       }}
     >
-      <ResponsiveUi.Text
-        semiBold
-        fontSize={titleFontSize}
-        style={isStatic ? { marginTop: hp(1) } : undefined}
-      >
+      <ResponsiveUi.Text semiBold fontSize={titleFontSize}>
         {title}
       </ResponsiveUi.Text>
       {isStatic ? (
-        <View style={styles.chainPillStyle}>{content}</View>
+        <View style={chainPillStyle}>{content}</View>
       ) : (
         <TouchableOpacity
           activeOpacity={0.8}
           onPress={onPress}
-          style={styles.chainPillStyle}
+          style={chainPillStyle}
           disabled={disableChevron}
         >
           {content}
@@ -100,18 +103,5 @@ const SwapChainRow: FunctionComponent<SwapChainRowProps> = ({
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  chainPillStyle: {
-    flexDirection: "row" as const,
-    alignItems: "center" as const,
-    backgroundColor: Colors.neutral_surface,
-    borderWidth: 1,
-    borderColor: Colors.subtle_surface,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    borderRadius: 20,
-  },
-});
 
 export default SwapChainRow;

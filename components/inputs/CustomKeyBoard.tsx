@@ -1,4 +1,3 @@
-// CustomKeyBoard.tsx
 import React, { FunctionComponent } from "react";
 import { TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -13,6 +12,11 @@ const KEYS = [
   ["7", "8", "9"],
   [".", "0", "<"],
 ];
+
+const KEY_WIDTH = 104;
+const KEY_HEIGHT = 48;
+const KEY_GAP = 12;
+const KEY_RADIUS = 12;
 
 interface CustomKeyBoardProps {
   value?: string;
@@ -32,7 +36,6 @@ const CustomKeyBoard: FunctionComponent<CustomKeyBoardProps> = ({
   value = "",
   onChangeText,
   onSubmit,
-  onDismiss,
   onKeyPress,
   visible = true,
   allowDecimal = true,
@@ -42,10 +45,13 @@ const CustomKeyBoard: FunctionComponent<CustomKeyBoardProps> = ({
   className,
 }) => {
   const insets = useSafeAreaInsets();
-  const { hp, wp } = useAppDimensions();
+  const { wp } = useAppDimensions();
   const colors = useThemeColors();
 
   if (!visible) return null;
+
+  const keyWidth = Math.min(KEY_WIDTH, wp(26.5));
+  const padWidth = Math.min(336, wp(85.5));
 
   const handleKeyPress = (key: string) => {
     onKeyPress?.(key);
@@ -74,60 +80,73 @@ const CustomKeyBoard: FunctionComponent<CustomKeyBoardProps> = ({
     onChangeText?.(nextValue);
   };
 
-  const keyWidth = wp(24);
-  const keyHeight = hp(6);
-  const keyFontSize = hp(3.2);
-  const rowGap = wp(3);
-  const rowMarginBottom = hp(2);
-
   return (
     <View
-      style={{ paddingBottom: insets.bottom + hp(1.5) }}
-      className={`w-full z-50 px-4 items-center ${className ?? ""}`}
+      style={{ paddingBottom: insets.bottom + 8 }}
+      className={`w-full z-50 items-center ${className ?? ""}`}
     >
-      <View className="justify-center py-2">
+      <View style={{ width: padWidth, paddingTop: 8 }}>
         {KEYS.map((row, rowIndex) => (
           <View
             key={rowIndex}
             style={{
               flexDirection: "row",
               justifyContent: "center",
-              marginBottom: rowMarginBottom,
-              gap: rowGap,
+              marginBottom: KEY_GAP,
+              gap: KEY_GAP,
             }}
           >
-            {row.map((key) => (
-              <TouchableOpacity
-                onPress={() => handleKeyPress(key)}
-                key={key}
-                style={{
-                  width: keyWidth,
-                  height: keyHeight,
-                  borderRadius: 10,
-                  alignItems: "center",
-                  justifyContent: "center",
-                  borderWidth: key === "<" || key === "." ? 0 : 1,
-                  borderColor: colors.gray,
-                }}
-              >
-                {key === "<" ? (
-                  <BackButton />
-                ) : (
-                  <ResponsiveUi.Text bold fontSize={keyFontSize}>
-                    {key}
-                  </ResponsiveUi.Text>
-                )}
-              </TouchableOpacity>
-            ))}
+            {row.map((key) => {
+              const isGhostKey = key === "<" || key === ".";
+              return (
+                <TouchableOpacity
+                  onPress={() => handleKeyPress(key)}
+                  key={key}
+                  style={{
+                    width: keyWidth,
+                    height: KEY_HEIGHT,
+                    borderRadius: KEY_RADIUS,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    borderWidth: isGhostKey ? 0 : 0.5,
+                    borderColor: colors.subtle_surface,
+                    backgroundColor: isGhostKey
+                      ? "transparent"
+                      : colors.neutral_surface,
+                  }}
+                >
+                  {key === "<" ? (
+                    <BackButton />
+                  ) : (
+                    <ResponsiveUi.Text semiBold fontSize={28}>
+                      {key}
+                    </ResponsiveUi.Text>
+                  )}
+                </TouchableOpacity>
+              );
+            })}
           </View>
         ))}
-        <ResponsiveUi.Button
-          title={submitLabel}
-          action={() => onSubmit?.()}
+        <TouchableOpacity
           disabled={submitDisabled}
-          medium
-          fontSize={hp(2)}
-        />
+          activeOpacity={0.85}
+          onPress={() => onSubmit?.()}
+          style={{
+            width: Math.min(361, wp(92)),
+            height: 52,
+            borderRadius: 50,
+            alignSelf: "center",
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundColor: colors.primary,
+            opacity: submitDisabled ? 0.4 : 1,
+            marginTop: 4,
+          }}
+        >
+          <ResponsiveUi.Text semiBold fontSize={18} color={colors.white}>
+            {submitLabel}
+          </ResponsiveUi.Text>
+        </TouchableOpacity>
       </View>
     </View>
   );

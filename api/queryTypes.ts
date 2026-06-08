@@ -93,7 +93,22 @@ export interface PaycrestRateResponse {
     buy?: {
       rate?: string;
     };
+    sell?: {
+      rate?: string;
+    };
   };
+}
+
+export interface PaycrestOrderDetails {
+  id?: string;
+  status?: string;
+  [key: string]: unknown;
+}
+
+export interface PaycrestOrderDetailsResponse {
+  status: string;
+  message: string;
+  data?: PaycrestOrderDetails;
 }
 
 export interface CreateSenderOrderParams {
