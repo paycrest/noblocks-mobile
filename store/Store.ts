@@ -7,6 +7,10 @@ import {
 import { AuthSlice, authState } from "./slices/authslice";
 import { GeneralSlice, generalState } from "./slices/generalSlice";
 import { SwapDraftSlice, swapDraftState } from "./slices/swapDraftSlice";
+import {
+  TransactionHistorySlice,
+  transactionHistoryState,
+} from "./slices/transactionHistorySlice";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { immer } from "zustand/middleware/immer";
@@ -20,7 +24,11 @@ interface RootState {
   logoutAndClearState: () => void;
 }
 
-export type StoreState = RootState & GeneralSlice & AuthSlice & SwapDraftSlice;
+export type StoreState = RootState &
+  GeneralSlice &
+  AuthSlice &
+  SwapDraftSlice &
+  TransactionHistorySlice;
 
 export type ImmerStateCreator<T> = StateCreator<
   T,
@@ -64,16 +72,34 @@ export const boundStore = create<StoreState>()(
         ...generalState.slice(setState, getState, store),
         ...authState.slice(setState, getState, store),
         ...swapDraftState.slice(setState, getState, store),
+        ...transactionHistoryState.slice(setState, getState, store),
       })),
     ),
     {
       name: "noblocks-storage",
-      version: 2,
+      version: 3,
       storage: createJSONStorage(() => AsyncStorage),
+      migrate: (persistedState, version) => {
+        if (!persistedState || typeof persistedState !== "object") {
+          return persistedState as StoreState;
+        }
+
+        if (version < 3) {
+          return {
+            ...(persistedState as StoreState),
+            transactions: Array.isArray(
+              (persistedState as StoreState).transactions,
+            )
+              ? (persistedState as StoreState).transactions
+              : [],
+          };
+        }
+
+        return persistedState as StoreState;
+      },
       onRehydrateStorage: () => () => {
         useBoundStore.setState({
           _hasHydrated: true,
-          _firstLaunch: true,
         });
       },
     },

@@ -9,20 +9,21 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { ResponsiveUi } from "@/components/ResponsiveUi";
-import { ITransaction, transactions } from "@/utils/sampleData";
 import { formatAmount, setTransactionStatusColor } from "@/utils/general";
 import Coins from "@/components/svgs/coins";
 import { ActivityIndicator } from "react-native-paper";
 import { isToday, isYesterday, format, parseISO } from "date-fns";
 import { useThemeColors } from "@/hooks/useThemeColor";
 import { useRouter } from "expo-router";
-
-type TransactionDetailsParams = Omit<ITransaction, "icon"> & { icon?: string };
+import { getTransactionTokenIcon } from "@/lib/transactions/icons";
+import type { StoredTransaction } from "@/lib/transactions/types";
+import { useSelector } from "@/store/Store";
 
 const transactionItem =
-  (hp: any, wp: any, secondaryColor: string): ListRenderItem<ITransaction> =>
+  (hp: any, wp: any, secondaryColor: string): ListRenderItem<StoredTransaction> =>
   ({ item }) => {
-    const { icon: Icon, amountNGN, amountUSD, status, token } = item;
+    const Icon = getTransactionTokenIcon(item.token);
+    const { amountFiat, amountUSD, status, token } = item;
     const statusColor = setTransactionStatusColor(status);
     const router = useRouter();
     return (
@@ -30,7 +31,19 @@ const transactionItem =
         onPress={() =>
           router.push({
             pathname: "/(transactions)/transactionDetails",
-            params: { ...item } as unknown as TransactionDetailsParams,
+            params: {
+              id: item.id,
+              amountUSD: String(amountUSD),
+              amountFiat: String(amountFiat),
+              fiatCurrency: item.fiatCurrency,
+              status: item.status,
+              date: item.date,
+              token: item.token,
+              recipientName: item.recipientName ?? "",
+              institutionName: item.institutionName ?? "",
+              accountNumber: item.accountNumber ?? "",
+              memo: item.memo ?? "",
+            },
           })
         }
         style={{
@@ -70,7 +83,7 @@ const transactionItem =
             style={{ marginLeft: wp(2) }}
             color={secondaryColor}
           >
-            {formatAmount(amountNGN, "NGN ")}
+            {formatAmount(amountFiat, `${item.fiatCurrency} `)}
           </ResponsiveUi.Text>
           <ResponsiveUi.Text
             light
@@ -85,7 +98,6 @@ const transactionItem =
     );
   };
 
-// Helper to get section title
 function getSectionTitle(dateString: string) {
   const date = parseISO(dateString);
   if (isToday(date)) return "Today";
@@ -93,9 +105,8 @@ function getSectionTitle(dateString: string) {
   return format(date, "MMMM d, yyyy");
 }
 
-// Group transactions by section
-function groupTransactionsByDay(transactions: ITransaction[]) {
-  const groups: { [key: string]: ITransaction[] } = {};
+function groupTransactionsByDay(transactions: StoredTransaction[]) {
+  const groups: { [key: string]: StoredTransaction[] } = {};
   transactions.forEach((tx) => {
     const section = getSectionTitle(tx.date);
     if (!groups[section]) groups[section] = [];
@@ -106,8 +117,10 @@ function groupTransactionsByDay(transactions: ITransaction[]) {
 
 const Transactions: FunctionComponent = () => {
   const { hp, wp } = useAppDimensions();
+  const { transactions } = useSelector(["transactions"]);
   const sections = groupTransactionsByDay(transactions);
   const colors = useThemeColors();
+
   return (
     <AppLayout scrollable={false}>
       <View style={{ marginTop: hp(3.5), marginBottom: hp(10) }}>
@@ -118,32 +131,40 @@ const Transactions: FunctionComponent = () => {
         >
           Transactions
         </ResponsiveUi.Text>
-        <SectionList
-          showsVerticalScrollIndicator={false}
-          sections={sections}
-          renderItem={transactionItem(hp, wp, colors.secondary)}
-          keyExtractor={(item, index) => index.toString()}
-          contentContainerStyle={{ marginTop: hp(2) }}
-          renderSectionHeader={({ section: { title } }) => (
-            <View
-              style={{
-                backgroundColor: colors.background,
-                zIndex: 10,
-                paddingVertical: hp(1),
-                paddingHorizontal: wp(2),
-              }}
-            >
-              <ResponsiveUi.Text
-                fontSize={wp(3.5)}
-                medium
-                color={colors.secondary}
+        {sections.length === 0 ? (
+          <View style={{ marginTop: hp(8), paddingHorizontal: wp(2) }}>
+            <ResponsiveUi.Text center color={colors.secondary}>
+              No transactions yet. Complete a swap to see it here.
+            </ResponsiveUi.Text>
+          </View>
+        ) : (
+          <SectionList
+            showsVerticalScrollIndicator={false}
+            sections={sections}
+            renderItem={transactionItem(hp, wp, colors.secondary)}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={{ marginTop: hp(2) }}
+            renderSectionHeader={({ section: { title } }) => (
+              <View
+                style={{
+                  backgroundColor: colors.background,
+                  zIndex: 10,
+                  paddingVertical: hp(1),
+                  paddingHorizontal: wp(2),
+                }}
               >
-                {title}
-              </ResponsiveUi.Text>
-            </View>
-          )}
-          stickySectionHeadersEnabled={true}
-        />
+                <ResponsiveUi.Text
+                  fontSize={wp(3.5)}
+                  medium
+                  color={colors.secondary}
+                >
+                  {title}
+                </ResponsiveUi.Text>
+              </View>
+            )}
+            stickySectionHeadersEnabled={true}
+          />
+        )}
       </View>
     </AppLayout>
   );

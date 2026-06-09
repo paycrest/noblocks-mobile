@@ -15,10 +15,15 @@ import InstitutionSelectorModal, {
 import { ResponsiveUi } from "@/components/ResponsiveUi";
 import AmountPillIcon from "@/components/swap/AmountPillIcon";
 import SwapFlowStepper from "@/components/swap/SwapFlowStepper";
+import SwapFlowWalletPeekLayout from "@/components/swap/SwapFlowWalletPeekLayout";
 import SwapScreenSheet from "@/components/swap/SwapScreenSheet";
+import LiquidGlassTransition from "@/components/transitions/LiquidGlassTransition";
 import PersonIcon from "@/components/svgs/person-icon";
+import BackArrow from "@/components/svgs/back-arrow";
 import { useBeneficiaries } from "@/hooks/useBeneficiaries";
+import { useLiquidGlassScreenTransition } from "@/hooks/useLiquidGlassScreenTransition";
 import { useThemeColors } from "@/hooks/useThemeColor";
+import { setLiquidGlassTransition } from "@/lib/transitions/liquidGlassNavigation";
 import { useMutation } from "@tanstack/react-query";
 import { Image } from "expo-image";
 import { router, useLocalSearchParams } from "expo-router";
@@ -76,6 +81,12 @@ const getAccountVerificationErrorMessage = (error: unknown) => {
 const SwapDetails: FunctionComponent = () => {
   const colors = useThemeColors();
   const insets = useSafeAreaInsets();
+  const {
+    animationKey,
+    isExiting,
+    goBack,
+    handleExitComplete,
+  } = useLiquidGlassScreenTransition("recipient", "entry");
   const [isInstitutionModalVisible, setIsInstitutionModalVisible] =
     useState(false);
   const [isBeneficiaryModalVisible, setIsBeneficiaryModalVisible] =
@@ -90,6 +101,7 @@ const SwapDetails: FunctionComponent = () => {
     string | null
   >(null);
   const [addToBeneficiaries, setAddToBeneficiaries] = useState(false);
+  const [isWalletPeekOpen, setIsWalletPeekOpen] = useState(false);
   const {
     beneficiaries,
     isLoading: isLoadingBeneficiaries,
@@ -224,6 +236,8 @@ const SwapDetails: FunctionComponent = () => {
       });
     }
 
+    setLiquidGlassTransition({ direction: "forward", variant: "step" });
+
     router.push({
       pathname: "/(home)/reviewTransaction",
       params: {
@@ -341,24 +355,38 @@ const SwapDetails: FunctionComponent = () => {
       layoutStyle={{ backgroundColor: colors.canvas_background }}
     >
       <View style={{ flex: 1, backgroundColor: colors.canvas_background }}>
-        <View style={{ paddingTop: 8, paddingHorizontal: 16 }}>
-          <SwapFlowStepper
-            activeLabel="Recipient"
-            leadingDots={1}
-            trailingDots={1}
-            showActions
-            onWalletPress={() => router.push("/(tabs)/wallet")}
-            onClosePress={() => router.navigate("/(tabs)")}
-          />
-        </View>
+        <SwapFlowWalletPeekLayout
+          isWalletPeekOpen={isWalletPeekOpen}
+          stepper={
+            <SwapFlowStepper
+              activeLabel="Recipient"
+              leadingDots={1}
+              trailingDots={1}
+              showActions
+              onWalletPress={() => setIsWalletPeekOpen((prev) => !prev)}
+              onClosePress={() => {
+                if (isWalletPeekOpen) {
+                  setIsWalletPeekOpen(false);
+                  return;
+                }
 
-        <SwapScreenSheet
-          style={{
-            flex: 1,
-            marginTop: 8,
-            paddingHorizontal: 16,
-          }}
-        >
+                router.navigate("/(tabs)");
+              }}
+            />
+          }
+          sheet={
+            <LiquidGlassTransition
+              stepKey="recipient"
+              animationKey={animationKey}
+              isExiting={isExiting}
+              onExitComplete={handleExitComplete}
+            >
+              <SwapScreenSheet
+                style={{
+                  flex: 1,
+                  paddingHorizontal: 16,
+                }}
+              >
           <View style={{ flex: 1 }}>
             <ScrollView
               style={{ flex: 1 }}
@@ -384,6 +412,15 @@ const SwapDetails: FunctionComponent = () => {
                   marginTop={0}
                 />
               </View>
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => goBack()}
+                accessibilityRole="button"
+                accessibilityLabel="Go back"
+                style={{ alignSelf: "flex-start" }}
+              >
+                <BackArrow />
+              </TouchableOpacity>
 
               <View style={{ position: "relative" }}>
                 <View
@@ -640,6 +677,9 @@ const SwapDetails: FunctionComponent = () => {
             </View>
           </View>
         </SwapScreenSheet>
+            </LiquidGlassTransition>
+          }
+        />
       </View>
 
       <InstitutionSelectorModal

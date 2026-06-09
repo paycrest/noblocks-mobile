@@ -4,6 +4,7 @@ import { useThemeColors } from "@/hooks/useThemeColor";
 import { X } from "lucide-react-native";
 import React, { FunctionComponent } from "react";
 import { TouchableOpacity, View } from "react-native";
+import Animated, { Layout } from "react-native-reanimated";
 
 const DOT_SIZE = 12;
 const STEP_GAP = 12;
@@ -16,7 +17,6 @@ interface SwapFlowStepperProps {
   showActions?: boolean;
   onWalletPress?: () => void;
   onClosePress?: () => void;
-  centered?: boolean;
 }
 
 const StepDot: FunctionComponent<{ colors: ReturnType<typeof useThemeColors> }> = ({
@@ -41,7 +41,6 @@ const SwapFlowStepper: FunctionComponent<SwapFlowStepperProps> = ({
   showActions = false,
   onWalletPress,
   onClosePress,
-  centered = false,
 }) => {
   const colors = useThemeColors();
 
@@ -50,7 +49,8 @@ const SwapFlowStepper: FunctionComponent<SwapFlowStepperProps> = ({
       {Array.from({ length: leadingDots }).map((_, index) => (
         <StepDot key={`leading-${index}`} colors={colors} />
       ))}
-      <View
+      <Animated.View
+        layout={Layout.springify().damping(20).stiffness(170)}
         style={{
           backgroundColor: colors.primary_9,
           borderRadius: 360,
@@ -61,25 +61,19 @@ const SwapFlowStepper: FunctionComponent<SwapFlowStepperProps> = ({
         <ResponsiveUi.Text medium color={PILL_COLOR} fontSize={14}>
           {activeLabel}
         </ResponsiveUi.Text>
-      </View>
+      </Animated.View>
       {Array.from({ length: trailingDots }).map((_, index) => (
         <StepDot key={`trailing-${index}`} colors={colors} />
       ))}
     </View>
   );
 
-  if (!showActions && centered) {
-    return (
-      <View style={{ alignItems: "center", width: "100%" }}>{stepper}</View>
-    );
-  }
-
   return (
     <View
       style={{
         flexDirection: "row",
         alignItems: "center",
-        justifyContent: showActions ? "space-between" : centered ? "center" : "flex-start",
+        justifyContent: showActions ? "space-between" : "flex-start",
         width: "100%",
       }}
     >

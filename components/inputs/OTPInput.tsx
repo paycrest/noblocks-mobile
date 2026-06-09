@@ -23,10 +23,11 @@ const OTPInput: FunctionComponent<Props> = ({
     container: {
       width: "100%",
       justifyContent: "center",
+      gap: 12,
     },
     pinCodeContainer: {
       borderRadius: Radius.large,
-      backgroundColor: colors.surface_overlay,
+      backgroundColor: colors.neutral_surface,
       borderWidth: 1,
       width: OTP_BOX_SIZE.width,
       height: OTP_BOX_SIZE.height,
@@ -41,7 +42,7 @@ const OTPInput: FunctionComponent<Props> = ({
       backgroundColor: colors.primary,
     },
     activePinCodeContainer: {
-      borderColor: colors.primary,
+      borderColor: colors.slate,
       borderWidth: 1.5,
     },
     placeholderText: {},
@@ -56,7 +57,7 @@ const OTPInput: FunctionComponent<Props> = ({
   return (
     <OtpInput
       numberOfDigits={6}
-      focusColor={colors.primary}
+      focusColor={colors.slate}
       autoFocus
       hideStick={false}
       placeholder=""

@@ -3,21 +3,24 @@ import { ResponsiveUi } from "@/components/ResponsiveUi";
 import React, { FunctionComponent, memo } from "react";
 import { View } from "react-native";
 import { useLocalSearchParams } from "expo-router";
-import { ITransaction } from "@/utils/sampleData";
-import USDC from "@/components/svgs/usdc-icon";
-import Tether from "@/components/svgs/tether";
-import Binance from "@/components/svgs/binance";
 import { formatAmount, setTransactionStatusColor } from "@/utils/general";
 import { useThemeColors } from "@/hooks/useThemeColor";
 import _ from "lodash";
-import * as WebBrowser from "expo-web-browser";
+import { getTransactionTokenIcon } from "@/lib/transactions/icons";
+import { format, parseISO } from "date-fns";
 
-type TransactionDetailsParams = Omit<ITransaction, "icon"> & { icon?: string };
-
-const iconMap = {
-  USDC,
-  Tether,
-  Binance,
+type TransactionDetailsParams = {
+  id?: string;
+  amountUSD?: string;
+  amountFiat?: string;
+  fiatCurrency?: string;
+  status?: string;
+  date?: string;
+  token?: string;
+  recipientName?: string;
+  institutionName?: string;
+  accountNumber?: string;
+  memo?: string;
 };
 
 const TransactionItem: FunctionComponent<{
@@ -25,22 +28,13 @@ const TransactionItem: FunctionComponent<{
   field: string;
   type?: "status" | "link";
   link?: string;
-}> = memo(({ label, field, type, link }) => {
+}> = memo(({ label, field, type }) => {
   const colors = useThemeColors();
   const statusColor =
     type === "status" ? setTransactionStatusColor(field) : undefined;
   const labelColor =
-    type === "link"
-      ? colors.primary
-      : type === "status"
-        ? statusColor
-        : colors.text;
+    type === "status" ? statusColor : colors.text;
 
-  const openWebsite = async () => {
-    if (link) {
-      await WebBrowser.openBrowserAsync(link);
-    }
-  };
   return (
     <View className="flex-row mb-6 justify-between items-center">
       <ResponsiveUi.Text
@@ -51,12 +45,7 @@ const TransactionItem: FunctionComponent<{
       >
         {label}
       </ResponsiveUi.Text>
-      <ResponsiveUi.Text
-        onPress={openWebsite}
-        light
-        fontSize={14}
-        color={labelColor}
-      >
+      <ResponsiveUi.Text light fontSize={14} color={labelColor}>
         {field}
       </ResponsiveUi.Text>
     </View>
@@ -64,10 +53,23 @@ const TransactionItem: FunctionComponent<{
 });
 
 const TransactionDetails: FunctionComponent = () => {
-  const params = useLocalSearchParams() as unknown as TransactionDetailsParams;
-  const Icon = params.token
-    ? iconMap[params.token as keyof typeof iconMap]
-    : undefined;
+  const params = useLocalSearchParams<TransactionDetailsParams>();
+  const token = params.token?.trim().toUpperCase() ?? "USDC";
+  const Icon = getTransactionTokenIcon(token);
+  const amountUSD = Number.parseFloat(params.amountUSD ?? "0");
+  const amountFiat = Number.parseFloat(params.amountFiat ?? "0");
+  const fiatCurrency = params.fiatCurrency?.trim().toUpperCase() ?? "NGN";
+  const status = params.status ?? "Ongoing";
+  const formattedDate = params.date
+    ? format(parseISO(params.date), "MMM d, yyyy · h:mm a")
+    : "--";
+  const recipientName = params.recipientName?.trim()
+    ? _.startCase(_.toLower(params.recipientName.trim()))
+    : "--";
+  const institutionName = params.institutionName?.trim() || "--";
+  const accountNumber = params.accountNumber?.trim() || "--";
+  const memo = params.memo?.trim() || "No memo";
+
   return (
     <AppLayout canGoBack>
       <View style={{ alignItems: "center", marginTop: 32 }}>
@@ -76,32 +78,32 @@ const TransactionDetails: FunctionComponent = () => {
         </ResponsiveUi.Text>
         <View className="mt-8 items-center">
           <ResponsiveUi.Text medium fontSize={36}>
-            {formatAmount(params.amountUSD, "$")}
+            {formatAmount(amountUSD, "$")}
           </ResponsiveUi.Text>
           <View className="mt-4 flex-row items-center justify-center">
-            {Icon && <Icon width={24} height={24} />}
+            <Icon width={24} height={24} />
             <ResponsiveUi.Text medium center fontSize={18} tailwind="ml-2">
-              {params.amountUSD} {params.token}
+              {amountUSD} {token}
             </ResponsiveUi.Text>
           </View>
         </View>
         <View className="mt-10 w-full">
           <TransactionItem
             label="Amount"
-            field={formatAmount(params.amountNGN, "₦")}
+            field={formatAmount(amountFiat, `${fiatCurrency} `)}
           />
           <TransactionItem
             label="Recipient"
-            field={_.truncate("Franscesca Tobiloba", {
+            field={_.truncate(recipientName, {
               length: 20,
               omission: "...",
             })}
           />
-          <TransactionItem label="Bank" field={"First Bank of Nigeria"} />
-          <TransactionItem label="Account" field={"1234567890"} />
+          <TransactionItem label="Bank" field={institutionName} />
+          <TransactionItem label="Account" field={accountNumber} />
           <TransactionItem
             label="Memo"
-            field={_.truncate("From me, Donda North", {
+            field={_.truncate(memo, {
               length: 20,
               omission: "...",
             })}
@@ -109,20 +111,15 @@ const TransactionDetails: FunctionComponent = () => {
         </View>
         <View className="border border-gray border-dashed w-full my-2" />
         <View className="mt-6 w-full">
-          <TransactionItem label="Date" field={params.date} />
+          <TransactionItem label="Date" field={formattedDate} />
           <TransactionItem
             label="Transaction Status"
-            field={params.status}
+            field={status}
             type="status"
           />
-          <TransactionItem label="Fund status" field={"Deposited"} />
-          <TransactionItem label="Time spent" field={"12 seconds"} />
-          <TransactionItem
-            label="Onchain receipt"
-            field={"View in explorer"}
-            type="link"
-            link="https://www.blockchain.com/explorer"
-          />
+          {params.id ? (
+            <TransactionItem label="Order ID" field={params.id} />
+          ) : null}
         </View>
         <ResponsiveUi.Button
           className="mt-4"

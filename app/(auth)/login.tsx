@@ -131,7 +131,7 @@ const Index: FunctionComponent = () => {
           />
 
           <View style={{ marginTop: 29, maxWidth: 313, alignSelf: "center" }}>
-            <LegalFooter lineHeight={20} />
+            <LegalFooter lineHeight={20} fontSize={14} splitLegalLinks />
           </View>
         </View>
       </View>

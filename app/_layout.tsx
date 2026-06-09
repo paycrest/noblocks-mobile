@@ -27,16 +27,16 @@ import { View } from "react-native";
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
 export default function RootLayout() {
-  const { loaded } = useCustomFonts();
+  const { loaded, error } = useCustomFonts();
   const resolvedTheme = useResolvedTheme();
 
   useEffect(() => {
-    if (loaded) {
+    if (loaded || error) {
       SplashScreen.hideAsync().catch(() => {});
     }
-  }, [loaded]);
+  }, [loaded, error]);
 
-  if (!loaded) {
+  if (!loaded && !error) {
     return null;
   }
 
@@ -54,10 +54,14 @@ export default function RootLayout() {
               <BottomSheetModalProvider>
                 <PaperProvider>
                   <Stack screenOptions={{ headerShown: false }}>
+                    <Stack.Screen name="index" />
                     <Stack.Screen name="(onboarding)/index" />
                     <Stack.Screen name="(auth)/login" />
                     <Stack.Screen name="(auth)/otp-screen" />
                     <Stack.Screen name="(tabs)" />
+                    <Stack.Screen name="(home)" options={{ animation: "none" }} />
+                    <Stack.Screen name="(settings)/security" />
+                    <Stack.Screen name="(settings)/notification" />
                     <Stack.Screen name="+not-found" />
                   </Stack>
                 </PaperProvider>

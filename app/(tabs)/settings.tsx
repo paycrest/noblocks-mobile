@@ -12,6 +12,7 @@ import NotificationIcon from "@/components/svgs/notification-icon";
 import SecurityIcon from "@/components/svgs/security-icon";
 import SignOutIcon from "@/components/svgs/sign-out";
 import useAuth from "@/hooks/auth/useAuth";
+import { useWalletAddress } from "@/hooks/useWalletAddress";
 import { router } from "expo-router";
 import { View } from "react-native";
 
@@ -23,6 +24,7 @@ const Settings: FunctionComponent = () => {
   const [showRevealedCodesModal, setShowRevealCodesModal] =
     useState<boolean>(false);
   const { logoutUser } = useAuth();
+  const walletAddress = useWalletAddress();
 
   const settingsLinks = [
     {
@@ -51,11 +53,14 @@ const Settings: FunctionComponent = () => {
       icon: <SignOutIcon />,
     },
   ];
+
   return (
     <AppLayout>
       <View className="flex-1">
         <ProfileHeader
-          walletAddress={"0x742d35Cc6634C0532925a3b844Bc454e4438f44e"}
+          walletAddress={
+            walletAddress ?? "Wallet not connected"
+          }
         />
         <View className="mt-12">
           {settingsLinks.map((item) => (

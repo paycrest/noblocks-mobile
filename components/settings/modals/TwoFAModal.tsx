@@ -1,18 +1,21 @@
-import React, { FunctionComponent, useState } from "react";
-import { TouchableOpacity, View } from "react-native";
+import React, { FunctionComponent, useEffect, useState } from "react";
+import { Pressable, StyleSheet, TouchableOpacity, View } from "react-native";
+import Modal from "react-native-modal";
 
-import BackdropBlur from "@/components/modals/BackdropBlur";
-import BaseModal from "@/components/modals/BaseModal";
+import { ResponsiveUi } from "@/components/ResponsiveUi";
 import { useThemeColors } from "@/hooks/useThemeColor";
 import { X } from "lucide-react-native";
-import { ResponsiveUi } from "../../ResponsiveUi";
+
+export type TwoFAMethod = "authenticator" | "sms";
 
 interface Props {
   isVisible: boolean;
   onClose: () => void;
+  onContinue: (method: TwoFAMethod) => void;
 }
 
 interface SelectorItem {
+  id: TwoFAMethod;
   title: string;
   subtext: string;
 }
@@ -24,10 +27,12 @@ interface SelectorProps extends SelectorItem {
 
 const options: SelectorItem[] = [
   {
+    id: "authenticator",
     title: "Authenticator app",
     subtext: "Use an authenticator app to generate a one-time code",
   },
   {
+    id: "sms",
     title: "SMS",
     subtext: "Receive a text message with one-time code",
   },
@@ -40,78 +45,151 @@ const Selector: FunctionComponent<SelectorProps> = ({
   selected,
 }) => {
   const colors = useThemeColors();
-  const borderColor = selected ? colors.slate : colors.gray_hover;
+
   return (
-    <TouchableOpacity
+    <Pressable
       onPress={onPress}
-      style={[{ borderColor }]}
-      className="justify-between border-[0.5px] border-gray-hover py-6 rounded-2xl  mb-4"
+      style={[
+        styles.option,
+        {
+          borderColor: selected ? colors.slate : colors.gray_hover,
+          backgroundColor: colors.surface_overlay,
+        },
+      ]}
     >
-      <ResponsiveUi.Text xs medium tailwind="ml-4">
+      <ResponsiveUi.Text
+        medium
+        style={{ fontSize: 14, lineHeight: 20, marginLeft: 16 }}
+      >
         {title}
       </ResponsiveUi.Text>
       <ResponsiveUi.Text
-        xxs
         regular
-        tailwind="ml-4"
-        style={{ width: "80%", marginTop: 7 }}
+        secondary
+        style={{ width: "82%", marginTop: 7, marginLeft: 16, fontSize: 12 }}
       >
         {subtext}
       </ResponsiveUi.Text>
-    </TouchableOpacity>
+    </Pressable>
   );
 };
 
-const TwoFAModal: FunctionComponent<Props> = ({ isVisible, onClose }) => {
+const TwoFAModal: FunctionComponent<Props> = ({
+  isVisible,
+  onClose,
+  onContinue,
+}) => {
   const colors = useThemeColors();
+  const [selectedMethod, setSelectedMethod] = useState<TwoFAMethod | null>(
+    null,
+  );
 
-  const [selected2FA, setSelected2FA] = useState<string>("");
+  useEffect(() => {
+    if (isVisible) {
+      setSelectedMethod(null);
+    }
+  }, [isVisible]);
+
+  const handleContinue = () => {
+    if (!selectedMethod) {
+      return;
+    }
+
+    onContinue(selectedMethod);
+  };
+
   return (
-    <BaseModal onClose={onClose} isVisible={isVisible}>
-      <BackdropBlur onClose={onClose} />
+    <Modal
+      isVisible={isVisible}
+      onBackdropPress={onClose}
+      onBackButtonPress={onClose}
+      onSwipeComplete={onClose}
+      swipeDirection={["down"]}
+      style={styles.modal}
+      animationIn="slideInUp"
+      animationOut="slideOutDown"
+      animationInTiming={300}
+      animationOutTiming={250}
+      backdropOpacity={0.45}
+      useNativeDriver
+      useNativeDriverForBackdrop
+    >
       <View
-        style={{
-          height: "50%",
-          position: "absolute",
-          width: "92%",
-          bottom: 10,
-          borderRadius: 40,
-          backgroundColor: colors.surface_overlay,
-          padding: 20,
-          marginHorizontal: 40,
-          marginBottom: 20,
-          alignSelf: "center",
-        }}
+        style={[
+          styles.sheet,
+          {
+            backgroundColor: colors.surface_overlay,
+            borderColor: colors.gray_hover,
+          },
+        ]}
       >
-        <View className={`flex-row items-center justify-between`}>
-          <ResponsiveUi.Text semiBold>Add 2-Factor auth</ResponsiveUi.Text>
-          <X onPress={onClose} size={20} color={colors.secondary} />
-        </View>
-        <View className="mt-4">
-          <ResponsiveUi.Text xxs regular secondary>
-            Add extra layer of security with unique access codes via SMS or an
-            authenticator app
+        <View style={styles.headerRow}>
+          <ResponsiveUi.Text semiBold style={{ fontSize: 18, lineHeight: 24 }}>
+            Add 2-Factor auth
           </ResponsiveUi.Text>
+          <TouchableOpacity onPress={onClose} hitSlop={8}>
+            <X size={20} color={colors.secondary} />
+          </TouchableOpacity>
         </View>
-        <View className="mt-6">
+
+        <ResponsiveUi.Text
+          regular
+          secondary
+          style={{ marginTop: 12, fontSize: 12, lineHeight: 18 }}
+        >
+          Add extra layer of security with unique access codes via SMS or an
+          authenticator app
+        </ResponsiveUi.Text>
+
+        <View style={{ marginTop: 24 }}>
           {options.map((option) => (
             <Selector
-              key={option.title}
+              key={option.id}
               {...option}
-              onPress={() => setSelected2FA(option.title)}
-              selected={option.title === selected2FA}
+              onPress={() => setSelectedMethod(option.id)}
+              selected={option.id === selectedMethod}
             />
           ))}
         </View>
+
         <ResponsiveUi.Button
-          title="Continue with app"
+          title={
+            selectedMethod === "sms" ? "Continue with SMS" : "Continue with app"
+          }
           containerStyle="mt-8"
-          action={() => {}}
-          disabled={selected2FA.length === 0}
+          action={handleContinue}
+          disabled={!selectedMethod}
         />
       </View>
-    </BaseModal>
+    </Modal>
   );
 };
+
+const styles = StyleSheet.create({
+  modal: {
+    margin: 0,
+    justifyContent: "flex-end",
+  },
+  sheet: {
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    borderWidth: 0.5,
+    paddingHorizontal: 20,
+    paddingTop: 8,
+    paddingBottom: 28,
+    minHeight: "52%",
+  },
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  option: {
+    borderWidth: 0.5,
+    borderRadius: 16,
+    paddingVertical: 20,
+    marginBottom: 12,
+  },
+});
 
 export default TwoFAModal;

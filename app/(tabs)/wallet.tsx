@@ -10,9 +10,8 @@ import Binance from "@/components/svgs/binance";
 import DepositModal from "@/components/modals/DepositModal";
 import { formatWalletAddress } from "@/utils/general";
 import { useThemeColors } from "@/hooks/useThemeColor";
-import { useWalletBalances } from "@/hooks/useWalletBalances";
+import { useAggregatedWalletBalances } from "@/hooks/useAggregatedWalletBalances";
 import {
-  estimateStablecoinUsdTotal,
   formatTokenAmount,
 } from "@/lib/wallet/balances";
 import type { ChainBalanceEntry } from "@/lib/wallet/types";
@@ -35,7 +34,7 @@ const walletItem =
     secondaryColor: string,
   ): ListRenderItem<ChainBalanceEntry> =>
   ({ item }) => {
-    const { symbol, balance, name } = item;
+    const { symbol, balance, name, chainName } = item;
     const Icon = TOKEN_ICONS[symbol];
     const usdValue = STABLECOIN_SYMBOLS.has(symbol) ? balance : null;
 
@@ -86,6 +85,14 @@ const walletItem =
             >
               {formatTokenAmount(balance)} {symbol}
             </ResponsiveUi.Text>
+            <ResponsiveUi.Text
+              light
+              fontSize={wp(3)}
+              color={secondaryColor}
+              style={{ marginTop: hp(0.3) }}
+            >
+              {chainName}
+            </ResponsiveUi.Text>
           </View>
         </View>
         <View>
@@ -105,21 +112,18 @@ const Wallet: FunctionComponent = () => {
   const [isVisible, setIsVisible] = React.useState(false);
   const { hp, wp } = useAppDimensions();
   const colors = useThemeColors();
-  const { walletAddress, balances, isLoading } = useWalletBalances("base");
+  const { walletAddress, balances, isLoading } = useAggregatedWalletBalances();
 
-  const usdTotal = estimateStablecoinUsdTotal(balances?.balances);
+  const usdTotal = balances?.totalUsd ?? 0;
   const primaryStableSymbol =
-    balances?.entries.find((entry) => entry.symbol === "USDC")?.symbol ??
-    balances?.entries.find((entry) => STABLECOIN_SYMBOLS.has(entry.symbol))
-      ?.symbol ??
-    "USDC";
-  const primaryStableBalance =
-    balances?.balances[primaryStableSymbol] ?? 0;
+    balances?.balances.USDC !== undefined
+      ? "USDC"
+      : Object.keys(balances?.balances ?? {}).find((symbol) =>
+          STABLECOIN_SYMBOLS.has(symbol),
+        ) ?? "USDC";
+  const primaryStableBalance = balances?.balances[primaryStableSymbol] ?? 0;
   const PrimaryIcon = TOKEN_ICONS[primaryStableSymbol] ?? USDC;
-  const tokenRows =
-    balances?.entries.filter((entry) => entry.balance > 0) ??
-    balances?.entries ??
-    [];
+  const tokenRows = balances?.entries ?? [];
 
   return (
     <AppLayout scrollable={false}>
@@ -181,7 +185,7 @@ const Wallet: FunctionComponent = () => {
         </View>
         <FlatList
           data={tokenRows}
-          keyExtractor={(item) => item.symbol}
+          keyExtractor={(item) => `${item.chainId ?? item.chainName}-${item.symbol}-${item.address}`}
           renderItem={walletItem(hp, wp, colors.secondary)}
           contentContainerStyle={{ marginTop: hp(3) }}
           ListEmptyComponent={

@@ -4,9 +4,8 @@ import QRCodeIcon from "@/components/svgs/qr-code";
 import USDC from "@/components/svgs/usdc-icon";
 import { useAppDimensions } from "@/hooks/useAppDimensions";
 import { useThemeColors } from "@/hooks/useThemeColor";
-import { useWalletBalances } from "@/hooks/useWalletBalances";
+import { useAggregatedWalletBalances } from "@/hooks/useAggregatedWalletBalances";
 import {
-  estimateStablecoinUsdTotal,
   formatTokenAmount,
 } from "@/lib/wallet/balances";
 import { formatAmount, formatWalletAddress } from "@/utils/general";
@@ -25,7 +24,7 @@ type Tab = (typeof TABS)[number];
 
 const SmartWallet: FunctionComponent = () => {
   const colors = useThemeColors();
-  const { walletAddress, balances } = useWalletBalances("base");
+  const { walletAddress, balances } = useAggregatedWalletBalances();
 
   const [selectedTab, setSelectedTab] = React.useState(TABS[0]);
   const prevTabRef = React.useRef<Tab>(TABS[0]);
@@ -61,7 +60,7 @@ const SmartWallet: FunctionComponent = () => {
   const tabButtonWidth = wp(40);
   const qrSize = hp(35);
 
-  const usdTotal = estimateStablecoinUsdTotal(balances?.balances);
+  const usdTotal = balances?.totalUsd ?? 0;
   const usdcBalance = balances?.balances.USDC ?? 0;
 
   const handleCopyAddress = async () => {
@@ -139,10 +138,8 @@ const SmartWallet: FunctionComponent = () => {
           }}
         >
           {TABS.map((tab) => (
-            <Animated.View
+            <View
               key={tab}
-              entering={SlideInLeft.delay(100)}
-              exiting={SlideInRight}
               style={{ width: tabButtonWidth, alignSelf: "center" }}
             >
               <ResponsiveUi.Button
@@ -160,7 +157,7 @@ const SmartWallet: FunctionComponent = () => {
                 className=""
                 tailwind="bg-white"
               />
-            </Animated.View>
+            </View>
           ))}
         </View>
         <Animated.View

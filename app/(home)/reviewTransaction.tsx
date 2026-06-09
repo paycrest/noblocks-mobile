@@ -4,17 +4,21 @@ import AppLayout from "@/components/layouts/AppLayout";
 import { ResponsiveUi } from "@/components/ResponsiveUi";
 import AmountPillIcon from "@/components/swap/AmountPillIcon";
 import SwapFlowStepper from "@/components/swap/SwapFlowStepper";
+import SwapFlowWalletPeekLayout from "@/components/swap/SwapFlowWalletPeekLayout";
 import SwapScreenSheet from "@/components/swap/SwapScreenSheet";
+import LiquidGlassTransition from "@/components/transitions/LiquidGlassTransition";
 import BackArrow from "@/components/svgs/back-arrow";
 import { useAppDimensions } from "@/hooks/useAppDimensions";
+import { useLiquidGlassScreenTransition } from "@/hooks/useLiquidGlassScreenTransition";
 import { useThemeColors } from "@/hooks/useThemeColor";
 import { useEmbeddedEthereumWallet } from "@privy-io/expo";
+import { useSelector } from "@/store/Store";
 import { useMutation } from "@tanstack/react-query";
 import { Image } from "expo-image";
 import { router, useLocalSearchParams } from "expo-router";
 import { CircleHelp } from "lucide-react-native";
 import _ from "lodash";
-import React, { FunctionComponent, useCallback, useMemo } from "react";
+import React, { FunctionComponent, useCallback, useMemo, useState } from "react";
 import { Alert, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -130,7 +134,15 @@ const ReviewTransaction: FunctionComponent = () => {
   const colors = useThemeColors();
   const { hp, wp, isLargeScreen } = useAppDimensions();
   const insets = useSafeAreaInsets();
+  const {
+    animationKey,
+    isExiting,
+    goBack,
+    handleExitComplete,
+  } = useLiquidGlassScreenTransition("review", "step");
+  const [isWalletPeekOpen, setIsWalletPeekOpen] = useState(false);
   const { wallets } = useEmbeddedEthereumWallet();
+  const { upsertTransaction } = useSelector(["upsertTransaction"]);
   const {
     amount,
     fromChainKey,
@@ -256,6 +268,20 @@ const ReviewTransaction: FunctionComponent = () => {
         return;
       }
 
+      upsertTransaction({
+        id: orderId,
+        amount,
+        token: fromAssetSymbol,
+        fiatCurrency: toFiatCode,
+        fiatEstimate,
+        recipientName: recipientAccountName,
+        institutionName: recipientInstitutionName,
+        accountNumber: recipientAccountNumber,
+        memo,
+        network: fromChainKey,
+        status: "Ongoing",
+      });
+
       router.push({
         pathname: "/(home)/transactionProgress",
         params: {
@@ -284,7 +310,9 @@ const ReviewTransaction: FunctionComponent = () => {
     recipientAccountName,
     recipientAccountNumber,
     recipientInstitutionCode,
+    recipientInstitutionName,
     toFiatCode,
+    upsertTransaction,
     wallets,
   ]);
 
@@ -298,17 +326,32 @@ const ReviewTransaction: FunctionComponent = () => {
       directChild
     >
       <View style={{ flex: 1, backgroundColor: colors.canvas_background }}>
-        <View style={{ paddingTop: 8, paddingHorizontal: 16 }}>
-          <SwapFlowStepper
-            activeLabel="Review"
-            leadingDots={2}
-            showActions
-            onWalletPress={() => router.push("/(tabs)/wallet")}
-            onClosePress={() => router.navigate("/(tabs)")}
-          />
-        </View>
+        <SwapFlowWalletPeekLayout
+          isWalletPeekOpen={isWalletPeekOpen}
+          stepper={
+            <SwapFlowStepper
+              activeLabel="Review"
+              leadingDots={2}
+              showActions
+              onWalletPress={() => setIsWalletPeekOpen((prev) => !prev)}
+              onClosePress={() => {
+                if (isWalletPeekOpen) {
+                  setIsWalletPeekOpen(false);
+                  return;
+                }
 
-        <SwapScreenSheet style={{ flex: 1, marginTop: 8 }}>
+                router.navigate("/(tabs)");
+              }}
+            />
+          }
+          sheet={
+            <LiquidGlassTransition
+              stepKey="review"
+              animationKey={animationKey}
+              isExiting={isExiting}
+              onExitComplete={handleExitComplete}
+            >
+              <SwapScreenSheet style={{ flex: 1 }}>
           <View style={{ flex: 1 }}>
             <View
               style={{
@@ -328,7 +371,7 @@ const ReviewTransaction: FunctionComponent = () => {
               />
               <TouchableOpacity
                 activeOpacity={0.8}
-                onPress={() => router.back()}
+                onPress={() => goBack()}
                 accessibilityRole="button"
                 accessibilityLabel="Go back"
                 style={{ alignSelf: "flex-start" }}
@@ -435,6 +478,9 @@ const ReviewTransaction: FunctionComponent = () => {
             </View>
           </View>
         </SwapScreenSheet>
+            </LiquidGlassTransition>
+          }
+        />
       </View>
     </AppLayout>
   );

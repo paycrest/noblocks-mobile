@@ -20,9 +20,14 @@ import { ResponsiveUi } from "../../ResponsiveUi";
 interface Props {
   isVisible: boolean;
   onClose: () => void;
+  onVerify?: (code: string) => Promise<boolean>;
 }
 
-const QRCodeAuthModal: FunctionComponent<Props> = ({ isVisible, onClose }) => {
+const QRCodeAuthModal: FunctionComponent<Props> = ({
+  isVisible,
+  onClose,
+  onVerify,
+}) => {
   const colors = useThemeColors();
   const theme = useColorScheme();
   const [otp, setOtp] = useState<string>("");
@@ -122,7 +127,16 @@ const QRCodeAuthModal: FunctionComponent<Props> = ({ isVisible, onClose }) => {
             <ResponsiveUi.Button
               title="Verify"
               containerStyle="mt-8"
-              action={() => {}}
+              action={async () => {
+                if (otp.length < 6) {
+                  return;
+                }
+
+                const verified = await onVerify?.(otp);
+                if (verified) {
+                  onClose();
+                }
+              }}
               disabled={otp.length < 6}
             />
           </View>

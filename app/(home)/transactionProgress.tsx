@@ -7,6 +7,8 @@ import TransactionStatusRoller, {
   INDEXING_STATUSES,
 } from "@/components/swap/TransactionStatusRoller";
 import { useThemeColors } from "@/hooks/useThemeColor";
+import { mapPaycrestStatusToUi } from "@/lib/transactions/status";
+import { useSelector } from "@/store/Store";
 import { LinearGradient } from "expo-linear-gradient";
 import { router, useLocalSearchParams } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -47,6 +49,7 @@ const TransactionProgress: FunctionComponent = () => {
   const connectorProgress = useRef(new Animated.Value(0)).current;
   const [secondsLeft, setSecondsLeft] = useState(COUNTDOWN_SECONDS);
   const [orderStatus, setOrderStatus] = useState<string | null>(null);
+  const { updateTransactionStatus } = useSelector(["updateTransactionStatus"]);
 
   const amountLabel = useMemo(() => {
     const trimmedAmount = amount?.trim();
@@ -151,6 +154,12 @@ const TransactionProgress: FunctionComponent = () => {
         }
 
         if (status && TERMINAL_ORDER_STATUSES.has(status)) {
+          updateTransactionStatus(
+            trimmedOrderId,
+            status,
+            mapPaycrestStatusToUi(status),
+          );
+
           const nextRoute =
             status === "failed" || status === "expired"
               ? "/(home)/transactionFailed"
@@ -184,7 +193,7 @@ const TransactionProgress: FunctionComponent = () => {
         clearTimeout(pollTimeout);
       }
     };
-  }, [amount, orderId, recipientName, token]);
+  }, [amount, orderId, recipientName, token, updateTransactionStatus]);
 
   return (
     <AppLayout

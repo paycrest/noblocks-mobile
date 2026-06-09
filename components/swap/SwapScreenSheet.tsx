@@ -31,6 +31,7 @@ const SwapScreenSheet: FunctionComponent<SwapScreenSheetProps> = ({
           borderColor: colors.subtle_surface,
           paddingTop: 20,
           paddingHorizontal: 20,
+          overflow: "hidden",
         },
         style,
       ]}

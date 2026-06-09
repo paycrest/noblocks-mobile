@@ -1,8 +1,11 @@
-// BaseSheet.tsx
 import { useThemeColors } from "@/hooks/useThemeColor";
-import { BottomSheetModal } from "@gorhom/bottom-sheet";
-import React, { useCallback, useEffect, useRef } from "react";
-import { Pressable, StyleSheet, View } from "react-native";
+import {
+  BottomSheetBackdrop,
+  BottomSheetBackdropProps,
+  BottomSheetModal,
+} from "@gorhom/bottom-sheet";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import { StyleSheet, View } from "react-native";
 
 interface BaseSheetProps {
   children?: React.ReactNode;
@@ -31,6 +34,10 @@ const BaseSheet: React.FC<BaseSheetProps> = ({
 }) => {
   const colors = useThemeColors();
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const resolvedSnapPoints = useMemo(
+    () => snapPoints,
+    [snapPoints.join(",")],
+  );
   const cornerStyle = topCornerRadius
     ? {
         borderTopLeftRadius: topCornerRadius,
@@ -40,45 +47,47 @@ const BaseSheet: React.FC<BaseSheetProps> = ({
     : undefined;
 
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      if (isVisible) {
-        bottomSheetModalRef.current?.present();
-        return;
-      }
+    if (isVisible) {
+      bottomSheetModalRef.current?.present();
+      return;
+    }
 
-      bottomSheetModalRef.current?.dismiss();
-    }, 0);
-
-    return () => clearTimeout(timeout);
+    bottomSheetModalRef.current?.dismiss();
   }, [isVisible]);
 
+  const handleDismiss = useCallback(() => {
+    onVisibilityChange?.(false);
+  }, [onVisibilityChange]);
+
   const renderBackdrop = useCallback(
-    () => (
-      <Pressable
+    (props: BottomSheetBackdropProps) => (
+      <BottomSheetBackdrop
+        {...props}
+        appearsOnIndex={0}
+        disappearsOnIndex={-1}
+        opacity={0.45}
+        pressBehavior={isDismissible ? "close" : "none"}
         onPress={() => {
           if (!isDismissible) {
             return;
           }
 
-          onVisibilityChange?.(false);
           bottomSheetModalRef.current?.dismiss();
         }}
-        style={styles.backdrop}
       />
     ),
-    [isDismissible, onVisibilityChange],
+    [isDismissible],
   );
 
   return (
     <BottomSheetModal
       ref={bottomSheetModalRef}
-      onDismiss={() => onVisibilityChange?.(false)}
-      snapPoints={snapPoints}
-      style={{ flex: 1 }}
-      backdropComponent={showBackdrop ? renderBackdrop : undefined}
+      snapPoints={resolvedSnapPoints}
+      onDismiss={handleDismiss}
       enablePanDownToClose={isDismissible}
       enableOverDrag={false}
       enableDynamicSizing={false}
+      backdropComponent={showBackdrop ? renderBackdrop : undefined}
       backgroundStyle={{
         backgroundColor: backgroundColor ?? colors.neutral_surface,
         borderWidth: borderColor ? 0.5 : 0,
@@ -99,10 +108,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "stretch",
     justifyContent: "flex-start",
-  },
-  backdrop: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(0, 0, 0, 0.45)",
   },
 });
 

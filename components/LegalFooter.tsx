@@ -16,25 +16,64 @@ async function openLegalLink(url: string) {
   }
 }
 
-export function LegalFooter({ lineHeight = 18 }: { lineHeight?: number }) {
+type LegalFooterProps = {
+  lineHeight?: number;
+  fontSize?: number;
+  splitLegalLinks?: boolean;
+};
+
+export function LegalFooter({
+  lineHeight = 18,
+  fontSize = 12,
+  splitLegalLinks = false,
+}: LegalFooterProps) {
   const colors = useThemeColors();
+
+  const linkStyle = { color: colors.primary };
+  const baseStyle = {
+    color: colors.secondary,
+    fontSize,
+    lineHeight,
+  };
+
+  if (splitLegalLinks) {
+    return (
+      <Text
+        allowFontScaling={false}
+        className="text-center font-inter-regular"
+        style={baseStyle}
+      >
+        By using Noblocks, you agree to accept our{"\n"}
+        <Text
+          style={linkStyle}
+          onPress={() => openLegalLink(TERMS_URL)}
+        >
+          Terms of Use
+        </Text>{" "}
+        and{" "}
+        <Text
+          style={linkStyle}
+          onPress={() => openLegalLink(PRIVACY_POLICY_URL)}
+        >
+          Privacy Policy
+        </Text>
+      </Text>
+    );
+  }
 
   return (
     <Text
       allowFontScaling={false}
       className="text-center font-inter-regular"
-      style={{ color: colors.secondary, fontSize: 12, lineHeight }}
+      style={baseStyle}
     >
       By using Noblocks, you agree to accept our{" "}
-      <Text
-        style={{ color: colors.primary }}
-        onPress={() => openLegalLink(TERMS_URL)}
-      >
+      <Text style={linkStyle} onPress={() => openLegalLink(TERMS_URL)}>
         Terms of Use
       </Text>{" "}
       and{" "}
       <Text
-        style={{ color: colors.primary }}
+        style={linkStyle}
         onPress={() => openLegalLink(PRIVACY_POLICY_URL)}
       >
         Privacy Policy

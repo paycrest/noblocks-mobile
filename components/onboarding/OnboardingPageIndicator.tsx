@@ -10,7 +10,7 @@ type Props = {
 
 export default function OnboardingPageIndicator({
   activeIndex = 0,
-  total = 4,
+  total = 3,
 }: Props) {
   const colors = useThemeColors();
 

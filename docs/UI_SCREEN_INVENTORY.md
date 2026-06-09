@@ -3,7 +3,7 @@
 > **Source of truth:** [Noblocks Mobile (Figma)](https://www.figma.com/design/GCRxGIlmEaLFTPAqZqG7y7/Noblocks-Mobile) — file key `GCRxGIlmEaLFTPAqZqG7y7`, canvas page `V1`.  
 > **Setup:** Figma MCP connected — see [FIGMA_MCP_SETUP.md](./FIGMA_MCP_SETUP.md).
 
-Last updated: 2026-06-07
+Last updated: 2026-06-08 (P2 backlog expanded)
 
 ## Legend
 
@@ -19,9 +19,9 @@ Last updated: 2026-06-07
 | Figma area (expected) | App route | Status | Notes |
 |------------------------|-----------|--------|-------|
 | Splash / app icon | Native (`app.json` + `assets/images/`) | **match** | Exported from Figma `1:7118`; splash bg `#141414` light + dark |
-| Onboarding hero | `(onboarding)/index` | **match** | Figma `1:6693` crop → `onboarding-hero.png` (340×197) |
-| Login / sign up | `(auth)/login` | **partial** | Aligned to `1:7104` spacing and sizing; verify on simulator |
-| OTP verification | `(auth)/otp-screen` | **partial** | Aligned to `1:7237` copy, 44×48 boxes, inline error |
+| Onboarding hero | `(onboarding)/index` | **partial** | Hero asset matched; screen-to-screen transitions pending |
+| Login / sign up | `(auth)/login` | **partial** | Legal copy line-break (Terms/Privacy on line 2) pending |
+| OTP verification | `(auth)/otp-screen` | **partial** | OTP box spacing vs Figma pending |
 | KYC | `(auth)/kyc` | **partial** | SmileID wired in deps; UI parity TBD |
 | Create password | `(auth)/create-password` | **extra** | Likely obsolete under Privy OTP — confirm in Figma |
 | Auth stub | `(auth)/index` | **extra** | Redirects to login |
@@ -29,16 +29,16 @@ Last updated: 2026-06-07
 | Swap recipient | `(home)/swapRecipient` | **match** | Figma `1:7929` — sheet layout, amount pills, 32px card, inputs, CTA |
 | Review transaction | `(home)/reviewTransaction` | **match** | Figma `1:5558` — sheet layout, fees help icon, spacing, slate Swap CTA |
 | Transaction progress | `(home)/transactionProgress` | **match** | Figma `1:5620` — sheet, countdown, indexing tag, pill flow row |
-| Transaction success | `(home)/transactionSuccess` | **partial** | Audited vs `1:5684`; icon/title, CTA fix (New payment → home) |
-| Transaction failed | `(home)/transactionFailed` | **partial** | Audited vs `1:5767`; title/icon, retry CTA aligned |
-| Smart wallet promo | `(home)/smartWallet` | **partial** | Embedded in home tab sheet |
-| Wallet tab | `(tabs)/wallet` | **partial** | Sample balances; theme tokens fixed |
-| Transactions list | `(tabs)/transactions` | **partial** | Sample data; theme tokens fixed |
+| Transaction success | `(home)/transactionSuccess` | **match** | Rebuilt vs `1:5684` via `TransactionResultLayout` |
+| Transaction failed | `(home)/transactionFailed` | **match** | Rebuilt vs `1:5767` via `TransactionResultLayout` |
+| Wallet tab | `(tabs)/wallet` | **partial** | Live multi-chain balances; Withdraw CTA still no-op |
+| Smart wallet promo | `(home)/smartWallet` | **partial** | Multi-chain totals in peek; fund copy lists supported networks |
+| Transactions list | `(tabs)/transactions` | **partial** | Persisted swap history; detail receipt/explorer links pending |
 | Transaction detail | `(transactions)/transactionDetails` | **partial** | Params from list item |
-| Settings | `(tabs)/settings` | **partial** | Theme modal + navigation |
-| Security | `(settings)/security` | **partial** | Passkey / biometrics TBD |
-| Notifications | `(settings)/notification` | **partial** | Placeholder |
-| Tab bar | `(tabs)/_layout` | **partial** | Custom icons |
+| Settings | `(tabs)/settings` | **partial** | Pixel-perfect pass pending (Figma `1:9666`) |
+| Security | `(settings)/security` | **partial** | Pixel-perfect pass + Add 2FA modal + option wiring pending |
+| Notifications | `(settings)/notification` | **partial** | Pixel-perfect pass (icons, padding, toggles) pending |
+| Tab bar | `(tabs)/_layout` | **partial** | Icon sizes + selected state vs Figma pending |
 | Not found | `+not-found` | **match** | Standard expo-router |
 
 ## Priority backlog (post-Figma MCP)
@@ -53,10 +53,59 @@ Last updated: 2026-06-07
 - [x] Recipient: stepper (`Recipient`), 32px card radius, 48px inputs, slate Continue button
 - [x] Review / progress / success / failed: stepper, detail rows, countdown, status copy, CTAs
 
-### P2 — Wallet, transactions, settings
-- [ ] Wallet: live Privy balances vs placeholders
-- [ ] Transactions: real order history vs `utils/sampleData`
-- [ ] Settings: theme picker vs Figma tokens
+### P1.5 — UI/UX polish (little fixes)
+
+Small layout and interaction gaps that block “feels like Figma” on device. Audit against [Nobblocks Mobile](https://www.figma.com/design/GCRxGIlmEaLFTPAqZqG7y7/Noblocks-Mobile) before marking done.
+
+#### Auth
+- [x] **Login legal copy** — `(auth)/login`: “Terms of Use” and “Privacy Policy” links wrap to a **second line** via `LegalFooter splitLegalLinks` (Figma `1:7104`).
+- [x] **OTP box spacing** — `(auth)/otp-screen`: 12px gap between OTP fields; slate focus border (Figma `1:7237`).
+
+#### Navigation & onboarding
+- [x] **Tab bar icons** — `(tabs)/_layout`: 32×32 icons, inactive 40% opacity, dedicated transactions icon.
+- [x] **Onboarding transitions** — `(onboarding)/index`: 3-slide horizontal pager with fade transitions and synced page indicator.
+
+#### Settings cluster (Figma section `1:9666`)
+- [x] **Settings home** — `(tabs)/settings`: 48px profile header, 32px icon badges, 8px row gap, 16px medium labels, live wallet address.
+- [x] **Notifications** — `(settings)/notification`: 16px titles, 12px subtitles, 22px row rhythm, full-size toggles.
+- [x] **Security** — `(settings)/security`: same row typography/spacing; Face ID toggle wired to passkey enrollment.
+- [x] **Add 2FA modal** — `(settings)/security`: **Add 2FA** opens `TwoFAModal` as a bottom sheet (`BaseSheet`).
+- [x] **2FA option wiring** — Authenticator → `QRCodeAuthModal` + Privy TOTP enrollment; SMS → Privy SMS enrollment; Face ID → passkey.
+
+#### Transitions (planned — instructions TBD)
+- [ ] **App-wide motion** — user will provide follow-up instructions for fluid screen/modal transitions across the app.  
+  _Team note: “An app without fluid transitions is a PDF.”_ Defer until spec is shared; do not block P1.5 layout fixes above.
+
+### P2 — Wallet, transactions, settings (data & features)
+
+**In progress (2026-06-08).** Scope: replace placeholders with live Privy/on-chain data, persisted swap history, and Figma-aligned theme picker.
+
+#### 2.1 Live wallet balances
+- [x] **On-chain reads wired** — `hooks/useWalletBalances.ts` + `lib/wallet/balances.ts` (viem RPC); used on Home swap (`useWallet`), Wallet tab, Smart Wallet peek (`app/(home)/smartWallet.tsx`).
+- [x] **Swap “Use max” / balance label** — `components/cards/walletBalance.tsx` shows live token balance from selected chain.
+- [x] **Multi-chain rollup** — `hooks/useAggregatedWalletBalances.ts` fetches all supported swap mainnets in parallel; Wallet tab + Smart Wallet peek show cross-chain totals and per-chain token rows.
+- [ ] **Withdraw CTA** — `(tabs)/wallet.tsx` **Withdraw** button is a no-op.
+- [ ] **Settings profile fallback** — ~~hardcoded address~~ now shows “Wallet not connected”; consider hiding row or CTA when logged out.
+- [ ] **Non-stable USD display** — token rows show `--` for non-stablecoin USD column (expected until price oracle exists).
+
+#### 2.2 Real transaction history
+- [x] **Persist orders on swap** — `store/slices/transactionHistorySlice.ts`; upsert on order create in `reviewTransaction`.
+- [x] **Update status on terminal poll** — `transactionProgress` maps Paycrest terminal status → Completed/Failed.
+- [x] **Transactions tab** — `(tabs)/transactions.tsx` reads persisted history; empty state when none.
+- [x] **Transaction detail** — `(transactions)/transactionDetails.tsx` shows stored recipient/bank/memo/order id.
+- [ ] **Paycrest list API (optional)** — no mobile list endpoint wired today; local persistence is v1. Reconcile/hydrate from API if/when available.
+- [ ] **Detail extras** — onchain receipt link, fund status, time spent, Get receipt CTA still placeholders.
+
+#### 2.3 Settings theme picker vs Figma tokens
+- [x] **Theme modal exists** — `components/modals/ThemeModal.tsx` (Dark / Light / System) persists via `store/slices/generalSlice.ts` + `useResolvedTheme`.
+- [ ] **Figma frame parity** — audit Appearance sheet vs Figma settings tokens (`1:9666`): modal radius/padding, row spacing, icon sizes, selected checkmark color.
+- [ ] **Light theme sweep** — Home swap noted “light-theme duplicate TBD” in screen map; verify all P1 screens in light mode after token pass.
+- [ ] **System theme edge cases** — confirm status bar / tab bar / sheet surfaces follow resolved scheme on iOS.
+
+#### P2 exit criteria
+- Wallet tab and Smart Wallet show live balances for connected user (no sample placeholders).
+- Transactions tab lists real swaps from device storage; detail screen shows stored recipient/bank data.
+- Appearance picker matches Figma layout and correctly toggles light/dark/system across main tabs.
 
 ### P3 — Modals & edge cases
 - [ ] Empty wallet / empty transactions
@@ -232,10 +281,13 @@ Password frames in Figma (`1:7183`+) are **obsolete** under Privy OTP — routes
 
 ## Next step
 
-1. ~~Connect Figma MCP and paste the mobile file URL.~~ Done — [Nobblocks Mobile](https://www.figma.com/design/GCRxGIlmEaLFTPAqZqG7y7/Noblocks-Mobile).
+1. ~~Connect Figma MCP and paste the mobile file URL.~~ Done — [Nobblocks Mobile](https://www.figma.com/design/GCRxGIlmEaLFTPAqZqG7y7/Nobblocks-Mobile).
 2. ~~Frame-by-frame audits for Swap (`1:5012`) and Beneficiary (`1:7928`).~~ Done (Dev seat).
 3. ~~Review / progress / success / failed audits.~~ Done (Dev seat).
 4. ~~Export onboarding illustration + app icon from Figma assets; verify splash on iOS simulator.~~ Exported — run `pnpm prebuild --platform ios --clean` to refresh native splash.
-5. Work P2/P3 in PR-sized chunks on iOS simulator only.
+5. ~~**P1.5 UI/UX polish**~~ — checklist complete; app-wide motion deferred to separate spec.
+6. **P2 data & features (active)** — wallet balance gaps (§2.1), persisted transaction history (§2.2), theme picker Figma pass (§2.3).
+7. **P3** — wallet/transaction edge cases — in PR-sized chunks on iOS simulator.
+8. **Motion pass (later)** — user will supply transition specs; treat as separate track from P1.5 layout fixes.
 
-**Figma seat:** Safe to downgrade to **Viewer** — MCP audits and asset exports are complete.
+**Figma seat:** Safe to downgrade to **Viewer** for audits; re-enable Dev seat when implementing P1.5 settings/security frames.

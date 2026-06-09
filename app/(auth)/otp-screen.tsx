@@ -16,8 +16,9 @@ const OtpScreen: FunctionComponent = () => {
   const colors = useThemeColors();
   const insets = useSafeAreaInsets();
   const { email } = useLocalSearchParams<{ email?: string }>();
-  const emailAddress = typeof email === "string" ? email.trim() : "";
-  const { loginUser, sendLoginCode } = useAuth();
+  const emailAddress =
+    typeof email === "string" ? email.trim().toLowerCase() : "";
+  const { loginUser, resendLoginCode } = useAuth();
   const [isVerifying, setIsVerifying] = useState(false);
   const [isResending, setIsResending] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(RESEND_COOLDOWN_SECONDS);
@@ -45,9 +46,9 @@ const OtpScreen: FunctionComponent = () => {
 
       setVerificationError(null);
       setIsVerifying(true);
-      const success = await loginUser(emailAddress, code);
-      if (!success) {
-        setVerificationError("Invalid or expired code. Please try again.");
+      const result = await loginUser(emailAddress, code);
+      if (!result.success) {
+        setVerificationError(result.message);
       }
       setIsVerifying(false);
     },
@@ -60,7 +61,7 @@ const OtpScreen: FunctionComponent = () => {
     }
 
     setIsResending(true);
-    const success = await sendLoginCode(emailAddress);
+    const success = await resendLoginCode(emailAddress);
     setIsResending(false);
 
     if (success) {
@@ -73,7 +74,7 @@ const OtpScreen: FunctionComponent = () => {
       "Unable to resend code",
       "Please wait a moment and try again.",
     );
-  }, [emailAddress, isResending, resendCooldown, sendLoginCode]);
+  }, [emailAddress, isResending, resendCooldown, resendLoginCode]);
 
   return (
     <AppLayout scrollable={false}>
