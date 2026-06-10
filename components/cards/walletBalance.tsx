@@ -15,6 +15,7 @@ interface WalletBalanceProps {
   privyBalanceLabel?: string;
   onAssetPress?: () => void;
   onUseMaxPress?: () => void;
+  isUseMaxDisabled?: boolean;
   chainLogoURI?: string;
 }
 
@@ -23,6 +24,7 @@ const WalletBalance: FunctionComponent<WalletBalanceProps> = ({
   privyBalanceLabel,
   onAssetPress,
   onUseMaxPress,
+  isUseMaxDisabled = false,
   chainLogoURI,
 }) => {
   const colors = useThemeColors();
@@ -102,12 +104,14 @@ const WalletBalance: FunctionComponent<WalletBalanceProps> = ({
       </View>
       <TouchableOpacity
         activeOpacity={0.8}
+        disabled={isUseMaxDisabled}
         onPress={onUseMaxPress}
         style={{
           paddingHorizontal: 12,
           paddingVertical: 6,
           borderRadius: 360,
           backgroundColor: colors.gray_hover,
+          opacity: isUseMaxDisabled ? 0.4 : 1,
         }}
       >
         <ResponsiveUi.Text medium fontSize={16}>

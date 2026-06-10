@@ -13,9 +13,8 @@ import SwapChainRow from "@/components/cards/SwapChainRow";
 import CustomKeyBoard from "@/components/inputs/CustomKeyBoard";
 import SwapInput from "@/components/inputs/SwapInput";
 import AppLayout from "@/components/layouts/AppLayout";
-import AssetSelectorSheet, {
-  type LifiToken,
-} from "@/components/modals/AssetSelectorSheet";
+import AssetSelectorSheet from "@/components/modals/AssetSelectorSheet";
+import type { LifiToken } from "@/api/queryTypes";
 import BaseSheet from "@/components/modals/BottomSheet";
 import ChainSelectorSheet, {
   type LifiChain,
@@ -34,8 +33,11 @@ import {
   isSupportedSwapChain,
   toPaycrestNetworkKey,
 } from "@/lib/chains/supportedSwapChains";
+import { formatCurrencyAmount } from "@/utils/general";
 import { setLiquidGlassTransition } from "@/lib/transitions/liquidGlassNavigation";
-import { isPrivySupportedAsset } from "@/utils/privy";
+import { resolveRateQuoteAmount } from "@/lib/paycrest/rateQuote";
+import { resolveDefaultSwapToken } from "@/lib/wallet/supportedSwapTokens";
+import { useWalletAddress } from "@/hooks/useWalletAddress";
 import { useIsFocused } from "@react-navigation/native";
 import { useQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
@@ -129,6 +131,7 @@ export default function HomeScreen() {
   const [selectedFiatCurrency, setSelectedFiatCurrency] =
     useState<string>("NGN");
   const [didRestoreDraft, setDidRestoreDraft] = useState(false);
+  const walletAddress = useWalletAddress();
   const { getBalanceLabel, getMaxAmount } = useWallet({
     chain: selectedChain.key,
     asset: selectedFromAsset?.symbol?.toLowerCase() ?? "usdc",
@@ -176,12 +179,28 @@ export default function HomeScreen() {
   const selectedRateFiat = selectedFiatOption?.code;
 
   const rateQueryAmount = useMemo(() => {
-    const parsedAmount = Number(amount.trim());
-    if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
-      return 1;
+    return resolveRateQuoteAmount(selectedFromAsset?.symbol, amount);
+  }, [amount, selectedFromAsset?.symbol]);
+
+  const isAtMaxAmount = useMemo(() => {
+    if (!maxSendAmount || maxSendAmount === "0") {
+      return false;
     }
-    return parsedAmount;
-  }, [amount]);
+
+    const parsedAmount = Number(amount.trim().replace(/,/g, ""));
+    const parsedMax = Number(maxSendAmount);
+
+    if (!Number.isFinite(parsedAmount) || !Number.isFinite(parsedMax)) {
+      return false;
+    }
+
+    return parsedAmount >= parsedMax;
+  }, [amount, maxSendAmount]);
+
+  const isUseMaxDisabled =
+    !maxSendAmount ||
+    maxSendAmount === "0" ||
+    isAtMaxAmount;
 
   const { data: rateResponse, isLoading: isRateLoading } = useQuery({
     queryKey: [
@@ -296,7 +315,7 @@ export default function HomeScreen() {
 
     const estimatedValue = numericAmount * activeRate;
     setFiatEstimate(
-      estimatedValue.toLocaleString(undefined, {
+      formatCurrencyAmount(estimatedValue, {
         maximumFractionDigits: selectedFiatOption?.decimals ?? 2,
       }),
     );
@@ -400,7 +419,12 @@ export default function HomeScreen() {
                             selectedAsset={selectedFromAsset}
                             chainLogoURI={selectedChain.logoURI}
                             privyBalanceLabel={sendAssetBalanceLabel}
+                            isUseMaxDisabled={isUseMaxDisabled}
                             onUseMaxPress={() => {
+                              if (isUseMaxDisabled) {
+                                return;
+                              }
+
                               if (!maxSendAmount || maxSendAmount === "0") {
                                 Alert.alert(
                                   "No balance",
@@ -520,7 +544,7 @@ export default function HomeScreen() {
                           fontSize={chainFontSize}
                         >
                           {activeRate
-                            ? `${activeRate.toLocaleString(undefined, {
+                            ? `${formatCurrencyAmount(activeRate, {
                                 maximumFractionDigits: 6,
                               })} ${selectedFiatOption?.code}`
                             : "N/A"}
@@ -539,18 +563,12 @@ export default function HomeScreen() {
         <>
           <AssetSelectorSheet
             chainId={selectedChain.id}
+            chainKey={selectedChain.key}
             isVisible={isAssetSheetVisible}
             onClose={() => setIsAssetSheetVisible(false)}
             onSelect={(asset) => {
-              if (!isPrivySupportedAsset(asset.symbol)) {
-                Alert.alert(
-                  "Unsupported asset",
-                  "This asset is not supported by Privy balance yet.",
-                );
-                return;
-              }
-
               setSelectedFromAsset(asset);
+              setAmount("");
               setIsAssetSheetVisible(false);
               setIsKeyboardVisible(true);
             }}
@@ -570,12 +588,15 @@ export default function HomeScreen() {
               }
 
               setSelectedChain(chain);
-              if (!isTestnetMode && chain.id === DEFAULT_CHAIN.id) {
-                setSelectedFromAsset(DEFAULT_ASSET);
-                return;
-              }
+              setAmount("");
               setIsKeyboardVisible(true);
               setSelectedFromAsset(null);
+
+              void resolveDefaultSwapToken(chain, walletAddress).then(
+                (asset) => {
+                  setSelectedFromAsset(asset);
+                },
+              );
             }}
             selectedChainId={selectedChain.id}
             includeTestnets={isTestnetMode}

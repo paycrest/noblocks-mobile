@@ -1,7 +1,7 @@
 import React, { FunctionComponent, useEffect, useState } from "react";
 import { Pressable, StyleSheet, TouchableOpacity, View } from "react-native";
-import Modal from "react-native-modal";
 
+import BaseModal from "@/components/modals/BaseModal";
 import { ResponsiveUi } from "@/components/ResponsiveUi";
 import { useThemeColors } from "@/hooks/useThemeColor";
 import { X } from "lucide-react-native";
@@ -99,20 +99,10 @@ const TwoFAModal: FunctionComponent<Props> = ({
   };
 
   return (
-    <Modal
+    <BaseModal
       isVisible={isVisible}
-      onBackdropPress={onClose}
-      onBackButtonPress={onClose}
-      onSwipeComplete={onClose}
-      swipeDirection={["down"]}
-      style={styles.modal}
-      animationIn="slideInUp"
-      animationOut="slideOutDown"
-      animationInTiming={300}
-      animationOutTiming={250}
-      backdropOpacity={0.45}
-      useNativeDriver
-      useNativeDriverForBackdrop
+      onClose={onClose}
+      presentation="bottom"
     >
       <View
         style={[
@@ -161,15 +151,11 @@ const TwoFAModal: FunctionComponent<Props> = ({
           disabled={!selectedMethod}
         />
       </View>
-    </Modal>
+    </BaseModal>
   );
 };
 
 const styles = StyleSheet.create({
-  modal: {
-    margin: 0,
-    justifyContent: "flex-end",
-  },
   sheet: {
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,

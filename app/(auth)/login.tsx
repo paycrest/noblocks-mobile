@@ -7,6 +7,7 @@ import { ResponsiveUi } from "@/components/ResponsiveUi";
 import { FormInput } from "@/components/inputs/FormInput";
 import AppLayout from "@/components/layouts/AppLayout";
 import Logo from "@/components/svgs/logo";
+import OnboardingLoginTransition from "@/components/transitions/OnboardingLoginTransition";
 import useAuth from "@/hooks/auth/useAuth";
 import { useThemeColors } from "@/hooks/useThemeColor";
 import { signupSchema } from "@/schema/authschema";
@@ -16,6 +17,8 @@ import { Alert } from "react-native";
 import { ActivityIndicator } from "react-native-paper";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ISignUp } from "@/types/authTypes";
+import { useFocusEffect } from "expo-router";
+import { consumeOnboardingToLoginTransition } from "@/lib/transitions/onboardingLoginNavigation";
 
 const Index: FunctionComponent = () => {
   const colors = useThemeColors();
@@ -31,8 +34,15 @@ const Index: FunctionComponent = () => {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [shouldAnimateEntry, setShouldAnimateEntry] = useState(false);
   const emailValue = watch("email");
   const { sendLoginCode } = useAuth();
+
+  useFocusEffect(
+    useCallback(() => {
+      setShouldAnimateEntry(consumeOnboardingToLoginTransition());
+    }, []),
+  );
 
   const handleSubmit = useCallback(async () => {
     const isValid = await trigger("email");
@@ -52,89 +62,91 @@ const Index: FunctionComponent = () => {
 
   return (
     <AppLayout scrollable={false}>
-      <View
-        style={{
-          flex: 1,
-          paddingHorizontal: 20,
-          paddingTop: Math.max(insets.top + 170, 225),
-        }}
-      >
-        <View style={{ width: "100%", maxWidth: 353, alignSelf: "center" }}>
-          <View style={{ alignItems: "center" }}>
-            <Logo />
-          </View>
+      <OnboardingLoginTransition animate={shouldAnimateEntry}>
+        <View
+          style={{
+            flex: 1,
+            paddingHorizontal: 20,
+            paddingTop: Math.max(insets.top + 170, 225),
+          }}
+        >
+          <View style={{ width: "100%", maxWidth: 353, alignSelf: "center" }}>
+            <View style={{ alignItems: "center" }}>
+              <Logo />
+            </View>
 
-          <ResponsiveUi.Text
-            medium
-            center
-            tailwind="font-inter-medium"
-            style={{ fontSize: 16, lineHeight: 24, marginTop: 29 }}
-          >
-            Login or sign up
-          </ResponsiveUi.Text>
+            <ResponsiveUi.Text
+              medium
+              center
+              tailwind="font-inter-medium"
+              style={{ fontSize: 16, lineHeight: 24, marginTop: 29 }}
+            >
+              Login or sign up
+            </ResponsiveUi.Text>
 
-          <Controller
-            control={control}
-            name="email"
-            render={({ field: { onChange, value } }) => (
-              <FormInput
-                onChangeText={onChange}
-                placeholder="your@email.com"
-                keyboardType="email-address"
-                value={value}
-                isProtected={false}
-                containerClassName="mt-7 w-full"
-                containerStyle={{ height: 48 }}
-                hasError={!!errors.email}
-                customErrorMsg={errors.email?.message}
-                leftIcon={
-                  <View
-                    style={{
-                      backgroundColor: colors.neutral_surface,
-                      borderRadius: 8,
-                      padding: 6,
-                      marginRight: 4,
-                    }}
-                  >
-                    <Mail size={16} color={colors.secondary} />
-                  </View>
-                }
-                rightAction={
-                  isSubmitting ? (
-                    <ActivityIndicator color={colors.primary} size="small" />
-                  ) : (
-                    <TouchableOpacity
-                      onPress={handleSubmit}
-                      disabled={!emailValue?.trim()}
-                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            <Controller
+              control={control}
+              name="email"
+              render={({ field: { onChange, value } }) => (
+                <FormInput
+                  onChangeText={onChange}
+                  placeholder="your@email.com"
+                  keyboardType="email-address"
+                  value={value}
+                  isProtected={false}
+                  containerClassName="mt-7 w-full"
+                  containerStyle={{ height: 48 }}
+                  hasError={!!errors.email}
+                  customErrorMsg={errors.email?.message}
+                  leftIcon={
+                    <View
+                      style={{
+                        backgroundColor: colors.neutral_surface,
+                        borderRadius: 8,
+                        padding: 6,
+                        marginRight: 4,
+                      }}
                     >
-                      <ResponsiveUi.Text
-                        medium
-                        style={{
-                          color: emailValue?.trim()
-                            ? colors.primary
-                            : colors.secondary,
-                        }}
+                      <Mail size={16} color={colors.secondary} />
+                    </View>
+                  }
+                  rightAction={
+                    isSubmitting ? (
+                      <ActivityIndicator color={colors.primary} size="small" />
+                    ) : (
+                      <TouchableOpacity
+                        onPress={handleSubmit}
+                        disabled={!emailValue?.trim()}
+                        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                       >
-                        Submit
-                      </ResponsiveUi.Text>
-                    </TouchableOpacity>
-                  )
-                }
-                inputProps={{
-                  returnKeyType: "go",
-                  onSubmitEditing: handleSubmit,
-                  style: { height: 48 },
-                }}
-              />
-            )}
-          />
+                        <ResponsiveUi.Text
+                          medium
+                          style={{
+                            color: emailValue?.trim()
+                              ? colors.primary
+                              : colors.secondary,
+                          }}
+                        >
+                          Submit
+                        </ResponsiveUi.Text>
+                      </TouchableOpacity>
+                    )
+                  }
+                  inputProps={{
+                    returnKeyType: "go",
+                    onSubmitEditing: handleSubmit,
+                    style: { height: 48 },
+                  }}
+                />
+              )}
+            />
 
-          <View style={{ marginTop: 29, maxWidth: 313, alignSelf: "center" }}>
-            <LegalFooter lineHeight={20} fontSize={14} splitLegalLinks />
+            <View style={{ marginTop: 29, maxWidth: 313, alignSelf: "center" }}>
+              <LegalFooter lineHeight={20} fontSize={14} splitLegalLinks />
+            </View>
           </View>
         </View>
-      </View>
+      </OnboardingLoginTransition>
     </AppLayout>
   );
 };

@@ -11,6 +11,7 @@ import BackArrow from "@/components/svgs/back-arrow";
 import { useAppDimensions } from "@/hooks/useAppDimensions";
 import { useLiquidGlassScreenTransition } from "@/hooks/useLiquidGlassScreenTransition";
 import { useThemeColors } from "@/hooks/useThemeColor";
+import { formatAmountLabel, formatCurrencyWithCode } from "@/utils/general";
 import { useEmbeddedEthereumWallet } from "@privy-io/expo";
 import { useSelector } from "@/store/Store";
 import { useMutation } from "@tanstack/react-query";
@@ -190,19 +191,15 @@ const ReviewTransaction: FunctionComponent = () => {
       return "--";
     }
 
-    return fromAssetSymbol ? `${amount} ${fromAssetSymbol}` : amount;
+    return formatAmountLabel(amount, fromAssetSymbol);
   }, [amount, fromAssetSymbol]);
 
   const feeValue = useMemo(() => {
-    if (fee && toFiatCode) {
-      return `${toFiatCode} ${fee}`;
-    }
-
     if (fee) {
-      return fee;
+      return formatCurrencyWithCode(toFiatCode, fee);
     }
 
-    return toFiatCode ? `${toFiatCode} 0` : "0";
+    return formatCurrencyWithCode(toFiatCode, "0");
   }, [fee, toFiatCode]);
 
   const totalFiatValue = useMemo(() => {
@@ -210,7 +207,7 @@ const ReviewTransaction: FunctionComponent = () => {
       return "--";
     }
 
-    return toFiatCode ? `${toFiatCode} ${fiatEstimate}` : fiatEstimate;
+    return formatCurrencyWithCode(toFiatCode, fiatEstimate);
   }, [fiatEstimate, toFiatCode]);
 
   const memoValue = useMemo(() => {

@@ -3,7 +3,7 @@ import { ResponsiveUi } from "@/components/ResponsiveUi";
 import React, { FunctionComponent, memo } from "react";
 import { View } from "react-native";
 import { useLocalSearchParams } from "expo-router";
-import { formatAmount, setTransactionStatusColor } from "@/utils/general";
+import { formatAmount, formatAmountLabel, setTransactionStatusColor } from "@/utils/general";
 import { useThemeColors } from "@/hooks/useThemeColor";
 import _ from "lodash";
 import { getTransactionTokenIcon } from "@/lib/transactions/icons";
@@ -83,7 +83,7 @@ const TransactionDetails: FunctionComponent = () => {
           <View className="mt-4 flex-row items-center justify-center">
             <Icon width={24} height={24} />
             <ResponsiveUi.Text medium center fontSize={18} tailwind="ml-2">
-              {amountUSD} {token}
+              {formatAmountLabel(String(amountUSD), token)}
             </ResponsiveUi.Text>
           </View>
         </View>

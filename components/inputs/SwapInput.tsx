@@ -1,4 +1,5 @@
 import { useThemeColors } from "@/hooks/useThemeColor";
+import { formatCurrencyAmount, formatNumbers } from "@/utils/general";
 import React, { FunctionComponent, useRef } from "react";
 import { Pressable, TextInput, View } from "react-native";
 import { ResponsiveUi } from "../ResponsiveUi";
@@ -21,7 +22,10 @@ const SwapInput: FunctionComponent<SwapInputProps> = ({
   const colors = useThemeColors();
   const inputRef = useRef<TextInput>(null);
   const isEmpty = !value || value === "0";
-  const fiatValue = fiatDisplay || "0";
+  const displayValue = isEmpty ? "" : formatNumbers(value);
+  const fiatValue = formatCurrencyAmount(fiatDisplay || "0", {
+    maximumFractionDigits: 2,
+  });
 
   const openAmountKeyboard = () => {
     if (isDisabled) {
@@ -50,7 +54,7 @@ const SwapInput: FunctionComponent<SwapInputProps> = ({
             ref={inputRef}
             placeholder="0"
             placeholderTextColor={colors.place_holder}
-            value={value}
+            value={displayValue}
             editable={!isDisabled}
             pointerEvents="none"
             keyboardType="decimal-pad"

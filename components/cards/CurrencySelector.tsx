@@ -1,4 +1,5 @@
 import { useThemeColors } from "@/hooks/useThemeColor";
+import { formatCurrencyAmount } from "@/utils/general";
 import { Image } from "expo-image";
 import truncate from "lodash/truncate";
 import { Plus } from "lucide-react-native";
@@ -33,7 +34,9 @@ const CurrencySelector: FunctionComponent<CurrencySelectorProps> = ({
 }) => {
   const colors = useThemeColors();
   const parsedRightValue = (rightValue ?? "").replace(/[^\d.,-]/g, "").trim();
-  const displayRightValue = parsedRightValue || "0";
+  const displayRightValue = formatCurrencyAmount(parsedRightValue || "0", {
+    maximumFractionDigits: 2,
+  });
   const hasSelectedAsset = Boolean(selectedAsset);
   const valueLabel = hasSelectedAsset
     ? truncate(displayRightValue, { length: 15 })

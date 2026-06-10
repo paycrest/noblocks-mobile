@@ -8,6 +8,7 @@ import TransactionResultLayout, {
 import TransactionResultShareCard from "@/components/swap/TransactionResultShareCard";
 import { RESULT_FLOW_DOT_SIZE, RESULT_SECTION_GAP } from "@/components/swap/transactionResultConstants";
 import { useThemeColors } from "@/hooks/useThemeColor";
+import { formatAmountLabel } from "@/utils/general";
 import { router, useLocalSearchParams } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import _ from "lodash";
@@ -26,20 +27,10 @@ const TransactionSuccess: FunctionComponent = () => {
     recipientName?: string;
   }>();
 
-  const amountLabel = useMemo(() => {
-    const trimmedAmount = amount?.trim();
-    const trimmedToken = token?.trim();
-
-    if (trimmedAmount && trimmedToken) {
-      return `${trimmedAmount} ${trimmedToken}`;
-    }
-
-    if (trimmedAmount) {
-      return trimmedAmount;
-    }
-
-    return "--";
-  }, [amount, token]);
+  const amountLabel = useMemo(
+    () => formatAmountLabel(amount, token),
+    [amount, token],
+  );
 
   const recipientLabel = useMemo(() => {
     const trimmed = recipientName?.trim();

@@ -9,6 +9,7 @@ import TransactionStatusRoller, {
 import { useThemeColors } from "@/hooks/useThemeColor";
 import { mapPaycrestStatusToUi } from "@/lib/transactions/status";
 import { useSelector } from "@/store/Store";
+import { formatAmountLabel } from "@/utils/general";
 import { LinearGradient } from "expo-linear-gradient";
 import { router, useLocalSearchParams } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -51,20 +52,10 @@ const TransactionProgress: FunctionComponent = () => {
   const [orderStatus, setOrderStatus] = useState<string | null>(null);
   const { updateTransactionStatus } = useSelector(["updateTransactionStatus"]);
 
-  const amountLabel = useMemo(() => {
-    const trimmedAmount = amount?.trim();
-    const trimmedToken = token?.trim();
-
-    if (trimmedAmount && trimmedToken) {
-      return `${trimmedAmount} ${trimmedToken}`;
-    }
-
-    if (trimmedAmount) {
-      return trimmedAmount;
-    }
-
-    return "--";
-  }, [amount, token]);
+  const amountLabel = useMemo(
+    () => formatAmountLabel(amount, token),
+    [amount, token],
+  );
 
   const tokenInitial = useMemo(() => {
     const first = token?.trim()?.charAt(0);

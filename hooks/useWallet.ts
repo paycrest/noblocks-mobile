@@ -1,5 +1,7 @@
 import {
   formatTokenAmount,
+  getBalanceAmount,
+  getBalanceWeiAmount,
   weiToDecimalString,
 } from "@/lib/wallet/balances";
 import { useWalletBalances } from "@/hooks/useWalletBalances";
@@ -25,27 +27,27 @@ const useWallet = ({
   } = useWalletBalances(chain);
 
   const resolvedAssetSymbol = useMemo(
-    () => asset?.trim().toUpperCase() ?? "USDC",
+    () => asset?.trim() || "USDC",
     [asset],
   );
 
-  const assetBalance = balances?.balances[resolvedAssetSymbol] ?? 0;
+  const assetBalance = getBalanceAmount(balances, resolvedAssetSymbol) ?? 0;
 
   const getBalanceForSymbol = (symbol: string) =>
-    balances?.balances[symbol.trim().toUpperCase()] ?? 0;
+    getBalanceAmount(balances, symbol) ?? 0;
 
   const getBalanceLabel = (symbol?: string) => {
-    const normalizedSymbol = (symbol ?? resolvedAssetSymbol).trim().toUpperCase();
-    const amount = balances?.balances[normalizedSymbol];
+    const targetSymbol = symbol?.trim() || resolvedAssetSymbol;
+    const amount = getBalanceAmount(balances, targetSymbol);
     if (amount === undefined) {
       return "--";
     }
-    return `${formatTokenAmount(amount)} ${normalizedSymbol}`;
+    return `${formatTokenAmount(amount)} ${targetSymbol}`;
   };
 
   const getMaxAmount = (symbol?: string, decimals = 18) => {
-    const normalizedSymbol = (symbol ?? resolvedAssetSymbol).trim().toUpperCase();
-    const raw = balances?.balancesInWei?.[normalizedSymbol];
+    const targetSymbol = symbol?.trim() || resolvedAssetSymbol;
+    const raw = getBalanceWeiAmount(balances, targetSymbol);
     if (raw === undefined) {
       return "";
     }

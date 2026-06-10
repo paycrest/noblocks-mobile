@@ -238,6 +238,7 @@ export async function fetchLifiChains(
 
 /**
  * Fetches assets for a specific chain from LiFi.
+ * Prefer {@link fetchSupportedSwapTokens} for the swap token picker.
  * @param chainId Numeric chain id used by LiFi token endpoint.
  */
 export async function fetchLifiTokens(chainId: number): Promise<LifiToken[]> {

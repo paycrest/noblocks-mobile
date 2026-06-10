@@ -23,6 +23,7 @@ import BackArrow from "@/components/svgs/back-arrow";
 import { useBeneficiaries } from "@/hooks/useBeneficiaries";
 import { useLiquidGlassScreenTransition } from "@/hooks/useLiquidGlassScreenTransition";
 import { useThemeColors } from "@/hooks/useThemeColor";
+import { formatCurrencyAmount } from "@/utils/general";
 import { setLiquidGlassTransition } from "@/lib/transitions/liquidGlassNavigation";
 import { useMutation } from "@tanstack/react-query";
 import { Image } from "expo-image";
@@ -437,7 +438,7 @@ const SwapDetails: FunctionComponent = () => {
                       size={24}
                     />
                     <ResponsiveUi.Text medium fontSize={16} numberOfLines={1}>
-                      ${truncate(amount ?? "0", { length: 12 })}
+                      ${truncate(formatCurrencyAmount(amount ?? "0"), { length: 12 })}
                     </ResponsiveUi.Text>
                   </View>
 
@@ -452,7 +453,9 @@ const SwapDetails: FunctionComponent = () => {
                       <AmountPillIcon symbol={recipientCurrencyCode} size={24} />
                     )}
                     <ResponsiveUi.Text medium fontSize={16} numberOfLines={1}>
-                      {truncate(fiatEstimate ?? "0", { length: 14 })}
+                      {truncate(formatCurrencyAmount(fiatEstimate ?? "0"), {
+                        length: 14,
+                      })}
                     </ResponsiveUi.Text>
                   </View>
                 </View>

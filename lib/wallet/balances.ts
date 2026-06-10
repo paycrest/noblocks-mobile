@@ -10,6 +10,8 @@ import {
   type PublicClient,
 } from "viem";
 
+import { formatCurrencyAmount } from "@/utils/general";
+
 function fillBalancesFromWei(
   token: WalletToken,
   balanceInWei: bigint,
@@ -169,7 +171,73 @@ export function estimateStablecoinUsdTotal(
 }
 
 export function formatTokenAmount(amount: number, maximumFractionDigits = 6) {
-  return amount.toLocaleString(undefined, { maximumFractionDigits });
+  return formatCurrencyAmount(amount, { maximumFractionDigits });
+}
+
+function findBalanceSymbolKey(
+  balances: Record<string, number> | undefined,
+  symbol: string,
+): string | undefined {
+  if (!balances) {
+    return undefined;
+  }
+
+  const target = symbol.trim().toLowerCase();
+  return Object.keys(balances).find((key) => key.toLowerCase() === target);
+}
+
+export function getBalanceAmount(
+  walletBalances: WalletBalances | null | undefined,
+  symbol: string,
+): number | undefined {
+  if (!walletBalances) {
+    return undefined;
+  }
+
+  const key = findBalanceSymbolKey(walletBalances.balances, symbol);
+  return key !== undefined ? walletBalances.balances[key] : undefined;
+}
+
+export function getBalanceWeiAmount(
+  walletBalances: WalletBalances | null | undefined,
+  symbol: string,
+): bigint | undefined {
+  if (!walletBalances?.balancesInWei) {
+    return undefined;
+  }
+
+  const target = symbol.trim().toLowerCase();
+  const key = Object.keys(walletBalances.balancesInWei).find(
+    (entryKey) => entryKey.toLowerCase() === target,
+  );
+
+  return key !== undefined ? walletBalances.balancesInWei[key] : undefined;
+}
+
+export function getWalletTokenBalance(
+  token: { symbol: string; address: string },
+  walletBalances: WalletBalances | null | undefined,
+): number {
+  if (!walletBalances) {
+    return 0;
+  }
+
+  const normalizedAddress = token.address.trim().toLowerCase();
+  if (normalizedAddress) {
+    const byAddress = walletBalances.entries.find(
+      (entry) => entry.address.trim().toLowerCase() === normalizedAddress,
+    );
+    if (byAddress) {
+      return byAddress.balance;
+    }
+  }
+
+  const normalizedSymbol = token.symbol.trim().toLowerCase();
+  const symbolKey = Object.keys(walletBalances.balances).find(
+    (key) => key.toLowerCase() === normalizedSymbol,
+  );
+
+  return symbolKey ? walletBalances.balances[symbolKey] ?? 0 : 0;
 }
 
 export function getRawBalanceString(
