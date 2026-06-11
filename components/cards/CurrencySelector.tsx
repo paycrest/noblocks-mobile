@@ -34,9 +34,7 @@ const CurrencySelector: FunctionComponent<CurrencySelectorProps> = ({
 }) => {
   const colors = useThemeColors();
   const parsedRightValue = (rightValue ?? "").replace(/[^\d.,-]/g, "").trim();
-  const displayRightValue = formatCurrencyAmount(parsedRightValue || "0", {
-    maximumFractionDigits: 2,
-  });
+  const displayRightValue = formatCurrencyAmount(parsedRightValue || "0");
   const hasSelectedAsset = Boolean(selectedAsset);
   const valueLabel = hasSelectedAsset
     ? truncate(displayRightValue, { length: 15 })

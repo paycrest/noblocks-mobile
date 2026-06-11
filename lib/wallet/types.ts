@@ -18,6 +18,7 @@ export type ChainBalanceEntry = {
   chainName: string;
   chainId?: number;
   symbol: string;
+  name?: string;
   address: string;
   decimals: number;
   balance: number;

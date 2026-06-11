@@ -7,13 +7,17 @@ Mobile off-ramp parity with Noblocks web (`agentic-web/`).
 | Capability | Mobile | Web reference |
 |------------|--------|---------------|
 | Privy email OTP login | `hooks/auth/useAuth.tsx`, `(auth)/login`, `(auth)/otp-screen` | Privy Expo SDK |
-| **On-chain wallet balances** | `lib/wallet/*`, `hooks/useWalletBalances.ts`, `hooks/useWallet.ts` | `agentic-web/app/context/BalanceContext.tsx`, `utils.ts` |
+| **On-chain wallet balances** | `lib/wallet/*`, `hooks/useWalletBalances.ts`, `hooks/useAggregatedWalletBalances.ts` | `agentic-web/app/context/BalanceContext.tsx`, `utils.ts` |
+| **Multi-chain balance rollup** | `lib/wallet/aggregateBalances.ts` — parallel fetch all supported mainnets | Web `BalanceContext` aggregation |
+| **Paycrest-supported swap tokens** | `lib/wallet/supportedSwapTokens.ts` + LiFi logos | Web token list |
+| **Swap USD estimate** | `lib/wallet/tokenUsdValue.ts` (stables 1:1, LiFi price, Paycrest ratio) | — |
 | **`@paycrest/sdk` (v1.0.0)** | `lib/paycrest/client.ts` → `api/queryFns.ts` adapters | Official SDK sender client |
-| Paycrest rate (off-ramp) | `fetchPaycrestRate` → `client.sender().getTokenRate` | `agentic-web/app/api/aggregator.ts` |
+| Paycrest rate (off-ramp) | `fetchPaycrestRate` + `getReferenceRateQuoteAmount` | `agentic-web/app/api/aggregator.ts` |
 | Verify bank account | `verifyPaycrestAccount` → `client.sender().verifyAccount` | Same v2 API |
 | Create sender order | `createPaycrestSenderOrder` → `client.sender().createOfframpOrder` | POST `/v2/sender/orders` |
 | Order status polling | `fetchPaycrestOrderStatus` → `client.sender().getOrder` | `fetchOrderDetails` |
 | Review → progress flow | `reviewTransaction` creates order, passes `orderId` | `TransactionPreview` |
+| **Persisted transaction history** | `store/slices/transactionHistorySlice.ts` | Local v1; API hydrate TBD |
 
 ### On-chain balance approach
 
@@ -22,6 +26,13 @@ After Privy auth, mobile reads embedded wallet address via `useWalletAddress` an
 - Token list from Paycrest `GET /tokens` with `lib/wallet/fallbackTokens.ts` fallback
 - RPC via `EXPO_PUBLIC_RPC_URL_KEY` (Dwellir) or public endpoints per chain (`lib/wallet/rpc.ts`)
 - Wired to Home/Swap (`useWallet`), Wallet tab, and Smart Wallet sheet
+- Display amounts **floored** to 2 decimals; max send amount from wei (never round up)
+
+### Swap keyboard (2026-06-09)
+
+- Inline bottom numpad (`CustomKeyBoard`) — **not** `BottomSheetModal` (modal overlay blocked taps)
+- Dismiss: **Done**, tap outside swap cards, tab blur (`useIsFocused`)
+- Guards: insufficient balance shake + disabled Continue
 
 ## Environment
 
@@ -41,17 +52,19 @@ Set in `.env.local`:
 
 ## Deferred (follow-up)
 
-- **Cross-chain balance rollup** — web `BalanceContext` aggregates multiple networks; mobile fetches per selected chain today
 - **On-ramp (`side: buy`)** — web `TransactionForm` buy tab; mobile home tab is sell-only today
 - **On-chain off-ramp** — gateway order IDs + network-scoped status (`GET /v2/orders/:chainId/:id`)
 - **Pubkey encryption** — web order payload encryption before submit
-- **Live transaction history** — replace `utils/sampleData` with persisted orders
+- **Paycrest list API hydrate** — reconcile local history with server list when endpoint available
+- **Wallet tab USD column** — align non-stable pricing with swap `tokenUsdValue.ts`
 - **Privy swap / transfer** — `startPrivySwap` scaffold exists; not wired to UI
+- **New-account wallet/KYC** — post-OTP provisioning flow
 
 ## Testing off-ramp (iOS simulator)
 
 1. Log in with Privy OTP
 2. Home tab: select chain, asset, fiat, amount — balance label should reflect on-chain reads
-3. Wallet tab / Smart Wallet: totals and token rows update from Base (default) balances
-4. Continue → recipient → review → Swap
-5. Progress screen polls until terminal status (`settled`, `validated`, `failed`, etc.)
+3. Tap amount row → inline numpad opens; **Done** or tap wallet card to dismiss
+4. Wallet tab / Smart Wallet: totals and token rows update from aggregated balances
+5. Continue → recipient → review → Swap
+6. Progress screen polls until terminal status (`settled`, `validated`, `failed`, etc.)

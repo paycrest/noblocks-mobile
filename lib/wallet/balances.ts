@@ -10,7 +10,7 @@ import {
   type PublicClient,
 } from "viem";
 
-import { formatCurrencyAmount } from "@/utils/general";
+import { formatFlooredAmount, MAX_DISPLAY_DECIMALS } from "@/utils/general";
 
 function fillBalancesFromWei(
   token: WalletToken,
@@ -132,6 +132,7 @@ export async function fetchEvmWalletBalances(
     chainName,
     chainId,
     symbol: token.symbol,
+    name: token.name,
     address: token.address,
     decimals: token.decimals,
     balance: balances[token.symbol] ?? 0,
@@ -170,8 +171,11 @@ export function estimateStablecoinUsdTotal(
   }, 0);
 }
 
-export function formatTokenAmount(amount: number, maximumFractionDigits = 6) {
-  return formatCurrencyAmount(amount, { maximumFractionDigits });
+export function formatTokenAmount(
+  amount: number,
+  maximumFractionDigits = MAX_DISPLAY_DECIMALS,
+) {
+  return formatFlooredAmount(amount, maximumFractionDigits);
 }
 
 function findBalanceSymbolKey(
@@ -238,18 +242,6 @@ export function getWalletTokenBalance(
   );
 
   return symbolKey ? walletBalances.balances[symbolKey] ?? 0 : 0;
-}
-
-export function getRawBalanceString(
-  balancesInWei: Record<string, bigint> | undefined,
-  symbol: string,
-  decimals: number,
-): string {
-  const raw = balancesInWei?.[symbol];
-  if (raw === undefined) {
-    return "";
-  }
-  return raw.toString().padStart(decimals + 1, "0");
 }
 
 export function weiToDecimalString(rawValue: bigint | string, decimals: number) {

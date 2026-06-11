@@ -186,6 +186,7 @@ function toLifiToken(
     decimals: token.decimals,
     logoURI: lifiMatch?.logoURI ?? KNOWN_TOKEN_LOGOS[symbolKey],
     coinKey: lifiMatch?.coinKey,
+    priceUSD: lifiMatch?.priceUSD,
   };
 }
 

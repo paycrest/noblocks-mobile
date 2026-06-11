@@ -129,6 +129,7 @@ const SwapDetails: FunctionComponent = () => {
     toFiatUri,
     rate,
     fiatEstimate,
+    usdEstimate,
   } = useLocalSearchParams<{
     amount?: string;
     fromChainKey?: string;
@@ -143,6 +144,7 @@ const SwapDetails: FunctionComponent = () => {
     toFiatUri?: string;
     rate?: string;
     fiatEstimate?: string;
+    usdEstimate?: string;
   }>();
 
   const contentMaxWidth = CONTENT_MAX_WIDTH;
@@ -255,6 +257,7 @@ const SwapDetails: FunctionComponent = () => {
         toFiatUri,
         rate,
         fiatEstimate,
+        usdEstimate,
         recipientInstitutionCode: selectedInstitution.code,
         recipientInstitutionName: selectedInstitution.name,
         recipientAccountNumber: normalizedAccountIdentifier,
@@ -265,6 +268,7 @@ const SwapDetails: FunctionComponent = () => {
     addToBeneficiaries,
     amount,
     fiatEstimate,
+    usdEstimate,
     fromAssetAddress,
     fromAssetName,
     fromAssetSymbol,
@@ -438,7 +442,7 @@ const SwapDetails: FunctionComponent = () => {
                       size={24}
                     />
                     <ResponsiveUi.Text medium fontSize={16} numberOfLines={1}>
-                      ${truncate(formatCurrencyAmount(amount ?? "0"), { length: 12 })}
+                      ${truncate(formatCurrencyAmount(usdEstimate ?? "0"), { length: 12 })}
                     </ResponsiveUi.Text>
                   </View>
 

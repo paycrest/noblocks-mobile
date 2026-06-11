@@ -2,6 +2,7 @@ import React, { FunctionComponent } from "react";
 import { TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ResponsiveUi } from "../ResponsiveUi";
+import { MAX_DISPLAY_DECIMALS } from "@/utils/general";
 import { useAppDimensions } from "@/hooks/useAppDimensions";
 import BackButton from "../svgs/back-button";
 import { useThemeColors } from "@/hooks/useThemeColor";
@@ -24,7 +25,6 @@ interface CustomKeyBoardProps {
   onSubmit?: () => void;
   onDismiss?: () => void;
   onKeyPress?: (key: string) => void;
-  visible?: boolean;
   allowDecimal?: boolean;
   maxLength?: number;
   submitLabel?: string;
@@ -36,8 +36,8 @@ const CustomKeyBoard: FunctionComponent<CustomKeyBoardProps> = ({
   value = "",
   onChangeText,
   onSubmit,
+  onDismiss,
   onKeyPress,
-  visible = true,
   allowDecimal = true,
   maxLength,
   submitLabel = "Continue",
@@ -48,31 +48,38 @@ const CustomKeyBoard: FunctionComponent<CustomKeyBoardProps> = ({
   const { wp } = useAppDimensions();
   const colors = useThemeColors();
 
-  if (!visible) return null;
-
   const keyWidth = Math.min(KEY_WIDTH, wp(26.5));
   const padWidth = Math.min(336, wp(85.5));
 
   const handleKeyPress = (key: string) => {
     onKeyPress?.(key);
 
+    const normalizedValue = value.replace(/,/g, "");
+
     if (key === "<") {
-      onChangeText?.(value.slice(0, -1));
+      onChangeText?.(normalizedValue.slice(0, -1));
       return;
     }
 
     if (key === ".") {
-      if (!allowDecimal || value.includes(".")) {
+      if (!allowDecimal || normalizedValue.includes(".")) {
         return;
       }
 
-      if (!value.length) {
+      if (!normalizedValue.length) {
         onChangeText?.("0.");
         return;
       }
     }
 
-    const nextValue = `${value}${key}`;
+    if (key !== "<" && key !== "." && normalizedValue.includes(".")) {
+      const fraction = normalizedValue.split(".")[1] ?? "";
+      if (fraction.length >= MAX_DISPLAY_DECIMALS) {
+        return;
+      }
+    }
+
+    const nextValue = `${normalizedValue}${key}`;
     if (maxLength && nextValue.length > maxLength) {
       return;
     }
@@ -85,7 +92,30 @@ const CustomKeyBoard: FunctionComponent<CustomKeyBoardProps> = ({
       style={{ paddingBottom: insets.bottom + 8 }}
       className={`w-full z-50 items-center ${className ?? ""}`}
     >
-      <View style={{ width: padWidth, paddingTop: 8 }}>
+      <View style={{ width: padWidth, paddingTop: 4 }}>
+        {onDismiss ? (
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "flex-end",
+              alignItems: "center",
+              minHeight: 36,
+              marginBottom: 4,
+            }}
+          >
+            <TouchableOpacity
+              onPress={onDismiss}
+              activeOpacity={0.7}
+              accessibilityRole="button"
+              accessibilityLabel="Done entering amount"
+              hitSlop={{ top: 8, bottom: 8, left: 12, right: 4 }}
+            >
+              <ResponsiveUi.Text medium fontSize={16} color={colors.primary}>
+                Done
+              </ResponsiveUi.Text>
+            </TouchableOpacity>
+          </View>
+        ) : null}
         {KEYS.map((row, rowIndex) => (
           <View
             key={rowIndex}

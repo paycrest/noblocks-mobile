@@ -19,6 +19,7 @@ interface BaseSheetProps {
   snapPoints?: Array<string | number>;
   isDismissible?: boolean;
   showBackdrop?: boolean;
+  backdropOpacity?: number;
   hideHandle?: boolean;
   topCornerRadius?: number;
   backgroundColor?: string;
@@ -38,6 +39,7 @@ const BaseSheet: React.FC<BaseSheetProps> = ({
   snapPoints = ["50%"],
   isDismissible = true,
   showBackdrop = true,
+  backdropOpacity = LIQUID_GLASS_SHEET_BACKDROP_OPACITY,
   hideHandle = false,
   topCornerRadius,
   backgroundColor,
@@ -76,7 +78,7 @@ const BaseSheet: React.FC<BaseSheetProps> = ({
         {...props}
         appearsOnIndex={0}
         disappearsOnIndex={-1}
-        opacity={LIQUID_GLASS_SHEET_BACKDROP_OPACITY}
+        opacity={backdropOpacity}
         pressBehavior={isDismissible ? "close" : "none"}
         onPress={() => {
           if (!isDismissible) {
@@ -87,7 +89,7 @@ const BaseSheet: React.FC<BaseSheetProps> = ({
         }}
       />
     ),
-    [isDismissible],
+    [isDismissible, backdropOpacity],
   );
 
   return (

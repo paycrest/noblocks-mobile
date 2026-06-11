@@ -37,6 +37,7 @@ const walletItem =
     const { symbol, balance, name, chainName } = item;
     const Icon = TOKEN_ICONS[symbol];
     const usdValue = STABLECOIN_SYMBOLS.has(symbol) ? balance : null;
+    const displayName = name?.trim() || symbol;
 
     return (
       <View
@@ -75,7 +76,7 @@ const walletItem =
             }}
           >
             <ResponsiveUi.Text medium fontSize={wp(4.2)}>
-              {name || symbol}
+              {displayName}
             </ResponsiveUi.Text>
             <ResponsiveUi.Text
               light

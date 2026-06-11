@@ -4,6 +4,8 @@ import { twMerge } from "tailwind-merge";
 
 export const cn = (...inputs: any[]) => twMerge(clsx(inputs));
 
+export const MAX_DISPLAY_DECIMALS = 2;
+
 const formatIntegerWithCommas = (value: string) =>
   value.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
@@ -27,11 +29,36 @@ export const formatNumbers = (num?: number | string) => {
   return formattedInteger;
 };
 
+export function sanitizeAmountInput(value: string): string {
+  return value.replace(/,/g, "");
+}
+
+export function parseAmountValue(
+  value: string | number | null | undefined,
+): number {
+  if (value === null || value === undefined || value === "") {
+    return Number.NaN;
+  }
+
+  if (typeof value === "number") {
+    return Number.isFinite(value) ? value : Number.NaN;
+  }
+
+  const sanitized = value.trim().replace(/,/g, "");
+  if (!sanitized || sanitized === ".") {
+    return Number.NaN;
+  }
+
+  const parsed = Number.parseFloat(sanitized);
+  return Number.isFinite(parsed) ? parsed : Number.NaN;
+}
+
 export function formatCurrencyAmount(
   value: number | string | null | undefined,
   options?: { maximumFractionDigits?: number },
 ): string {
-  const maximumFractionDigits = options?.maximumFractionDigits ?? 8;
+  const maximumFractionDigits =
+    options?.maximumFractionDigits ?? MAX_DISPLAY_DECIMALS;
 
   if (value === null || value === undefined || value === "") {
     return "0";
@@ -92,6 +119,47 @@ export function formatAmountLabel(
   return "--";
 }
 
+export function truncateDecimalPlaces(
+  value: string | number,
+  maxFractionDigits = MAX_DISPLAY_DECIMALS,
+): string {
+  const sanitized = String(value).replace(/,/g, "").trim();
+  if (!sanitized.includes(".")) {
+    return sanitized;
+  }
+
+  const [whole, fraction = ""] = sanitized.split(".");
+  const trimmedFraction = fraction.slice(0, maxFractionDigits);
+  return trimmedFraction.length > 0 ? `${whole}.${trimmedFraction}` : whole;
+}
+
+/** Floors a numeric amount to a max number of decimal places (never rounds up). */
+export function floorDecimalPlaces(
+  value: number,
+  maxFractionDigits = MAX_DISPLAY_DECIMALS,
+): number {
+  if (!Number.isFinite(value)) {
+    return 0;
+  }
+
+  const factor = 10 ** maxFractionDigits;
+  return Math.floor(value * factor + 1e-9) / factor;
+}
+
+/** Formats token balances for display, flooring so shown amounts never exceed on-chain balance. */
+export function formatFlooredAmount(
+  value: number,
+  maxFractionDigits = MAX_DISPLAY_DECIMALS,
+): string {
+  if (!Number.isFinite(value)) {
+    return "0";
+  }
+
+  const floored = floorDecimalPlaces(value, maxFractionDigits);
+  const fixed = floored.toFixed(maxFractionDigits);
+  return formatNumbers(truncateDecimalPlaces(fixed, maxFractionDigits));
+}
+
 export function formatCurrencyWithCode(
   code: string | undefined,
   amount?: string | number | null,
@@ -101,7 +169,7 @@ export function formatCurrencyWithCode(
     return code ? `${code} ${fallback}` : fallback;
   }
 
-  const formatted = formatCurrencyAmount(amount, { maximumFractionDigits: 2 });
+  const formatted = formatCurrencyAmount(amount);
   return code ? `${code} ${formatted}` : formatted;
 }
 
@@ -130,7 +198,7 @@ export const formatWalletAddress = (address: string) => {
 };
 
 export const formatAmount = (amount: number | string, symbol: string = "₦") => {
-  return `${symbol}${formatCurrencyAmount(amount, { maximumFractionDigits: 2 })}`;
+  return `${symbol}${formatCurrencyAmount(amount)}`;
 };
 
 export const setTransactionStatusColor = (status: string) => {

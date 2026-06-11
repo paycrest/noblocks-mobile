@@ -121,10 +121,7 @@ const AssetSelectorSheet: FunctionComponent<AssetSelectorSheetProps> = ({
     const isSelected =
       selectedAssetAddress?.toLowerCase() === item.address.toLowerCase();
     const tokenBalance = getWalletTokenBalance(item, walletBalances);
-    const formattedBalance = formatTokenAmount(
-      tokenBalance,
-      Math.min(item.decimals ?? 6, 6),
-    );
+    const formattedBalance = formatTokenAmount(tokenBalance);
 
     return (
       <TouchableOpacity

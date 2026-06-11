@@ -4,6 +4,7 @@ import {
   getBalanceWeiAmount,
   weiToDecimalString,
 } from "@/lib/wallet/balances";
+import { truncateDecimalPlaces } from "@/utils/general";
 import { useWalletBalances } from "@/hooks/useWalletBalances";
 import { useMemo } from "react";
 
@@ -51,7 +52,7 @@ const useWallet = ({
     if (raw === undefined) {
       return "";
     }
-    return weiToDecimalString(raw, decimals);
+    return truncateDecimalPlaces(weiToDecimalString(raw, decimals));
   };
 
   return {

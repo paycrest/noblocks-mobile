@@ -1,4 +1,6 @@
 /** Minimum amounts Paycrest accepts for an accurate sell-side rate quote. */
+import { parseAmountValue } from "@/utils/general";
+
 const MIN_RATE_QUOTE_AMOUNTS: Record<string, number> = {
   cngn: 1000,
 };
@@ -8,16 +10,20 @@ export function getMinRateQuoteAmount(tokenSymbol?: string): number {
   return MIN_RATE_QUOTE_AMOUNTS[key] ?? 1;
 }
 
+/** Amount sent to Paycrest for the displayed unit rate (independent of user input). */
+export function getReferenceRateQuoteAmount(tokenSymbol?: string): number {
+  return getMinRateQuoteAmount(tokenSymbol);
+}
+
 /**
- * Resolves the amount sent to Paycrest for a rate quote.
- * Uses the entered amount when above the token minimum, otherwise the minimum.
+ * Resolves entered amount for fiat estimates and order submission.
  */
 export function resolveRateQuoteAmount(
   tokenSymbol: string | undefined,
   enteredAmountRaw: string,
 ): number {
   const minAmount = getMinRateQuoteAmount(tokenSymbol);
-  const parsed = Number(enteredAmountRaw.trim());
+  const parsed = parseAmountValue(enteredAmountRaw);
 
   if (!Number.isFinite(parsed) || parsed <= 0) {
     return minAmount;

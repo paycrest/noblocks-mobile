@@ -3,7 +3,7 @@
 > **Source of truth:** [Noblocks Mobile (Figma)](https://www.figma.com/design/GCRxGIlmEaLFTPAqZqG7y7/Noblocks-Mobile) — file key `GCRxGIlmEaLFTPAqZqG7y7`, canvas page `V1`.  
 > **Setup:** Figma MCP connected — see [FIGMA_MCP_SETUP.md](./FIGMA_MCP_SETUP.md).
 
-Last updated: 2026-06-08 (P2 backlog expanded)
+Last updated: 2026-06-09 (P2 swap polish + keyboard UX)
 
 ## Legend
 
@@ -25,7 +25,7 @@ Last updated: 2026-06-08 (P2 backlog expanded)
 | KYC | `(auth)/kyc` | **partial** | SmileID wired in deps; UI parity TBD |
 | Create password | `(auth)/create-password` | **extra** | Likely obsolete under Privy OTP — confirm in Figma |
 | Auth stub | `(auth)/index` | **extra** | Redirects to login |
-| Home / swap | `(tabs)/index` | **partial** | Audited vs `1:5021`/`1:5050`; stepper, cards, numpad aligned; light-theme duplicate TBD |
+| Home / swap | `(tabs)/index` | **partial** | Swap cards, inline numpad, USD estimate, balance guards; light-theme pass TBD |
 | Swap recipient | `(home)/swapRecipient` | **match** | Figma `1:7929` — sheet layout, amount pills, 32px card, inputs, CTA |
 | Review transaction | `(home)/reviewTransaction` | **match** | Figma `1:5558` — sheet layout, fees help icon, spacing, slate Swap CTA |
 | Transaction progress | `(home)/transactionProgress` | **match** | Figma `1:5620` — sheet, countdown, indexing tag, pill flow row |
@@ -50,6 +50,8 @@ Last updated: 2026-06-08 (P2 backlog expanded)
 
 ### P1 — Swap flow
 - [x] Home tab: stepper (`Details` + dots), 24px card radius, crypto-left/fiat-right amount row, numpad 104×48 keys, Continue 361×52
+- [x] Home keyboard UX: inline bottom numpad (no modal overlay), **Done** dismiss, tap-outside dismiss, insufficient-balance guard, floored balances for Use max
+- [x] Home USD column: token USD estimate via `lib/wallet/tokenUsdValue.ts` (1:1 stables, LiFi `priceUSD`, Paycrest USDC ratio for cNGN)
 - [x] Recipient: stepper (`Recipient`), 32px card radius, 48px inputs, slate Continue button
 - [x] Review / progress / success / failed: stepper, detail rows, countdown, status copy, CTAs
 
@@ -78,15 +80,17 @@ Small layout and interaction gaps that block “feels like Figma” on device. A
 
 ### P2 — Wallet, transactions, settings (data & features)
 
-**In progress (2026-06-08).** Scope: replace placeholders with live Privy/on-chain data, persisted swap history, and Figma-aligned theme picker.
+**Active (2026-06-09).** Core swap + wallet data paths are wired; remaining work is CTAs, detail extras, theme polish, and edge cases.
 
 #### 2.1 Live wallet balances
 - [x] **On-chain reads wired** — `hooks/useWalletBalances.ts` + `lib/wallet/balances.ts` (viem RPC); used on Home swap (`useWallet`), Wallet tab, Smart Wallet peek (`app/(home)/smartWallet.tsx`).
-- [x] **Swap “Use max” / balance label** — `components/cards/walletBalance.tsx` shows live token balance from selected chain.
+- [x] **Swap “Use max” / balance label** — `components/cards/walletBalance.tsx` shows live token balance from selected chain; amounts floored to 2 decimals (never round up).
 - [x] **Multi-chain rollup** — `hooks/useAggregatedWalletBalances.ts` fetches all supported swap mainnets in parallel; Wallet tab + Smart Wallet peek show cross-chain totals and per-chain token rows.
+- [x] **Paycrest token picker** — `lib/wallet/supportedSwapTokens.ts` (not full LiFi catalog); cNGN on-chain balance + min rate quote (1000).
+- [x] **Swap USD estimate** — amount row `$` column shows token USD value (`tokenUsdValue.ts`), not fiat receive amount.
 - [ ] **Withdraw CTA** — `(tabs)/wallet.tsx` **Withdraw** button is a no-op.
-- [ ] **Settings profile fallback** — ~~hardcoded address~~ now shows “Wallet not connected”; consider hiding row or CTA when logged out.
-- [ ] **Non-stable USD display** — token rows show `--` for non-stablecoin USD column (expected until price oracle exists).
+- [ ] **Settings profile fallback** — shows “Wallet not connected” when logged out; consider hiding row or CTA.
+- [ ] **Wallet tab USD column** — non-stables still show `--`; align with swap USD logic or document as v2.
 
 #### 2.2 Real transaction history
 - [x] **Persist orders on swap** — `store/slices/transactionHistorySlice.ts`; upsert on order create in `reviewTransaction`.
@@ -176,16 +180,17 @@ Audited via Figma MCP Dev seat on 2026-06-07 (`1:5021` idle, `1:5050` keyboard).
 
 | Element | Figma spec | Code (after fix) |
 |---------|------------|------------------|
-| Stepper (idle) | `Details` pill + 3 dots (12px, `#8B85F4` border) | `SwapFlowStepper` |
-| Stepper (keyboard) | `Details` + 2 dots + wallet + close | `SwapFlowStepper` with actions |
+| Stepper (idle) | `Details` pill + 3 dots (12px, `#8B85F4` border) | `SwapFlowStepper` when keyboard hidden |
+| Stepper (keyboard) | `Details` + 2 dots + wallet + close | `SwapFlowStepper` when inline numpad open |
 | Title row | "Swap" 20px semibold + Base chain pill | `SwapChainRow` |
 | Send card | 24px radius, 44px token icon, 16/14px labels, "Use max" | `WalletBalance` |
-| Amount row | `USDC` + amount (16px) \| `$fiat` (24px) | `SwapInput` |
+| Amount row | `USDC` + amount (16px) \| **token USD** `$` (24px) | `SwapInput` + `tokenUsdValue` |
 | Swap chevron | 28×28 circle between cards | Matched |
-| Receive card | "Receive" / "Select currency" + Select pill | `CurrencySelector` |
-| Numpad | 104×48 keys, 12px gap/radius, 28px semibold | `CustomKeyBoard` |
-| Continue | 361×52, `#8B85F4`, 18px semibold, 40% when disabled | `CustomKeyBoard` |
-| Rate row | `1 USDC → rate` | Present below cards |
+| Receive card | fiat receive amount (NGN/KES) | `CurrencySelector` `rightValue` |
+| Numpad | 104×48 keys, **Done** top-right, inline bottom panel | `CustomKeyBoard` (not `BottomSheetModal`) |
+| Continue | 361×52, `#8B85F4`, disabled when empty / insufficient balance | `CustomKeyBoard` |
+| Rate row | `1 USDC → rate` (reference quote, not user amount) | Paycrest `getReferenceRateQuoteAmount` |
+| Tab bar | Hidden when keyboard or smart-wallet peek open | `keyboardVisible` route param in `(tabs)/_layout` |
 
 ## Beneficiary parity audit — Figma `1:7929` vs `(home)/swapRecipient`
 
@@ -286,8 +291,10 @@ Password frames in Figma (`1:7183`+) are **obsolete** under Privy OTP — routes
 3. ~~Review / progress / success / failed audits.~~ Done (Dev seat).
 4. ~~Export onboarding illustration + app icon from Figma assets; verify splash on iOS simulator.~~ Exported — run `pnpm prebuild --platform ios --clean` to refresh native splash.
 5. ~~**P1.5 UI/UX polish**~~ — checklist complete; app-wide motion deferred to separate spec.
-6. **P2 data & features (active)** — wallet balance gaps (§2.1), persisted transaction history (§2.2), theme picker Figma pass (§2.3).
-7. **P3** — wallet/transaction edge cases — in PR-sized chunks on iOS simulator.
-8. **Motion pass (later)** — user will supply transition specs; treat as separate track from P1.5 layout fixes.
+6. ~~**P2 core data**~~ — on-chain balances, multi-chain rollup, persisted tx history, swap keyboard/USD/balance guards (2026-06-09).
+7. **P2 remainder (active)** — Withdraw CTA, transaction detail extras (receipt/explorer), wallet tab USD column parity, theme Figma pass + light-theme sweep.
+8. **P3** — empty states, rate/offline errors, KYC retry — in PR-sized chunks on iOS simulator.
+9. **Auth funnel (parallel)** — new-account KYC/wallet provisioning after OTP (not in screen map yet).
+10. **Motion pass (later)** — user will supply transition specs; separate track from layout fixes.
 
-**Figma seat:** Safe to downgrade to **Viewer** for audits; re-enable Dev seat when implementing P1.5 settings/security frames.
+**Figma seat:** Viewer OK for audits; re-enable Dev seat for settings/security or light-theme frames.
