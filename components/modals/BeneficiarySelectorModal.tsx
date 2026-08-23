@@ -1,9 +1,11 @@
 import { ResponsiveUi } from "@/components/ResponsiveUi";
+import type { SavedBeneficiary } from "@/lib/beneficiaries/storage";
 import { useThemeColors } from "@/hooks/useThemeColor";
 import { useAppDimensions } from "@/hooks/useAppDimensions";
 import { Search, X } from "lucide-react-native";
 import React, { FunctionComponent, useMemo, useState } from "react";
 import {
+  ActivityIndicator,
   Dimensions,
   FlatList,
   TextInput,
@@ -17,55 +19,19 @@ import BaseModal from "./BaseModal";
 
 const MODAL_HEIGHT = Dimensions.get("screen").height * 0.5;
 
-export interface BeneficiaryItem {
-  id: string;
-  name: string;
-  accountNumber: string;
-  bankName: string;
-}
-
-const DUMMY_BENEFICIARIES: BeneficiaryItem[] = [
-  {
-    id: "1",
-    name: "Oluwaseun Michael Adeyemi",
-    accountNumber: "07392748293",
-    bankName: "Zenith Bank",
-  },
-  {
-    id: "2",
-    name: "Blessed Enyeama Okedigba",
-    accountNumber: "07392748293",
-    bankName: "Premium Trust Bank",
-  },
-  {
-    id: "3",
-    name: "Amara Joy Nwosu",
-    accountNumber: "09876543210",
-    bankName: "Stanbic Bank",
-  },
-  {
-    id: "4",
-    name: "Nneka Ugochukwu",
-    accountNumber: "07392748293",
-    bankName: "Access Bank",
-  },
-  {
-    id: "5",
-    name: "Adaobi Chukwuemeka",
-    accountNumber: "07392748293",
-    bankName: "Bosni Bank",
-  },
-];
+export type BeneficiaryItem = SavedBeneficiary;
 
 interface BeneficiarySelectorModalProps {
   isVisible: boolean;
   onClose: () => void;
   onSelect: (beneficiary: BeneficiaryItem) => void;
+  beneficiaries: BeneficiaryItem[];
+  isLoading?: boolean;
 }
 
 const BeneficiarySelectorModal: FunctionComponent<
   BeneficiarySelectorModalProps
-> = ({ isVisible, onClose, onSelect }) => {
+> = ({ isVisible, onClose, onSelect, beneficiaries, isLoading = false }) => {
   const colors = useThemeColors();
   const { hp, wp } = useAppDimensions();
   const [searchQuery, setSearchQuery] = useState("");
@@ -74,17 +40,17 @@ const BeneficiarySelectorModal: FunctionComponent<
     const normalizedQuery = searchQuery.trim().toLowerCase();
 
     if (!normalizedQuery) {
-      return DUMMY_BENEFICIARIES;
+      return beneficiaries;
     }
 
-    return DUMMY_BENEFICIARIES.filter((beneficiary) => {
+    return beneficiaries.filter((beneficiary) => {
       return (
         beneficiary.name.toLowerCase().includes(normalizedQuery) ||
         beneficiary.accountNumber.toLowerCase().includes(normalizedQuery) ||
         beneficiary.bankName.toLowerCase().includes(normalizedQuery)
       );
     });
-  }, [searchQuery]);
+  }, [beneficiaries, searchQuery]);
 
   const renderItem = ({ item }: { item: BeneficiaryItem }) => {
     return (
@@ -191,31 +157,46 @@ const BeneficiarySelectorModal: FunctionComponent<
               />
             </View>
 
-            <FlatList
-              data={filteredBeneficiaries}
-              keyExtractor={(item) => item.id}
-              renderItem={renderItem}
-              showsVerticalScrollIndicator
-              keyboardShouldPersistTaps="handled"
-              contentContainerStyle={{ paddingBottom: hp(3), flexGrow: 1 }}
-              ListEmptyComponent={
-                <View
-                  style={{
-                    flex: 1,
-                    alignItems: "center",
-                    justifyContent: "center",
-                    paddingVertical: hp(3),
-                  }}
-                >
-                  <ResponsiveUi.Text
-                    color={colors.secondary}
-                    fontSize={hp(1.7)}
+            {isLoading ? (
+              <View
+                style={{
+                  flex: 1,
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <ActivityIndicator color={colors.primary} />
+              </View>
+            ) : (
+              <FlatList
+                data={filteredBeneficiaries}
+                keyExtractor={(item) => item.id}
+                renderItem={renderItem}
+                showsVerticalScrollIndicator
+                keyboardShouldPersistTaps="handled"
+                contentContainerStyle={{ paddingBottom: hp(3), flexGrow: 1 }}
+                ListEmptyComponent={
+                  <View
+                    style={{
+                      flex: 1,
+                      alignItems: "center",
+                      justifyContent: "center",
+                      paddingVertical: hp(3),
+                    }}
                   >
-                    No beneficiary matches your search.
-                  </ResponsiveUi.Text>
-                </View>
-              }
-            />
+                    <ResponsiveUi.Text
+                      color={colors.secondary}
+                      fontSize={hp(1.7)}
+                      center
+                    >
+                      {searchQuery.trim()
+                        ? "No beneficiary matches your search."
+                        : "No saved beneficiaries yet."}
+                    </ResponsiveUi.Text>
+                  </View>
+                }
+              />
+            )}
           </View>
         </View>
       </>

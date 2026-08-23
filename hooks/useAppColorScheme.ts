@@ -1,6 +1,5 @@
-import { useSelector } from "@/app/store/Store";
+import { useResolvedTheme } from "@/hooks/useResolvedTheme";
 
 export const useAppColorScheme = () => {
-  const { appTheme } = useSelector(["appTheme"]);
-  return appTheme;
+  return useResolvedTheme();
 };

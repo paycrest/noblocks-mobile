@@ -1,0 +1,10 @@
+export const RESULT_HEADER_BAND_HEIGHT = 253;
+export const RESULT_HEADER_BAND_RADIUS = 40;
+export const RESULT_SHEET_TOP_RADIUS = 40;
+export const RESULT_CONTENT_MAX_WIDTH = 321;
+export const RESULT_SHEET_PADDING_HORIZONTAL = 20;
+export const RESULT_SECTION_GAP = 16;
+export const RESULT_CTA_GAP = 16;
+export const RESULT_CTA_HEIGHT = 52;
+export const RESULT_CTA_RADIUS = 50;
+export const RESULT_FLOW_DOT_SIZE = 9;

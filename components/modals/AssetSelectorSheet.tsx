@@ -1,9 +1,20 @@
 import { QUERY_STALE_TIME_MS } from "@/api/queryConstants";
-import { fetchLifiTokens, type LifiToken } from "@/api/queryFns";
+import type { LifiToken } from "@/api/queryTypes";
+import { ResponsiveUi } from "@/components/ResponsiveUi";
+import { useAppDimensions } from "@/hooks/useAppDimensions";
+import { useWalletBalances } from "@/hooks/useWalletBalances";
 import { useThemeColors } from "@/hooks/useThemeColor";
+import { toPaycrestNetworkKey } from "@/lib/chains/supportedSwapChains";
+import {
+  formatTokenAmount,
+  getWalletTokenBalance,
+} from "@/lib/wallet/balances";
+import { fetchSupportedSwapTokens } from "@/lib/wallet/supportedSwapTokens";
+import type { WalletBalances } from "@/lib/wallet/types";
 import { useQuery } from "@tanstack/react-query";
 import { Image } from "expo-image";
 import { CheckCircle2, Search, X } from "lucide-react-native";
+import truncate from "lodash/truncate";
 import React, { FunctionComponent, useMemo, useState } from "react";
 import {
   Dimensions,
@@ -13,19 +24,41 @@ import {
   View,
 } from "react-native";
 import { ActivityIndicator } from "react-native-paper";
-import truncate from "lodash/truncate";
 
-import { ResponsiveUi } from "../ResponsiveUi";
 import BackdropBlur from "./BackdropBlur";
 import BaseModal from "./BaseModal";
-import { useAppDimensions } from "@/hooks/useAppDimensions";
 
 const FEATURED_SYMBOL_ORDER = ["ETH", "USDC", "USDT", "DAI", "WBTC"];
 const MODAL_HEIGHT = Math.min(420, Dimensions.get("screen").height * 0.4);
-export type { LifiToken };
+
+function sortAssetsByBalance(
+  assets: LifiToken[],
+  walletBalances: WalletBalances | null,
+): LifiToken[] {
+  return [...assets].sort((left, right) => {
+    const leftBalance = getWalletTokenBalance(left, walletBalances);
+    const rightBalance = getWalletTokenBalance(right, walletBalances);
+
+    if (leftBalance !== rightBalance) {
+      return rightBalance - leftBalance;
+    }
+
+    const leftFeaturedIndex = FEATURED_SYMBOL_ORDER.indexOf(left.symbol);
+    const rightFeaturedIndex = FEATURED_SYMBOL_ORDER.indexOf(right.symbol);
+
+    if (leftFeaturedIndex !== -1 || rightFeaturedIndex !== -1) {
+      if (leftFeaturedIndex === -1) return 1;
+      if (rightFeaturedIndex === -1) return -1;
+      return leftFeaturedIndex - rightFeaturedIndex;
+    }
+
+    return left.symbol.localeCompare(right.symbol);
+  });
+}
 
 interface AssetSelectorSheetProps {
   chainId: number;
+  chainKey?: string;
   isVisible: boolean;
   onClose: () => void;
   onSelect: (asset: LifiToken) => void;
@@ -37,6 +70,7 @@ interface AssetSelectorSheetProps {
 
 const AssetSelectorSheet: FunctionComponent<AssetSelectorSheetProps> = ({
   chainId,
+  chainKey,
   isVisible,
   onClose,
   onSelect,
@@ -48,6 +82,10 @@ const AssetSelectorSheet: FunctionComponent<AssetSelectorSheetProps> = ({
   const colors = useThemeColors();
   const [searchQuery, setSearchQuery] = useState("");
   const { hp, wp } = useAppDimensions();
+  const networkKey =
+    toPaycrestNetworkKey(chainKey, chainId) ?? chainKey ?? "base";
+  const { balances: walletBalances, isLoading: isBalanceLoading } =
+    useWalletBalances(networkKey);
 
   const {
     data: assets = [],
@@ -56,9 +94,9 @@ const AssetSelectorSheet: FunctionComponent<AssetSelectorSheetProps> = ({
     error,
     refetch,
   } = useQuery({
-    queryKey: ["lifi", "tokens", chainId],
+    queryKey: ["swap", "supported-tokens", chainId, chainKey ?? networkKey],
     enabled: isVisible,
-    queryFn: () => fetchLifiTokens(chainId),
+    queryFn: () => fetchSupportedSwapTokens(chainId, chainKey),
     staleTime: QUERY_STALE_TIME_MS,
     retry: false,
   });
@@ -67,24 +105,23 @@ const AssetSelectorSheet: FunctionComponent<AssetSelectorSheetProps> = ({
 
   const filteredAssets = useMemo(() => {
     const normalizedQuery = searchQuery.trim().toLowerCase();
-    if (!normalizedQuery) {
-      return assets;
-    }
+    const matched = normalizedQuery
+      ? assets.filter((asset) => {
+          return (
+            asset.symbol.toLowerCase().includes(normalizedQuery) ||
+            asset.name.toLowerCase().includes(normalizedQuery)
+          );
+        })
+      : assets;
 
-    return assets.filter((asset) => {
-      return (
-        asset.symbol.toLowerCase().includes(normalizedQuery) ||
-        asset.name.toLowerCase().includes(normalizedQuery)
-      );
-    });
-  }, [assets, searchQuery]);
+    return sortAssetsByBalance(matched, walletBalances);
+  }, [assets, searchQuery, walletBalances]);
 
   const renderItem = ({ item }: { item: LifiToken }) => {
     const isSelected =
       selectedAssetAddress?.toLowerCase() === item.address.toLowerCase();
-    const formattedPrice = item.priceUSD
-      ? Number(item.priceUSD).toFixed(3)
-      : null;
+    const tokenBalance = getWalletTokenBalance(item, walletBalances);
+    const formattedBalance = formatTokenAmount(tokenBalance);
 
     return (
       <TouchableOpacity
@@ -138,11 +175,15 @@ const AssetSelectorSheet: FunctionComponent<AssetSelectorSheetProps> = ({
         </View>
 
         <View className="items-end w-1/3 flex-row">
-          {formattedPrice ? (
+          {isBalanceLoading && walletBalances === null ? (
             <ResponsiveUi.Text fontSize={hp(1.8)} color={colors.secondary}>
-              ${formattedPrice}
+              --
             </ResponsiveUi.Text>
-          ) : null}
+          ) : (
+            <ResponsiveUi.Text fontSize={hp(1.8)} color={colors.secondary}>
+              {formattedBalance}
+            </ResponsiveUi.Text>
+          )}
           {isSelected ? (
             <CheckCircle2
               size={hp(2.5)}

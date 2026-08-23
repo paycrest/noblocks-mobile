@@ -2,7 +2,7 @@ import { CheckCircle2, X } from "lucide-react-native";
 import React, { FunctionComponent, ReactElement, useState } from "react";
 import { TouchableOpacity, View } from "react-native";
 
-import { useSelector } from "@/app/store/Store";
+import { useSelector } from "@/store/Store";
 import { useThemeColors } from "@/hooks/useThemeColor";
 import lodash from "lodash";
 import { ResponsiveUi } from "../ResponsiveUi";
@@ -84,7 +84,7 @@ const ThemeModal: FunctionComponent<Props> = ({ isVisible, onClose }) => {
   };
 
   return (
-    <BaseModal isVisible={isVisible} onClose={onClose}>
+    <BaseModal isVisible={isVisible} onClose={onClose} presentation="bottom">
       <>
         <BackdropBlur onClose={onClose} />
         <View

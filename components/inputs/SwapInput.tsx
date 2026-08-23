@@ -1,96 +1,141 @@
 import { useThemeColors } from "@/hooks/useThemeColor";
-import React, { FunctionComponent, useMemo } from "react";
-import { TextInput, View } from "react-native";
+import { formatCurrencyAmount, formatNumbers } from "@/utils/general";
+import React, { FunctionComponent, useEffect, useRef } from "react";
+import { TextInput, TouchableOpacity, View } from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSequence,
+  withTiming,
+} from "react-native-reanimated";
 import { ResponsiveUi } from "../ResponsiveUi";
-import { useAppDimensions } from "@/hooks/useAppDimensions";
 
 interface SwapInputProps {
   value: string;
   selectedAssetSymbol?: string;
+  usdDisplay?: string;
+  exceedsBalance?: boolean;
   onFocus: () => void;
   isDisabled?: boolean;
 }
 
+const SHAKE_OFFSETS = [-8, 8, -5, 5, -2, 2, 0] as const;
+const SHAKE_STEP_MS = 45;
+
 const SwapInput: FunctionComponent<SwapInputProps> = ({
   value,
   selectedAssetSymbol,
+  usdDisplay = "0",
+  exceedsBalance = false,
   onFocus,
   isDisabled = false,
 }) => {
   const colors = useThemeColors();
-  const formattedAmount = useMemo(() => {
-    if (!value) {
-      return "0.00";
+  const inputRef = useRef<TextInput>(null);
+  const didExceedBalanceRef = useRef(false);
+  const shakeX = useSharedValue(0);
+  const isEmpty = !value || value === "0";
+  const displayValue = isEmpty ? "" : formatNumbers(value);
+  const usdValue = formatCurrencyAmount(usdDisplay || "0");
+  const amountColor = exceedsBalance
+    ? colors.destructive
+    : isEmpty
+      ? colors.place_holder
+      : colors.text;
+
+  useEffect(() => {
+    if (exceedsBalance && !didExceedBalanceRef.current) {
+      shakeX.value = withSequence(
+        ...SHAKE_OFFSETS.map((offset) =>
+          withTiming(offset, { duration: SHAKE_STEP_MS }),
+        ),
+      );
     }
 
-    const numericValue = Number(value);
-    if (!Number.isFinite(numericValue)) {
-      return "0.00";
+    didExceedBalanceRef.current = exceedsBalance;
+  }, [exceedsBalance, shakeX, value]);
+
+  const shakeStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: shakeX.value }],
+  }));
+
+  const openAmountKeyboard = () => {
+    if (isDisabled) {
+      return;
     }
 
-    return numericValue.toFixed(2);
-  }, [value]);
-
-  const { hp } = useAppDimensions();
+    onFocus();
+    inputRef.current?.focus();
+  };
 
   return (
-    <View
-      onStartShouldSetResponder={() => true}
-      onResponderStart={(e) => {
-        e.stopPropagation && e.stopPropagation();
-      }}
-    >
-      <View className="flex-row items-center px-4 justify-between">
-        <ResponsiveUi.Text
-          medium
-          fontSize={18}
-          tailwind="flex-1 mr-3"
-          numberOfLines={1}
+    <View style={{ gap: 6, width: "100%", zIndex: 2 }}>
+      <TouchableOpacity
+        activeOpacity={0.85}
+        onPress={openAmountKeyboard}
+        disabled={isDisabled}
+        accessibilityRole="button"
+        accessibilityLabel={
+          exceedsBalance ? "Enter amount, insufficient balance" : "Enter amount"
+        }
+        style={{ minHeight: 48, justifyContent: "center", width: "100%" }}
+      >
+        <Animated.View
+          style={shakeStyle}
+          className="flex-row items-center px-4 justify-between"
         >
-          {selectedAssetSymbol
-            ? `${selectedAssetSymbol} ${formattedAmount}`
-            : "Amount"}
-        </ResponsiveUi.Text>
-        <View className="flex-row items-center flex-shrink-0">
+          <View className="flex-row items-center flex-1 mr-3">
+            {selectedAssetSymbol ? (
+              <ResponsiveUi.Text
+                medium
+                fontSize={16}
+                tailwind="mr-2"
+                style={{ color: amountColor }}
+              >
+                {selectedAssetSymbol}
+              </ResponsiveUi.Text>
+            ) : null}
+            <TextInput
+              ref={inputRef}
+              placeholder="0"
+              placeholderTextColor={colors.place_holder}
+              value={displayValue}
+              editable={false}
+              pointerEvents="none"
+              keyboardType="decimal-pad"
+              showSoftInputOnFocus={false}
+              style={{
+                flex: 1,
+                color: amountColor,
+                fontSize: 16,
+                fontFamily: "Inter_500Medium",
+                padding: 0,
+                minHeight: 40,
+              }}
+            />
+          </View>
           <ResponsiveUi.Text
             medium
-            fontSize={hp(3)}
-            style={{ color: colors.text }}
-          >
-            $
-          </ResponsiveUi.Text>
-          <TextInput
-            placeholder="0.00"
-            placeholderTextColor={colors.place_holder}
-            value={value}
-            editable={!isDisabled}
-            keyboardType="numeric"
-            showSoftInputOnFocus={false}
-            cursorColor={colors.primary}
-            selectionColor={colors.primary}
-            onFocus={() => {
-              if (isDisabled) {
-                return;
-              }
-              onFocus();
-            }}
-            onPressIn={() => {
-              if (isDisabled) {
-                return;
-              }
-
-              onFocus();
-            }}
-            caretHidden={false}
+            fontSize={24}
             style={{
-              color: colors.text,
-              minWidth: 48,
-              maxWidth: 180,
-              fontSize: hp(3),
+              color: amountColor,
+              letterSpacing: -0.24,
             }}
-          />
-        </View>
-      </View>
+          >
+            ${usdValue}
+          </ResponsiveUi.Text>
+        </Animated.View>
+      </TouchableOpacity>
+      {exceedsBalance ? (
+        <ResponsiveUi.Text
+          light
+          fontSize={12}
+          color={colors.destructive}
+          style={{ paddingHorizontal: 16, opacity: 0.9 }}
+        >
+          Insufficient balance
+        </ResponsiveUi.Text>
+      ) : null}
     </View>
   );
 };

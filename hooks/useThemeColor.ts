@@ -1,25 +1,16 @@
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 
-import { useSelector } from "@/app/store/Store";
 import { Colors, genericColors, type ThemePalette } from "@/constants/Colors";
-import { useColorScheme } from "react-native";
+import { useResolvedTheme } from "@/hooks/useResolvedTheme";
 
 export function useThemeColors(): ThemePalette {
-  const { appTheme } = useSelector(["appTheme"]);
-  const systemTheme = useColorScheme();
-  const [scheme, setScheme] = useState<"light" | "dark">("dark"); // default fallback
+  const scheme = useResolvedTheme();
 
-  useEffect(() => {
-    const resolved =
-      appTheme === "system"
-        ? (systemTheme ?? "dark") // fallback to dark if null
-        : appTheme;
-
-    setScheme(resolved);
-  }, [appTheme, systemTheme]);
-
-  return {
-    ...genericColors,
-    ...Colors[scheme],
-  };
+  return useMemo(
+    () => ({
+      ...genericColors,
+      ...Colors[scheme],
+    }),
+    [scheme],
+  );
 }

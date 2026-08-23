@@ -15,13 +15,19 @@ const ProfileHeader: FunctionComponent<Props> = ({
   walletAddress,
 }) => {
   return (
-    <View className="flex flex-row items-center">
-      <DefaultImage />
-      <View className="ml-4">
-        <ResponsiveUi.Text small semiBold>
+    <View className="flex flex-row items-center" style={{ minHeight: 48 }}>
+      <DefaultImage width={48} height={48} />
+      <View style={{ marginLeft: 16 }}>
+        <ResponsiveUi.Text
+          semiBold
+          style={{ fontSize: 16, lineHeight: 24 }}
+        >
           {formatWalletAddress(walletAddress)}
         </ResponsiveUi.Text>
-        <ResponsiveUi.Text small secondary>
+        <ResponsiveUi.Text
+          secondary
+          style={{ fontSize: 14, lineHeight: 20, marginTop: 2 }}
+        >
           Noblocks
         </ResponsiveUi.Text>
       </View>

@@ -3,12 +3,12 @@
     "apps": [],
     "details": [
       {
-        "appID": "5RHBQ5CR25.com.paycrest.noblocks",
+        "appID": "5RHBQ5CR25.xyz.noblocks.app",
         "paths": [ "*" ]
       }
     ]
   },
   "webcredentials": {
-    "apps": ["5RHBQ5CR25.com.paycrest.noblocks" ]
+    "apps": ["5RHBQ5CR25.xyz.noblocks.app" ]
   }
 }

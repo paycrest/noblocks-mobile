@@ -1,4 +1,4 @@
-package com.paycrest.noblocks
+package xyz.noblocks.app
 
 import android.app.Application
 import android.content.res.Configuration

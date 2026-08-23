@@ -1,8 +1,16 @@
-// BaseSheet.tsx
 import { useThemeColors } from "@/hooks/useThemeColor";
-import { BottomSheetModal } from "@gorhom/bottom-sheet";
-import React, { useCallback, useEffect, useRef } from "react";
-import { Pressable, StyleSheet, View } from "react-native";
+import {
+  LIQUID_GLASS_SHEET_BACKDROP_OPACITY,
+  LIQUID_GLASS_SHEET_ENTER_MS,
+} from "@/lib/transitions/liquidGlassSheet";
+import {
+  BottomSheetBackdrop,
+  BottomSheetBackdropProps,
+  BottomSheetModal,
+} from "@gorhom/bottom-sheet";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import { Easing, ReduceMotion } from "react-native-reanimated";
+import { StyleSheet, View } from "react-native";
 
 interface BaseSheetProps {
   children?: React.ReactNode;
@@ -11,9 +19,18 @@ interface BaseSheetProps {
   snapPoints?: Array<string | number>;
   isDismissible?: boolean;
   showBackdrop?: boolean;
+  backdropOpacity?: number;
   hideHandle?: boolean;
   topCornerRadius?: number;
+  backgroundColor?: string;
+  borderColor?: string;
 }
+
+const sheetAnimationConfigs = {
+  duration: LIQUID_GLASS_SHEET_ENTER_MS,
+  easing: Easing.bezier(0.22, 0.61, 0.36, 1),
+  reduceMotion: ReduceMotion.System,
+};
 
 const BaseSheet: React.FC<BaseSheetProps> = ({
   children,
@@ -22,11 +39,18 @@ const BaseSheet: React.FC<BaseSheetProps> = ({
   snapPoints = ["50%"],
   isDismissible = true,
   showBackdrop = true,
+  backdropOpacity = LIQUID_GLASS_SHEET_BACKDROP_OPACITY,
   hideHandle = false,
   topCornerRadius,
+  backgroundColor,
+  borderColor,
 }) => {
   const colors = useThemeColors();
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const resolvedSnapPoints = useMemo(
+    () => snapPoints,
+    [snapPoints.join(",")],
+  );
   const cornerStyle = topCornerRadius
     ? {
         borderTopLeftRadius: topCornerRadius,
@@ -36,47 +60,52 @@ const BaseSheet: React.FC<BaseSheetProps> = ({
     : undefined;
 
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      if (isVisible) {
-        bottomSheetModalRef.current?.present();
-        return;
-      }
+    if (isVisible) {
+      bottomSheetModalRef.current?.present();
+      return;
+    }
 
-      bottomSheetModalRef.current?.dismiss();
-    }, 0);
-
-    return () => clearTimeout(timeout);
+    bottomSheetModalRef.current?.dismiss();
   }, [isVisible]);
 
+  const handleDismiss = useCallback(() => {
+    onVisibilityChange?.(false);
+  }, [onVisibilityChange]);
+
   const renderBackdrop = useCallback(
-    () => (
-      <Pressable
+    (props: BottomSheetBackdropProps) => (
+      <BottomSheetBackdrop
+        {...props}
+        appearsOnIndex={0}
+        disappearsOnIndex={-1}
+        opacity={backdropOpacity}
+        pressBehavior={isDismissible ? "close" : "none"}
         onPress={() => {
           if (!isDismissible) {
             return;
           }
 
-          onVisibilityChange?.(false);
           bottomSheetModalRef.current?.dismiss();
         }}
-        style={styles.backdrop}
       />
     ),
-    [isDismissible, onVisibilityChange],
+    [isDismissible, backdropOpacity],
   );
 
   return (
     <BottomSheetModal
       ref={bottomSheetModalRef}
-      onDismiss={() => onVisibilityChange?.(false)}
-      snapPoints={snapPoints}
-      style={{ flex: 1 }}
-      backdropComponent={showBackdrop ? renderBackdrop : undefined}
+      snapPoints={resolvedSnapPoints}
+      onDismiss={handleDismiss}
       enablePanDownToClose={isDismissible}
       enableOverDrag={false}
       enableDynamicSizing={false}
+      animationConfigs={sheetAnimationConfigs}
+      backdropComponent={showBackdrop ? renderBackdrop : undefined}
       backgroundStyle={{
-        backgroundColor: colors.neutral_surface,
+        backgroundColor: backgroundColor ?? colors.neutral_surface,
+        borderWidth: borderColor ? 0.5 : 0,
+        borderColor: borderColor ?? "transparent",
         ...cornerStyle,
       }}
       handleIndicatorStyle={
@@ -93,10 +122,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "stretch",
     justifyContent: "flex-start",
-  },
-  backdrop: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(0, 0, 0, 0.45)",
   },
 });
 

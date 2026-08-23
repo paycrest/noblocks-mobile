@@ -1,20 +1,28 @@
-import React, { FunctionComponent, useEffect, useState } from "react";
+import React, { FunctionComponent, useCallback, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { TouchableOpacity, View } from "react-native";
 
+import { LegalFooter } from "@/components/LegalFooter";
 import { ResponsiveUi } from "@/components/ResponsiveUi";
 import { FormInput } from "@/components/inputs/FormInput";
 import AppLayout from "@/components/layouts/AppLayout";
 import Logo from "@/components/svgs/logo";
+import OnboardingLoginTransition from "@/components/transitions/OnboardingLoginTransition";
 import useAuth from "@/hooks/auth/useAuth";
 import { useThemeColors } from "@/hooks/useThemeColor";
 import { signupSchema } from "@/schema/authschema";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { View } from "react-native";
-import { ISignUp } from "../types/authTypes";
+import { Mail } from "lucide-react-native";
+import { Alert } from "react-native";
 import { ActivityIndicator } from "react-native-paper";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { ISignUp } from "@/types/authTypes";
+import { useFocusEffect } from "expo-router";
+import { consumeOnboardingToLoginTransition } from "@/lib/transitions/onboardingLoginNavigation";
 
 const Index: FunctionComponent = () => {
   const colors = useThemeColors();
+  const insets = useSafeAreaInsets();
   const {
     control,
     watch,
@@ -25,97 +33,120 @@ const Index: FunctionComponent = () => {
     resolver: yupResolver(signupSchema),
   });
 
-  const [isChecking, setIsChecking] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [shouldAnimateEntry, setShouldAnimateEntry] = useState(false);
   const emailValue = watch("email");
   const { sendLoginCode } = useAuth();
 
-  useEffect(() => {
-    if (!emailValue) return;
+  useFocusEffect(
+    useCallback(() => {
+      setShouldAnimateEntry(consumeOnboardingToLoginTransition());
+    }, []),
+  );
 
-    const handler = setTimeout(async () => {
-      const isValid = await trigger("email");
-      if (!isValid) return;
+  const handleSubmit = useCallback(async () => {
+    const isValid = await trigger("email");
+    if (!isValid) return;
 
-      setIsChecking(true);
-      await sendLoginCode(emailValue);
-      setIsChecking(false);
-    }, 5000); // debounce after user stops typing
+    setIsSubmitting(true);
+    const success = await sendLoginCode(emailValue.trim());
+    setIsSubmitting(false);
 
-    return () => clearTimeout(handler); // cleanup happens correctly here
-  }, [emailValue, trigger]);
+    if (!success) {
+      Alert.alert(
+        "Unable to send code",
+        "Please check your email address and try again.",
+      );
+    }
+  }, [emailValue, sendLoginCode, trigger]);
 
   return (
-    <AppLayout>
-      <View className="justify-center items-center h-[95%]">
-        <Logo />
-        <ResponsiveUi.Text small medium tailwind="mt-12">
-          Login or sign up
-        </ResponsiveUi.Text>
+    <AppLayout scrollable={false}>
+      <OnboardingLoginTransition animate={shouldAnimateEntry}>
+        <View
+          style={{
+            flex: 1,
+            paddingHorizontal: 20,
+            paddingTop: Math.max(insets.top + 170, 225),
+          }}
+        >
+          <View style={{ width: "100%", maxWidth: 353, alignSelf: "center" }}>
+            <View style={{ alignItems: "center" }}>
+              <Logo />
+            </View>
 
-        {/* EMAIL INPUT */}
-        <Controller
-          control={control}
-          name="email"
-          render={({ field: { onChange, value } }) => (
-            <FormInput
-              onChangeText={onChange}
-              placeholder="your@email.com"
-              keyboardType="email-address"
-              value={value}
-              isProtected={false}
-              containerClassName="mt-7 w-full"
-              hasError={!!errors.email}
-              customErrorMsg={errors.email?.message}
-              rightAction={
-                isChecking ? <ActivityIndicator color={colors.slate} /> : null
-              }
+            <ResponsiveUi.Text
+              medium
+              center
+              tailwind="font-inter-medium"
+              style={{ fontSize: 16, lineHeight: 24, marginTop: 29 }}
+            >
+              Login or sign up
+            </ResponsiveUi.Text>
+
+            <Controller
+              control={control}
+              name="email"
+              render={({ field: { onChange, value } }) => (
+                <FormInput
+                  onChangeText={onChange}
+                  placeholder="your@email.com"
+                  keyboardType="email-address"
+                  value={value}
+                  isProtected={false}
+                  containerClassName="mt-7 w-full"
+                  containerStyle={{ height: 48 }}
+                  hasError={!!errors.email}
+                  customErrorMsg={errors.email?.message}
+                  leftIcon={
+                    <View
+                      style={{
+                        backgroundColor: colors.neutral_surface,
+                        borderRadius: 8,
+                        padding: 6,
+                        marginRight: 4,
+                      }}
+                    >
+                      <Mail size={16} color={colors.secondary} />
+                    </View>
+                  }
+                  rightAction={
+                    isSubmitting ? (
+                      <ActivityIndicator color={colors.primary} size="small" />
+                    ) : (
+                      <TouchableOpacity
+                        onPress={handleSubmit}
+                        disabled={!emailValue?.trim()}
+                        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                      >
+                        <ResponsiveUi.Text
+                          medium
+                          style={{
+                            color: emailValue?.trim()
+                              ? colors.primary
+                              : colors.secondary,
+                          }}
+                        >
+                          Submit
+                        </ResponsiveUi.Text>
+                      </TouchableOpacity>
+                    )
+                  }
+                  inputProps={{
+                    returnKeyType: "go",
+                    onSubmitEditing: handleSubmit,
+                    style: { height: 48 },
+                  }}
+                />
+              )}
             />
-          )}
-        />
 
-        {/* Show create account prompt if email not found */}
-        {/* <View className="mt-4 items-center border-[0.5px] py-4 px-4 border-secondary dark:border-dark-secondary border-dashed">
-          <ResponsiveUi.Text xxs center secondary tailwind="w-80">
-            There is no user with this email. Would you like to create an
-            account?
-          </ResponsiveUi.Text>
-        </View> */}
-
-        {/* Password field only if email exists */}
-        {/* {emailExists === true && (
-          <Controller
-            control={control}
-            name="password"
-            render={({ field: { onChange, value } }) => (
-              <FormInput
-                onChangeText={onChange}
-                placeholder="your password"
-                keyboardType="default"
-                value={value}
-                isProtected
-                containerClassName="mt-4 w-full"
-              />
-            )}
-          />
-        )} */}
-
-        {/* Continue or Create button */}
-        {/* {emailExists !== null && (
-          <View className="items-center justify-center w-full">
-            <ResponsiveUi.Button
-              btnClassName="mt-4"
-              title={emailExists ? "Continue" : "Create account"}
-              action={handleSubmit(onSubmit)}
-            />
+            <View style={{ marginTop: 29, maxWidth: 313, alignSelf: "center" }}>
+              <LegalFooter lineHeight={20} fontSize={14} splitLegalLinks />
+            </View>
           </View>
-        )} */}
-
-        {/* Terms notice only when email not found */}
-        <ResponsiveUi.Text xs secondary tailwind="text-center mx-4 my-4">
-          By using Noblocks, you agree to accept our Terms of Use and Privacy
-          Policy
-        </ResponsiveUi.Text>
-      </View>
+        </View>
+      </OnboardingLoginTransition>
     </AppLayout>
   );
 };

@@ -7,44 +7,65 @@ import { OtpInput } from "react-native-otp-entry";
 
 interface Props {
   onTextChange: (text: string) => void;
-  onFilled: (text: string) => void;
+  onFilled?: (text: string) => void;
+  disabled?: boolean;
 }
 
-const OTPInput: FunctionComponent<Props> = ({ onTextChange, onFilled }) => {
+const OTP_BOX_SIZE = { width: 44, height: 48 };
+
+const OTPInput: FunctionComponent<Props> = ({
+  onTextChange,
+  onFilled = () => {},
+  disabled = false,
+}) => {
   const colors = useThemeColors();
   const styles = StyleSheet.create({
+    container: {
+      width: "100%",
+      justifyContent: "center",
+      gap: 12,
+    },
     pinCodeContainer: {
       borderRadius: Radius.large,
-      backgroundColor: colors.surface_overlay,
-      borderWidth: 0.5,
-      height: 48,
+      backgroundColor: colors.neutral_surface,
+      borderWidth: 1,
+      width: OTP_BOX_SIZE.width,
+      height: OTP_BOX_SIZE.height,
       borderColor: colors.place_holder,
     },
     pinCodeText: {
       color: colors.text,
       fontSize: 16,
+      fontFamily: "Inter_600SemiBold",
     },
-    container: {},
-    focusStick: {},
-    activePinCodeContainer: {},
+    focusStick: {
+      backgroundColor: colors.primary,
+    },
+    activePinCodeContainer: {
+      borderColor: colors.slate,
+      borderWidth: 1.5,
+    },
     placeholderText: {},
-    filledPinCodeContainer: {},
-    disabledPinCodeContainer: {},
+    filledPinCodeContainer: {
+      borderColor: colors.gray_hover,
+    },
+    disabledPinCodeContainer: {
+      opacity: 0.5,
+    },
   });
+
   return (
     <OtpInput
       numberOfDigits={6}
       focusColor={colors.slate}
-      autoFocus={false}
+      autoFocus
       hideStick={false}
       placeholder=""
       blurOnFilled={true}
-      disabled={false}
+      disabled={disabled}
       type="numeric"
       secureTextEntry={false}
       focusStickBlinkingDuration={500}
-      onFocus={() => console.log("Focused")}
-      onBlur={() => console.log("Blurred")}
       onTextChange={onTextChange}
       onFilled={onFilled}
       textInputProps={{

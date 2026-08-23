@@ -1,54 +1,23 @@
 import TransactionFlowRow from "@/components/cards/TransactionFlowRow";
 import AppLayout from "@/components/layouts/AppLayout";
-import BaseSheet from "@/components/modals/BottomSheet";
 import { ResponsiveUi } from "@/components/ResponsiveUi";
+import TransactionResultDetailRow from "@/components/swap/TransactionResultDetailRow";
+import TransactionResultLayout, {
+  resultPrimaryButtonStyle,
+} from "@/components/swap/TransactionResultLayout";
+import { RESULT_FLOW_DOT_SIZE, RESULT_SECTION_GAP } from "@/components/swap/transactionResultConstants";
 import { useThemeColors } from "@/hooks/useThemeColor";
+import { formatAmountLabel } from "@/utils/general";
 import { router, useLocalSearchParams } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import _ from "lodash";
-import { X, XCircle } from "lucide-react-native";
-import React, { FunctionComponent, useMemo } from "react";
-import { useAppDimensions } from "@/hooks/useAppDimensions";
-import { View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-
-interface DetailRowProps {
-  label: string;
-  value: string;
-  labelColor: string;
-  valueColor: string;
-  valueBold?: boolean;
-}
-
-const DetailRow: React.FC<DetailRowProps> = ({
-  label,
-  value,
-  labelColor,
-  valueColor,
-  valueBold = false,
-}) => {
-  const { hp } = useAppDimensions();
-  return (
-    <View className="flex-row items-center justify-between">
-      <ResponsiveUi.Text fontSize={hp(1.8)} color={labelColor}>
-        {label}
-      </ResponsiveUi.Text>
-      <ResponsiveUi.Text
-        fontSize={hp(1.8)}
-        color={valueColor}
-        tailwind=""
-        bold={valueBold}
-      >
-        {value}
-      </ResponsiveUi.Text>
-    </View>
-  );
-};
+import { XCircle } from "lucide-react-native";
+import React, { FunctionComponent, useMemo, useRef } from "react";
+import { Animated, View } from "react-native";
 
 const TransactionFailed: FunctionComponent = () => {
   const colors = useThemeColors();
-  const insets = useSafeAreaInsets();
-  const { hp, wp } = useAppDimensions();
+  const staticConnectorProgress = useRef(new Animated.Value(1)).current;
   const { amount, token, recipientName, failureReason } = useLocalSearchParams<{
     amount?: string;
     token?: string;
@@ -56,24 +25,14 @@ const TransactionFailed: FunctionComponent = () => {
     failureReason?: string;
   }>();
 
-  const amountLabel = useMemo(() => {
-    const trimmedAmount = amount?.trim();
-    const trimmedToken = token?.trim();
-
-    if (trimmedAmount && trimmedToken) {
-      return `${trimmedAmount} ${trimmedToken}`;
-    }
-
-    if (trimmedAmount) {
-      return trimmedAmount;
-    }
-
-    return "20.4 USDT";
-  }, [amount, token]);
+  const amountLabel = useMemo(
+    () => formatAmountLabel(amount, token),
+    [amount, token],
+  );
 
   const recipientLabel = useMemo(() => {
     const trimmed = recipientName?.trim();
-    return _.startCase(_.toLower(trimmed || "Chukwuemeka David Okafor"));
+    return trimmed ? _.startCase(_.toLower(trimmed)) : "Recipient";
   }, [recipientName]);
 
   const tokenInitial = useMemo(() => {
@@ -88,7 +47,7 @@ const TransactionFailed: FunctionComponent = () => {
       return trimmed;
     }
 
-    return "The node was acting up and we couldn’t get it to concentrate on the transaction. So sorry man!";
+    return "The node was acting up and we couldn't get it to concentrate on the transaction. So sorry man!";
   }, [failureReason]);
 
   return (
@@ -98,160 +57,111 @@ const TransactionFailed: FunctionComponent = () => {
       statusBarBackgroundColor="transparent"
     >
       <StatusBar style="light" translucent backgroundColor="transparent" />
-      <View className="flex-1">
-        <View
-          style={{
-            backgroundColor: colors.destructive,
-            position: "absolute",
-            left: 0,
-            right: 0,
-            top: -insets.top,
-            bottom: 0,
+      <TransactionResultLayout
+        headerBandColor={colors.destructive}
+        onClose={() => router.replace("/(tabs)")}
+        icon={<XCircle size={40} color={colors.destructive} />}
+        title="Oops! Transaction failed"
+        footer={
+          <ResponsiveUi.Button
+            title="Retry transaction"
+            action={() => router.replace("/(tabs)")}
+            semiBold
+            fontSize={18}
+            color={colors.white}
+            backgroundColor={colors.slate}
+            style={{ ...resultPrimaryButtonStyle, width: "100%" }}
+          />
+        }
+      >
+        <TransactionFlowRow
+          amountLabel={amountLabel}
+          tokenInitial={tokenInitial}
+          tokenSymbol={token?.trim()}
+          recipientLabel={recipientLabel}
+          movingDotSize={RESULT_FLOW_DOT_SIZE}
+          connectorProgress={staticConnectorProgress}
+          colors={{
+            teal: colors.green,
+            text: colors.text,
+            white: colors.white,
           }}
         />
 
-        <BaseSheet
-          isVisible
-          snapPoints={["92%"]}
-          topCornerRadius={40}
-          isDismissible={false}
-          showBackdrop={false}
-          hideHandle
-        >
-          <View
-            style={{
-              flex: 1,
-              paddingHorizontal: wp(5),
-              paddingTop: hp(2),
-              paddingBottom: insets.bottom + hp(2.5),
-            }}
-          >
-            <View className="items-end">
-              <X size={28} color={colors.text} onPress={() => router.back()} />
-            </View>
+        <View
+          style={{
+            borderTopWidth: 0.5,
+            borderTopColor: colors.subtle_surface,
+          }}
+        />
 
-            <View style={{ marginTop: hp(1), alignItems: "flex-start" }}>
-              <XCircle size={hp(4.5)} color={colors.destructive} />
-              <ResponsiveUi.Text
-                medium
-                fontSize={hp(2.2)}
-                style={{ marginTop: hp(2) }}
-                color={colors.text}
-              >
-                Oops! Transaction failed
-              </ResponsiveUi.Text>
-            </View>
-
-            <TransactionFlowRow
-              amountLabel={amountLabel}
-              tokenInitial={tokenInitial}
-              recipientLabel={recipientLabel}
-              colors={{
-                teal: colors.green,
-                text: colors.text,
-                white: colors.white,
-              }}
-            />
-
-            <View
-              style={{
-                marginTop: hp(2),
-                borderTopWidth: 1,
-                borderTopColor: colors.gray,
-              }}
-            />
-
-            <ResponsiveUi.Text
-              fontSize={hp(1.7)}
-              style={{ marginTop: hp(1.5) }}
-              color={colors.secondary}
-              lineHeight={5}
-            >
+        <View style={{ gap: RESULT_SECTION_GAP }}>
+          <View style={{ gap: 8 }}>
+            <ResponsiveUi.Text fontSize={14} color={colors.secondary} style={{ lineHeight: 20 }}>
               Your transfer of{" "}
-              <ResponsiveUi.Text color={colors.text} fontSize={hp(2)} medium>
+              <ResponsiveUi.Text color={colors.text} fontSize={14}>
                 {amountLabel}
               </ResponsiveUi.Text>{" "}
               to {recipientLabel} was unsuccessful.
             </ResponsiveUi.Text>
-
-            <ResponsiveUi.Text
-              fontSize={hp(1.7)}
-              style={{ marginTop: hp(2.5) }}
-              color={colors.secondary}
-            >
+            <ResponsiveUi.Text fontSize={14} color={colors.secondary} style={{ lineHeight: 20 }}>
               Token will be refunded to your account.
             </ResponsiveUi.Text>
-
-            <View
-              style={{
-                marginTop: hp(2.5),
-                borderRadius: hp(2),
-                paddingHorizontal: wp(4),
-                paddingVertical: hp(2),
-                backgroundColor: colors.subtle_surface,
-              }}
-            >
-              <ResponsiveUi.Text fontSize={hp(1.7)} bold color={colors.text}>
-                Reason for failure
-              </ResponsiveUi.Text>
-              <ResponsiveUi.Text
-                fontSize={hp(1.7)}
-                style={{ marginTop: hp(1.2), lineHeight: hp(2.2) }}
-                color={colors.secondary}
-              >
-                {reasonText}
-              </ResponsiveUi.Text>
-            </View>
-
-            <View
-              style={{
-                marginTop: hp(2.5),
-                borderTopWidth: 1,
-                borderTopColor: colors.gray,
-              }}
-            />
-
-            <View style={{ marginTop: hp(1.5), gap: hp(1.5) }}>
-              <DetailRow
-                label="Transaction status"
-                value="Failed"
-                labelColor={colors.secondary}
-                valueColor={colors.destructive}
-              />
-              <DetailRow
-                label="Fund status"
-                value="Deposited"
-                labelColor={colors.secondary}
-                valueColor={colors.text}
-              />
-              <DetailRow
-                label="Time spent"
-                value="12 seconds"
-                labelColor={colors.secondary}
-                valueColor={colors.text}
-              />
-              <DetailRow
-                label="Onchain receipt"
-                value="View in explorer"
-                labelColor={colors.secondary}
-                valueColor={colors.primary}
-              />
-            </View>
-
-            <View style={{ marginTop: "auto", paddingTop: hp(3) }}>
-              <ResponsiveUi.Button
-                title="Retry transaction"
-                action={() => router.back()}
-                bold
-                color={colors.white}
-                backgroundColor={colors.slate}
-                fontSize={hp(2)}
-                style={{ minHeight: hp(5.5) }}
-              />
-            </View>
           </View>
-        </BaseSheet>
-      </View>
+
+          <View
+            style={{
+              backgroundColor: colors.neutral_surface,
+              borderRadius: 16,
+              paddingHorizontal: 16,
+              paddingTop: 12,
+              paddingBottom: 16,
+              gap: 8,
+            }}
+          >
+            <ResponsiveUi.Text medium fontSize={14} color={colors.text} style={{ lineHeight: 20 }}>
+              Reason for failure
+            </ResponsiveUi.Text>
+            <ResponsiveUi.Text fontSize={14} color={colors.secondary} style={{ lineHeight: 20 }}>
+              {reasonText}
+            </ResponsiveUi.Text>
+          </View>
+
+          <View
+            style={{
+              borderTopWidth: 0.5,
+              borderTopColor: colors.subtle_surface,
+            }}
+          />
+
+          <View style={{ gap: RESULT_SECTION_GAP }}>
+            <TransactionResultDetailRow
+              label="Transaction status"
+              value="Failed"
+              labelColor={colors.secondary}
+              valueColor={colors.destructive}
+            />
+            <TransactionResultDetailRow
+              label="Fund status"
+              value="Deposited"
+              labelColor={colors.secondary}
+              valueColor={colors.secondary}
+            />
+            <TransactionResultDetailRow
+              label="Time spent"
+              value="12 seconds"
+              labelColor={colors.secondary}
+              valueColor={colors.secondary}
+            />
+            <TransactionResultDetailRow
+              label="Onchain receipt"
+              value="View in explorer"
+              labelColor={colors.secondary}
+              valueColor={colors.primary}
+            />
+          </View>
+        </View>
+      </TransactionResultLayout>
     </AppLayout>
   );
 };

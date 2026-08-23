@@ -13,10 +13,20 @@ interface Props {
 const ScreenHeader: FunctionComponent<Props> = ({ screenTitle }) => {
   const color = useThemeColors();
   return (
-    <View className={`flex-row items-center justify-between`}>
-      <ChevronLeft onPress={() => router.back()} color={color.text} />
-      <ResponsiveUi.Text semiBold>{screenTitle}</ResponsiveUi.Text>
-      <View />
+    <View
+      style={{
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        paddingHorizontal: 8,
+        minHeight: 44,
+      }}
+    >
+      <ChevronLeft onPress={() => router.back()} color={color.text} size={24} />
+      <ResponsiveUi.Text semiBold style={{ fontSize: 18, lineHeight: 24 }}>
+        {screenTitle}
+      </ResponsiveUi.Text>
+      <View style={{ width: 24 }} />
     </View>
   );
 };

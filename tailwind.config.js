@@ -11,6 +11,7 @@ module.exports = {
         "inter-bold": ["Inter_700Bold"],
         "inter-semi-bold": ["Inter_600SemiBold"],
         "crimson-regular": ["CrimsonPro_400Regular_Italic"],
+        "crimson-semi-bold-italic": ["CrimsonPro_600SemiBold_Italic"],
       },
       colors: {
         background: "var(--background)",

@@ -4,10 +4,14 @@ import QRCodeIcon from "@/components/svgs/qr-code";
 import USDC from "@/components/svgs/usdc-icon";
 import { useAppDimensions } from "@/hooks/useAppDimensions";
 import { useThemeColors } from "@/hooks/useThemeColor";
-import { formatAmount } from "@/utils/general";
+import { useAggregatedWalletBalances } from "@/hooks/useAggregatedWalletBalances";
+import {
+  formatTokenAmount,
+} from "@/lib/wallet/balances";
+import { formatAmount, formatWalletAddress } from "@/utils/general";
 import { CircleQuestionMark, Copy } from "lucide-react-native";
 import React, { FunctionComponent } from "react";
-import { Dimensions, View } from "react-native";
+import { Share, View } from "react-native";
 import Animated, {
   SlideInLeft,
   SlideInRight,
@@ -20,6 +24,7 @@ type Tab = (typeof TABS)[number];
 
 const SmartWallet: FunctionComponent = () => {
   const colors = useThemeColors();
+  const { walletAddress, balances } = useAggregatedWalletBalances();
 
   const [selectedTab, setSelectedTab] = React.useState(TABS[0]);
   const prevTabRef = React.useRef<Tab>(TABS[0]);
@@ -44,9 +49,6 @@ const SmartWallet: FunctionComponent = () => {
     ? SlideOutLeft.duration(250)
     : SlideOutRight.duration(250);
 
-  const { height } = Dimensions.get("window");
-
-  // Responsive spacing and sizing
   const mt6 = hp(2.5);
   const mt12 = hp(5);
   const mt2 = hp(0.8);
@@ -57,6 +59,17 @@ const SmartWallet: FunctionComponent = () => {
   const tabButtonFontSize = hp(1.7);
   const tabButtonWidth = wp(40);
   const qrSize = hp(35);
+
+  const usdTotal = balances?.totalUsd ?? 0;
+  const usdcBalance = balances?.balances.USDC ?? 0;
+
+  const handleCopyAddress = async () => {
+    if (!walletAddress) {
+      return;
+    }
+
+    await Share.share({ message: walletAddress });
+  };
 
   return (
     <View style={{ marginTop: mt6 }}>
@@ -88,7 +101,7 @@ const SmartWallet: FunctionComponent = () => {
           fontSize={hp(4)}
           style={{ textAlign: "center" }}
         >
-          {formatAmount(1234.56, "$")}
+          {formatAmount(usdTotal, "$")}
         </ResponsiveUi.Text>
         <View
           style={{ flexDirection: "row", alignItems: "center", marginTop: mt2 }}
@@ -99,7 +112,7 @@ const SmartWallet: FunctionComponent = () => {
             fontSize={hp(2)}
             style={{ marginLeft: wp(2) }}
           >
-            {formatAmount(1234.56, "")} USDC
+            {formatTokenAmount(usdcBalance)} USDC
           </ResponsiveUi.Text>
         </View>
       </View>
@@ -125,10 +138,8 @@ const SmartWallet: FunctionComponent = () => {
           }}
         >
           {TABS.map((tab) => (
-            <Animated.View
+            <View
               key={tab}
-              entering={SlideInLeft.delay(100)}
-              exiting={SlideInRight}
               style={{ width: tabButtonWidth, alignSelf: "center" }}
             >
               <ResponsiveUi.Button
@@ -138,7 +149,7 @@ const SmartWallet: FunctionComponent = () => {
                   selectedTab === tab ? colors.primary_2 : "transparent"
                 }
                 color={selectedTab === tab ? colors.lavendar : colors.secondary}
-                action={() => setSelectedTab(tab)}
+                action={() => handleTabPress(tab)}
                 style={{
                   width: wp(40),
                   textAlign: "center",
@@ -146,10 +157,9 @@ const SmartWallet: FunctionComponent = () => {
                 className=""
                 tailwind="bg-white"
               />
-            </Animated.View>
+            </View>
           ))}
         </View>
-        {/* Animated tab content */}
         <Animated.View
           key={selectedTab}
           entering={enteringAnimation}
@@ -177,7 +187,9 @@ const SmartWallet: FunctionComponent = () => {
                 fontSize={hp(2)}
                 style={{ marginTop: mt4 }}
               >
-                0xa5d962C...C5821eb1024
+                {walletAddress
+                  ? formatWalletAddress(walletAddress)
+                  : "Wallet not connected"}
               </ResponsiveUi.Text>
               <IconList />
               <ResponsiveUi.Text
@@ -190,8 +202,8 @@ const SmartWallet: FunctionComponent = () => {
                 Scroll networks
               </ResponsiveUi.Text>
               <ResponsiveUi.Button
-                title="Copy codes"
-                action={() => {}}
+                title="Copy address"
+                action={handleCopyAddress}
                 style={{ marginTop: mt4 }}
                 backgroundColor={colors.background}
                 iconMiddle={

@@ -3,7 +3,6 @@ import {
   TouchableOpacity,
   View,
   ViewStyle,
-  useColorScheme,
 } from "react-native";
 import React, {
   ReactElement,
@@ -21,7 +20,7 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 import { StatusBarStyle } from "react-native/Libraries/Components/StatusBar/StatusBar";
 import { StyledKeyboardAwareScrollView } from "../StyledComponents";
 import { useAppDimensions } from "@/hooks/useAppDimensions";
-import { useSelector } from "@/app/store/Store";
+import { useResolvedTheme } from "@/hooks/useResolvedTheme";
 import { useThemeColors } from "@/hooks/useThemeColor";
 import { ChevronLeft } from "lucide-react-native";
 import { router } from "expo-router";
@@ -80,9 +79,8 @@ const AppLayout = forwardRef(
     const insets = useSafeAreaInsets();
     const { wp, isLargeScreen } = useAppDimensions();
     const containerRef = useRef<KeyboardAwareScrollView>(null);
-    const { appTheme } = useSelector(["appTheme"]);
+    const resolvedTheme = useResolvedTheme();
     const colors = useThemeColors();
-    const phoneTheme = useColorScheme();
 
     useImperativeHandle(ref, () => ({
       scrollToTop: (animated = true) => {
@@ -96,9 +94,8 @@ const AppLayout = forwardRef(
     }));
 
     const appBarStyle = useMemo(() => {
-      const effectiveTheme = appTheme === "system" ? phoneTheme : appTheme;
-      return effectiveTheme === "dark" ? "light" : "dark"; // expo-status-bar style values
-    }, [appTheme, phoneTheme]);
+      return resolvedTheme === "dark" ? "light" : "dark";
+    }, [resolvedTheme]);
 
     return (
       <SafeAreaView

@@ -1,6 +1,7 @@
 import {
   CrimsonPro_400Regular,
   CrimsonPro_400Regular_Italic,
+  CrimsonPro_600SemiBold_Italic,
 } from "@expo-google-fonts/crimson-pro";
 import {
   Inter_100Thin,
@@ -22,6 +23,7 @@ const useCustomFonts = () => {
     Inter_600SemiBold,
     CrimsonPro_400Regular,
     CrimsonPro_400Regular_Italic,
+    CrimsonPro_600SemiBold_Italic,
   });
   return { loaded, error };
 };

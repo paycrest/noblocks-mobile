@@ -3,6 +3,7 @@ import {
   type VerifyAccountResponse,
 } from "@/api/queryFns";
 import AddBeneficiaryCard from "@/components/cards/AddBeneficiaryCard";
+import Check from "@/components/Check";
 import SwapChainRow from "@/components/cards/SwapChainRow";
 import AppLayout from "@/components/layouts/AppLayout";
 import BeneficiarySelectorModal, {
@@ -12,12 +13,23 @@ import InstitutionSelectorModal, {
   PaycrestInstitution,
 } from "@/components/modals/InstitutionSelectorModal";
 import { ResponsiveUi } from "@/components/ResponsiveUi";
+import AmountPillIcon from "@/components/swap/AmountPillIcon";
+import SwapFlowStepper from "@/components/swap/SwapFlowStepper";
+import SwapFlowWalletPeekLayout from "@/components/swap/SwapFlowWalletPeekLayout";
+import SwapScreenSheet from "@/components/swap/SwapScreenSheet";
+import LiquidGlassTransition from "@/components/transitions/LiquidGlassTransition";
+import PersonIcon from "@/components/svgs/person-icon";
+import BackArrow from "@/components/svgs/back-arrow";
+import { useBeneficiaries } from "@/hooks/useBeneficiaries";
+import { useLiquidGlassScreenTransition } from "@/hooks/useLiquidGlassScreenTransition";
 import { useThemeColors } from "@/hooks/useThemeColor";
+import { formatCurrencyAmount } from "@/utils/general";
+import { setLiquidGlassTransition } from "@/lib/transitions/liquidGlassNavigation";
 import { useMutation } from "@tanstack/react-query";
 import { Image } from "expo-image";
 import { router, useLocalSearchParams } from "expo-router";
-import WalletIcon from "@/components/svgs/wallet";
-import { ChevronDown, ChevronRight, X } from "lucide-react-native";
+import { ChevronDown, ChevronRight } from "lucide-react-native";
+import _, { truncate } from "lodash";
 import React, {
   FunctionComponent,
   useCallback,
@@ -26,20 +38,18 @@ import React, {
   useState,
 } from "react";
 import {
+  ActivityIndicator,
+  ScrollView,
   TextInput,
   TouchableOpacity,
-  useColorScheme,
   View,
 } from "react-native";
-import { useAppDimensions } from "@/hooks/useAppDimensions";
-import { ActivityIndicator } from "react-native-paper";
-import { Checkbox } from "expo-checkbox";
-
-import PersonIcon from "@/components/svgs/person-icon";
-import _, { capitalize, truncate } from "lodash";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const ACCOUNT_NUMBER_LENGTH = 10;
 const ACCOUNT_VERIFICATION_DELAY_MS = 500;
+const CONTENT_MAX_WIDTH = 361;
+const SWAP_ROW_MAX_WIDTH = 353;
 
 const getVerifiedAccountName = (response: VerifyAccountResponse) => {
   if (typeof response.data === "string") {
@@ -71,7 +81,13 @@ const getAccountVerificationErrorMessage = (error: unknown) => {
 
 const SwapDetails: FunctionComponent = () => {
   const colors = useThemeColors();
-  const { hp, wp, isSmallScreen, isLargeScreen } = useAppDimensions();
+  const insets = useSafeAreaInsets();
+  const {
+    animationKey,
+    isExiting,
+    goBack,
+    handleExitComplete,
+  } = useLiquidGlassScreenTransition("recipient", "entry");
   const [isInstitutionModalVisible, setIsInstitutionModalVisible] =
     useState(false);
   const [isBeneficiaryModalVisible, setIsBeneficiaryModalVisible] =
@@ -85,6 +101,13 @@ const SwapDetails: FunctionComponent = () => {
   const [accountVerificationError, setAccountVerificationError] = useState<
     string | null
   >(null);
+  const [addToBeneficiaries, setAddToBeneficiaries] = useState(false);
+  const [isWalletPeekOpen, setIsWalletPeekOpen] = useState(false);
+  const {
+    beneficiaries,
+    isLoading: isLoadingBeneficiaries,
+    saveBeneficiary,
+  } = useBeneficiaries();
   const {
     mutateAsync: verifyAccount,
     isPending: isVerifyingAccount,
@@ -106,6 +129,7 @@ const SwapDetails: FunctionComponent = () => {
     toFiatUri,
     rate,
     fiatEstimate,
+    usdEstimate,
   } = useLocalSearchParams<{
     amount?: string;
     fromChainKey?: string;
@@ -120,7 +144,10 @@ const SwapDetails: FunctionComponent = () => {
     toFiatUri?: string;
     rate?: string;
     fiatEstimate?: string;
+    usdEstimate?: string;
   }>();
+
+  const contentMaxWidth = CONTENT_MAX_WIDTH;
 
   const recipientCurrencyCode = useMemo(() => {
     if (!toFiatCode) {
@@ -184,11 +211,81 @@ const SwapDetails: FunctionComponent = () => {
 
   const handleSelectBeneficiary = useCallback(
     (beneficiary: BeneficiaryItem) => {
+      setSelectedInstitution({
+        code: beneficiary.institutionCode,
+        name: beneficiary.bankName,
+        type: "bank",
+      });
+      setAccountIdentifier(beneficiary.accountNumber);
       setResolvedAccountName(beneficiary.name);
       setAccountVerificationError(null);
+      setAddToBeneficiaries(false);
     },
     [],
   );
+
+  const handleContinue = useCallback(async () => {
+    if (!resolvedAccountName || !selectedInstitution) {
+      return;
+    }
+
+    if (addToBeneficiaries) {
+      await saveBeneficiary({
+        name: resolvedAccountName,
+        accountNumber: normalizedAccountIdentifier,
+        bankName: selectedInstitution.name,
+        institutionCode: selectedInstitution.code,
+        currencyCode: recipientCurrencyCode,
+      });
+    }
+
+    setLiquidGlassTransition({ direction: "forward", variant: "step" });
+
+    router.push({
+      pathname: "/(home)/reviewTransaction",
+      params: {
+        amount,
+        fromChainKey,
+        fromChainName,
+        fromChainId,
+        fromChainLogoUri,
+        fromAssetAddress,
+        fromAssetUri,
+        fromAssetSymbol,
+        fromAssetName,
+        toFiatCode,
+        toFiatUri,
+        rate,
+        fiatEstimate,
+        usdEstimate,
+        recipientInstitutionCode: selectedInstitution.code,
+        recipientInstitutionName: selectedInstitution.name,
+        recipientAccountNumber: normalizedAccountIdentifier,
+        recipientAccountName: resolvedAccountName,
+      },
+    });
+  }, [
+    addToBeneficiaries,
+    amount,
+    fiatEstimate,
+    usdEstimate,
+    fromAssetAddress,
+    fromAssetName,
+    fromAssetSymbol,
+    fromAssetUri,
+    fromChainId,
+    fromChainKey,
+    fromChainLogoUri,
+    fromChainName,
+    normalizedAccountIdentifier,
+    rate,
+    recipientCurrencyCode,
+    resolvedAccountName,
+    saveBeneficiary,
+    selectedInstitution,
+    toFiatCode,
+    toFiatUri,
+  ]);
 
   const handleAccountIdentifierChange = useCallback((value: string) => {
     setAccountIdentifier(value.replace(/[^0-9]/g, ""));
@@ -224,42 +321,6 @@ const SwapDetails: FunctionComponent = () => {
     verifySelectedAccount,
   ]);
 
-  const walletDotSize = wp(3.5);
-  const walletDotMargin = wp(1.2);
-  const progressHeaderWidth = isSmallScreen ? wp(48) : wp(40);
-  const recipientContentWidth = isLargeScreen ? Math.min(wp(82), 520) : wp(100);
-  const recipientControlWidth = isSmallScreen ? "92%" : "80%";
-  const amountValueFontSize = isSmallScreen ? hp(1.8) : hp(2);
-  const sectionBottomSpacing = isSmallScreen ? hp(2.5) : hp(2);
-
-  const walletDotStyle = {
-    borderWidth: 1,
-    borderRadius: walletDotSize / 2,
-    width: walletDotSize,
-    height: walletDotSize,
-    borderColor: colors.primary,
-  };
-
-  const amountPillStyle = {
-    flexDirection: "row" as const,
-    alignItems: "center" as const,
-    flex: 1,
-    backgroundColor: colors.neutral_surface,
-    borderWidth: 1,
-    borderColor: colors.subtle_surface,
-    justifyContent: "space-between" as const,
-    paddingHorizontal: wp(3),
-    paddingVertical: isSmallScreen ? hp(1.1) : hp(1.5),
-    borderRadius: 16,
-  };
-
-  const assetLogoStyle = {
-    width: wp(7),
-    height: wp(7),
-    borderRadius: wp(3),
-    marginRight: wp(2),
-  };
-
   const selectedInstitutionName = selectedInstitution?.name ?? "Select bank";
   const isInstitutionSelected = Boolean(selectedInstitution);
 
@@ -270,335 +331,364 @@ const SwapDetails: FunctionComponent = () => {
       : accountVerificationError;
 
   const showVerificationMessage = Boolean(verificationMessage);
-  const verificationFontSize = resolvedAccountName ? hp(2) : hp(1.7);
   const verificationTextColor = resolvedAccountName
     ? colors.text
     : colors.secondary;
-  const beneficiaryFirstName =
-    resolvedAccountName?.trim().split(" ")[0] ?? null;
-  const [addToBeneficiaries, setAddToBeneficiaries] = useState(false);
-  const appTheme = useColorScheme();
+
+  const amountPillStyle = {
+    flex: 1,
+    height: 52,
+    flexDirection: "row" as const,
+    alignItems: "center" as const,
+    justifyContent: "space-between" as const,
+    backgroundColor: colors.neutral_surface,
+    borderWidth: 0.5,
+    borderColor: colors.subtle_surface,
+    borderRadius: 20,
+    paddingLeft: 12,
+    paddingRight: 20,
+    paddingVertical: 12,
+  };
 
   return (
-    <AppLayout>
-      {/* Progress Row */}
-      <View
-        style={{
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <View
-            className="flex-row justify-between items-center"
-            style={{ width: progressHeaderWidth }}
-          >
-            <View style={walletDotStyle} />
-            <View
-              style={{
-                backgroundColor: colors.primary_2,
-                borderRadius: 16,
-                paddingVertical: isSmallScreen ? hp(0.35) : hp(0.5),
-                paddingHorizontal: isSmallScreen ? wp(2.5) : wp(3),
-                marginHorizontal: 5,
+    <AppLayout
+      scrollable={false}
+      horizontalPadding={false}
+      bottomPadding={false}
+      directChild
+      statusBarBackgroundColor={colors.canvas_background}
+      layoutStyle={{ backgroundColor: colors.canvas_background }}
+    >
+      <View style={{ flex: 1, backgroundColor: colors.canvas_background }}>
+        <SwapFlowWalletPeekLayout
+          isWalletPeekOpen={isWalletPeekOpen}
+          stepper={
+            <SwapFlowStepper
+              activeLabel="Recipient"
+              leadingDots={1}
+              trailingDots={1}
+              showActions
+              onWalletPress={() => setIsWalletPeekOpen((prev) => !prev)}
+              onClosePress={() => {
+                if (isWalletPeekOpen) {
+                  setIsWalletPeekOpen(false);
+                  return;
+                }
+
+                router.navigate("/(tabs)");
               }}
+            />
+          }
+          sheet={
+            <LiquidGlassTransition
+              stepKey="recipient"
+              animationKey={animationKey}
+              isExiting={isExiting}
+              onExitComplete={handleExitComplete}
             >
-              <ResponsiveUi.Text
-                medium
-                color={colors.primary}
-                fontSize={isSmallScreen ? hp(2) : hp(2.3)}
-              >
-                Recipient
-              </ResponsiveUi.Text>
-            </View>
-            <View style={[walletDotStyle, { marginLeft: walletDotMargin }]} />
-          </View>
-        </View>
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <WalletIcon style={{ marginRight: wp(4) }} />
-          <X color={colors.secondary} onPress={() => router.back()} />
-        </View>
-      </View>
-      <SwapChainRow
-        title="Swap"
-        chainName={fromChainName}
-        chainLogoUri={fromChainLogoUri}
-        isStatic
-        showChevron={false}
-        marginTop={hp(4.5)}
-      />
-      {/* Amount Row */}
-      <View
-        style={{
-          marginTop: hp(2.5),
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: wp(2),
-          width: recipientContentWidth,
-          alignSelf: "center",
-        }}
-      >
-        <View style={amountPillStyle}>
-          {fromAssetUri ? (
-            <Image
-              source={{ uri: fromAssetUri }}
-              style={assetLogoStyle}
-              contentFit="cover"
-            />
-          ) : null}
-          <ResponsiveUi.Text
-            medium
-            style={{ marginLeft: wp(1), flex: 1, textAlign: "right" }}
-            fontSize={amountValueFontSize}
-            numberOfLines={1}
-          >
-            ${truncate(amount ?? "0", { length: 10 })}
-          </ResponsiveUi.Text>
-        </View>
-        <View className="bg-neutral_surface border border-subtle_surface p-1 rounded-full">
-          <ChevronRight color={colors.secondary} />
-        </View>
-        <View style={amountPillStyle}>
-          {toFiatUri ? (
-            <Image
-              source={{ uri: toFiatUri }}
-              style={assetLogoStyle}
-              contentFit="fill"
-            />
-          ) : null}
-          <ResponsiveUi.Text
-            medium
-            style={{ marginLeft: wp(1), flex: 1, textAlign: "right" }}
-            fontSize={amountValueFontSize}
-            numberOfLines={1}
-          >
-            {truncate(`${fiatEstimate ?? "0"}`, {
-              length: 15,
-            })}
-          </ResponsiveUi.Text>
-        </View>
-      </View>
-      {/* Add Recipient Section */}
-      <View
-        style={{
-          marginTop: hp(2),
-          alignItems: "center",
-          backgroundColor: colors.neutral_surface,
-          paddingHorizontal: wp(2),
-          paddingVertical: isSmallScreen ? hp(2.4) : hp(3),
-          borderRadius: 16,
-          width: recipientContentWidth,
-          alignSelf: "center",
-          marginBottom: sectionBottomSpacing,
-        }}
-      >
-        <ResponsiveUi.Text
-          semiBold
-          style={{ marginLeft: wp(3) }}
-          fontSize={hp(2)}
-          color={colors.text}
-        >
-          Add recipient
-        </ResponsiveUi.Text>
-        <TouchableOpacity
-          style={{
-            marginTop: hp(3),
-            width: recipientControlWidth,
-            borderWidth: 0.5,
-            borderColor: colors.secondary,
-            backgroundColor: colors.subtle_surface,
-            borderRadius: 18,
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-between",
-            height: hp(6.5),
-            paddingHorizontal: wp(3),
-          }}
-          activeOpacity={0.85}
-          onPress={() => setIsInstitutionModalVisible(true)}
-        >
-          <View style={{ flexDirection: "row", alignItems: "center" }}>
-            {selectedInstitution?.logoURI ? (
-              <Image
-                source={{ uri: selectedInstitution.logoURI }}
+              <SwapScreenSheet
                 style={{
-                  width: wp(6),
-                  height: wp(6),
-                  borderRadius: wp(3),
-                  marginRight: wp(2),
+                  flex: 1,
+                  paddingHorizontal: 16,
                 }}
-                contentFit="cover"
-              />
-            ) : null}
-            <ResponsiveUi.Text
-              color={isInstitutionSelected ? colors.text : colors.secondary}
-              fontSize={hp(2.2)}
+              >
+          <View style={{ flex: 1 }}>
+            <ScrollView
+              style={{ flex: 1 }}
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
+              contentContainerStyle={{ paddingBottom: 16 }}
             >
-              {selectedInstitutionName}
-            </ResponsiveUi.Text>
-          </View>
-          <ChevronDown color={colors.secondary} />
-        </TouchableOpacity>
-        <View
-          style={{
-            width: "100%",
-            marginTop: hp(2.5),
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <TextInput
-            placeholder="Account number"
-            placeholderTextColor={colors.place_holder}
-            value={accountIdentifier}
-            onChangeText={handleAccountIdentifierChange}
-            maxLength={ACCOUNT_NUMBER_LENGTH}
-            style={{
-              color: colors.text,
-              borderColor: colors.secondary,
-              fontWeight: "500",
-              borderRadius: 16,
-              borderWidth: 0.5,
-              fontSize: hp(2.2),
-              lineHeight: hp(2.7),
-              height: hp(6.5),
-              width: recipientControlWidth,
-              paddingHorizontal: wp(3),
-              backgroundColor: colors.subtle_surface,
-            }}
-            keyboardType="numeric"
-          />
-
-          <View
-            style={{
-              marginTop: hp(2),
-              borderWidth: 1,
-              borderColor: colors.subtle_surface,
-              padding: wp(3),
-              borderRadius: 100,
-            }}
-          >
-            <PersonIcon
-              height={35}
-              width={35}
-              color={!resolvedAccountName ? colors.gray_hover : colors.primary}
-              color2={!resolvedAccountName ? colors.secondary : colors.white}
-            />
-          </View>
-
-          <View
-            style={{
-              width: recipientControlWidth,
-              marginTop: hp(1.5),
-              minHeight: hp(3),
-              justifyContent: "center",
-            }}
-          >
-            {showVerificationMessage ? (
               <View
                 style={{
-                  justifyContent: "center",
-                  flexDirection: "row",
-                  alignItems: "center",
-                  borderWidth: resolvedAccountName ? 0.5 : 0,
-                  borderColor:
-                    appTheme === "dark" ? colors.destructive : colors.white,
-                  borderRadius: 8,
-                  paddingHorizontal: resolvedAccountName ? wp(0.5) : 0,
-                  paddingVertical: resolvedAccountName ? hp(0.5) : 0,
+                  width: "100%",
+                  maxWidth: contentMaxWidth,
+                  alignSelf: "center",
+                  gap: 20,
                 }}
               >
-                {isVerifyingAccount ? (
-                  <ActivityIndicator size={15} color={colors.primary} />
-                ) : null}
+              <View style={{ maxWidth: SWAP_ROW_MAX_WIDTH, width: "100%" }}>
+                <SwapChainRow
+                  title="Swap"
+                  chainName={fromChainName}
+                  chainLogoUri={fromChainLogoUri}
+                  isStatic
+                  showChevron={false}
+                  marginTop={0}
+                />
+              </View>
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => goBack()}
+                accessibilityRole="button"
+                accessibilityLabel="Go back"
+                style={{ alignSelf: "flex-start" }}
+              >
+                <BackArrow />
+              </TouchableOpacity>
+
+              <View style={{ position: "relative" }}>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: 12,
+                  }}
+                >
+                  <View style={amountPillStyle}>
+                    <AmountPillIcon
+                      symbol={fromAssetSymbol}
+                      uri={fromAssetUri}
+                      size={24}
+                    />
+                    <ResponsiveUi.Text medium fontSize={16} numberOfLines={1}>
+                      ${truncate(formatCurrencyAmount(usdEstimate ?? "0"), { length: 12 })}
+                    </ResponsiveUi.Text>
+                  </View>
+
+                  <View style={amountPillStyle}>
+                    {toFiatUri ? (
+                      <Image
+                        source={{ uri: toFiatUri }}
+                        style={{ width: 24, height: 24, borderRadius: 12 }}
+                        contentFit="cover"
+                      />
+                    ) : (
+                      <AmountPillIcon symbol={recipientCurrencyCode} size={24} />
+                    )}
+                    <ResponsiveUi.Text medium fontSize={16} numberOfLines={1}>
+                      {truncate(formatCurrencyAmount(fiatEstimate ?? "0"), {
+                        length: 14,
+                      })}
+                    </ResponsiveUi.Text>
+                  </View>
+                </View>
+
+                <View
+                  style={{
+                    position: "absolute",
+                    left: "50%",
+                    top: "50%",
+                    marginLeft: -10,
+                    marginTop: -10,
+                    width: 20,
+                    height: 20,
+                    borderRadius: 10,
+                    borderWidth: 0.5,
+                    borderColor: colors.subtle_surface,
+                    backgroundColor: colors.surface_canvas,
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <ChevronRight size={16} color={colors.secondary} />
+                </View>
+              </View>
+
+              <View
+                style={{
+                  width: "100%",
+                  borderRadius: 32,
+                  backgroundColor: colors.neutral_surface,
+                  paddingTop: 16,
+                  paddingHorizontal: 16,
+                  paddingBottom: 16,
+                  gap: 12,
+                }}
+              >
                 <ResponsiveUi.Text
-                  fontSize={verificationFontSize}
-                  color={verificationTextColor}
-                  style={isVerifyingAccount ? { marginLeft: wp(2) } : undefined}
-                  semiBold={Boolean(resolvedAccountName)}
+                  medium
+                  fontSize={16}
+                  color={colors.text}
                   center
                 >
-                  {verificationMessage}
+                  Add recipient
                 </ResponsiveUi.Text>
-              </View>
-            ) : null}
-          </View>
 
-          {resolvedAccountName ? (
+                <View style={{ marginTop: 34, gap: 12 }}>
+                  <TouchableOpacity
+                    style={{
+                      height: 48,
+                      borderWidth: 0.5,
+                      borderColor: colors.subtle_surface,
+                      backgroundColor: colors.neutral_surface,
+                      borderRadius: 16,
+                      flexDirection: "row",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      paddingHorizontal: 12,
+                      paddingVertical: 10,
+                    }}
+                    activeOpacity={0.85}
+                    onPress={() => setIsInstitutionModalVisible(true)}
+                  >
+                    <View
+                      style={{
+                        flex: 1,
+                        flexDirection: "row",
+                        alignItems: "center",
+                        paddingHorizontal: 8,
+                      }}
+                    >
+                      {selectedInstitution?.logoURI ? (
+                        <Image
+                          source={{ uri: selectedInstitution.logoURI }}
+                          style={{
+                            width: 24,
+                            height: 24,
+                            borderRadius: 12,
+                            marginRight: 8,
+                          }}
+                          contentFit="cover"
+                        />
+                      ) : null}
+                      <ResponsiveUi.Text
+                        color={
+                          isInstitutionSelected
+                            ? colors.text
+                            : colors.place_holder
+                        }
+                        medium
+                        fontSize={16}
+                        numberOfLines={1}
+                      >
+                        {selectedInstitutionName}
+                      </ResponsiveUi.Text>
+                    </View>
+                    <ChevronDown size={18} color={colors.secondary} />
+                  </TouchableOpacity>
+
+                  <TextInput
+                    placeholder="Account number"
+                    placeholderTextColor={colors.place_holder}
+                    value={accountIdentifier}
+                    onChangeText={handleAccountIdentifierChange}
+                    maxLength={ACCOUNT_NUMBER_LENGTH}
+                    style={{
+                      color: colors.text,
+                      borderColor: colors.subtle_surface,
+                      fontFamily: "Inter_500Medium",
+                      borderRadius: 16,
+                      borderWidth: 0.5,
+                      fontSize: 16,
+                      height: 48,
+                      paddingHorizontal: 20,
+                      backgroundColor: colors.neutral_surface,
+                    }}
+                    keyboardType="numeric"
+                  />
+                </View>
+
+                <View
+                  style={{
+                    alignItems: "center",
+                    justifyContent: "center",
+                    paddingVertical: resolvedAccountName ? 12 : 32,
+                    minHeight: resolvedAccountName ? undefined : 140,
+                  }}
+                >
+                  {showVerificationMessage ? (
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        paddingHorizontal: 12,
+                      }}
+                    >
+                      {isVerifyingAccount ? (
+                        <ActivityIndicator
+                          size={16}
+                          color={colors.primary}
+                          style={{ marginRight: 8 }}
+                        />
+                      ) : null}
+                      <ResponsiveUi.Text
+                        fontSize={resolvedAccountName ? 16 : 14}
+                        color={verificationTextColor}
+                        medium={Boolean(resolvedAccountName)}
+                        center
+                      >
+                        {verificationMessage}
+                      </ResponsiveUi.Text>
+                    </View>
+                  ) : (
+                    <View
+                      style={{
+                        width: 60,
+                        height: 60,
+                        borderRadius: 30,
+                        backgroundColor: colors.gray2,
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <PersonIcon
+                        height={39}
+                        width={39}
+                        color={colors.gray_hover}
+                        color2={colors.secondary}
+                      />
+                    </View>
+                  )}
+                </View>
+
+                {resolvedAccountName ? (
+                  <TouchableOpacity
+                    activeOpacity={0.85}
+                    onPress={() => setAddToBeneficiaries((value) => !value)}
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      gap: 10,
+                    }}
+                  >
+                    <Check
+                      checked={addToBeneficiaries}
+                      type="square"
+                      onPress={() => setAddToBeneficiaries((value) => !value)}
+                    />
+                    <ResponsiveUi.Text medium fontSize={14} color={colors.text}>
+                      Save beneficiary for later
+                    </ResponsiveUi.Text>
+                  </TouchableOpacity>
+                ) : null}
+
+                <AddBeneficiaryCard
+                  onPress={() => setIsBeneficiaryModalVisible(true)}
+                />
+              </View>
+            </View>
+            </ScrollView>
+
             <View
-              className="mt-3"
               style={{
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "center",
+                paddingTop: 24,
+                paddingBottom: Math.max(insets.bottom, 16),
+                width: "100%",
+                maxWidth: contentMaxWidth,
+                alignSelf: "center",
               }}
             >
-              <Checkbox
-                style={{
-                  margin: 8,
-                  borderWidth: 1,
-                  borderRadius: 4,
-                  borderColor: colors.secondary,
+              <ResponsiveUi.Button
+                action={() => {
+                  void handleContinue();
                 }}
-                value={addToBeneficiaries}
-                onValueChange={setAddToBeneficiaries}
-                color={addToBeneficiaries ? colors.primary : undefined}
+                disabled={!resolvedAccountName}
+                backgroundColor={colors.slate}
+                style={{ width: "100%", height: 52, borderRadius: 50 }}
+                title="Continue"
+                semiBold
+                fontSize={18}
               />
-              <ResponsiveUi.Text fontSize={12}>
-                Add {capitalize(beneficiaryFirstName ?? "")} to your
-                beneficiaries
-              </ResponsiveUi.Text>
             </View>
-          ) : null}
-          <View style={{ marginTop: hp(1) }}>
-            <AddBeneficiaryCard
-              onPress={() => setIsBeneficiaryModalVisible(true)}
-            />
           </View>
-        </View>
-      </View>
-      <View
-        style={{
-          position: "absolute",
-          left: 0,
-          right: 0,
-          bottom: hp(2),
-          paddingHorizontal: wp(4),
-        }}
-      >
-        <ResponsiveUi.Button
-          action={() =>
-            router.push({
-              pathname: "/(home)/reviewTransaction",
-              params: {
-                amount,
-                fromChainKey,
-                fromChainName,
-                fromChainId,
-                fromChainLogoUri,
-                fromAssetAddress,
-                fromAssetUri,
-                fromAssetSymbol,
-                fromAssetName,
-                toFiatCode,
-                toFiatUri,
-                rate,
-                fiatEstimate,
-                recipientInstitutionCode: selectedInstitution?.code,
-                recipientInstitutionName: selectedInstitution?.name,
-                recipientAccountNumber: normalizedAccountIdentifier,
-                recipientAccountName: resolvedAccountName,
-              },
-            })
+        </SwapScreenSheet>
+            </LiquidGlassTransition>
           }
-          disabled={!resolvedAccountName}
-          style={{ width: "100%" }}
-          title="Continue"
-          fontSize={hp(2)}
         />
       </View>
+
       <InstitutionSelectorModal
         isVisible={isInstitutionModalVisible}
         onClose={() => setIsInstitutionModalVisible(false)}
@@ -610,6 +700,8 @@ const SwapDetails: FunctionComponent = () => {
         isVisible={isBeneficiaryModalVisible}
         onClose={() => setIsBeneficiaryModalVisible(false)}
         onSelect={handleSelectBeneficiary}
+        beneficiaries={beneficiaries}
+        isLoading={isLoadingBeneficiaries}
       />
     </AppLayout>
   );

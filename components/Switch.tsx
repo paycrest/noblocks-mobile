@@ -5,24 +5,29 @@ import { useThemeColors } from "@/hooks/useThemeColor";
 
 interface Props {
   onToggle: (state: boolean) => void;
+  value?: boolean;
 }
 
-const AppSwitch: FunctionComponent<Props> = ({ onToggle }) => {
+const AppSwitch: FunctionComponent<Props> = ({ onToggle, value }) => {
   const [isEnabled, setIsEnabled] = useState(false);
-  const toggleSwitch = () => {
-    onToggle(!isEnabled);
-    setIsEnabled((previousState) => !previousState);
+  const enabled = value ?? isEnabled;
+
+  const toggleSwitch = (nextValue: boolean) => {
+    onToggle(nextValue);
+    if (value == null) {
+      setIsEnabled(nextValue);
+    }
   };
+
   const colors = useThemeColors();
   return (
     <View>
       <Switch
-        trackColor={{ false: colors.secondary, true: colors.slate }}
+        trackColor={{ false: colors.gray_hover, true: colors.slate }}
         thumbColor={colors.white}
-        ios_backgroundColor="#3e3e3e"
+        ios_backgroundColor={colors.gray_hover}
         onValueChange={toggleSwitch}
-        value={isEnabled}
-        style={{ transform: [{ scaleX: 0.5 }, { scaleY: 0.5 }] }}
+        value={enabled}
       />
     </View>
   );

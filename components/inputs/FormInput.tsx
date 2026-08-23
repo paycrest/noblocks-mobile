@@ -141,6 +141,20 @@ export const FormInput = ({
           },
         ]}
       >
+        {LeftIcon ? (
+          <View className="items-center justify-center">
+            {React.isValidElement(LeftIcon) ? (
+              LeftIcon
+            ) : (
+              <LeftIcon
+                width={wp(4.5)}
+                height={wp(4.5)}
+                color={colors.secondary}
+                style={iconStyle}
+              />
+            )}
+          </View>
+        ) : null}
         <InputComponent
           ref={inputRef}
           className="flex-1  rounded-lg text-white font-inter-regular"

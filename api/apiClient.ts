@@ -1,3 +1,4 @@
+import { PAYCREST_SENDER_API_KEY } from "@/api/queryConstants";
 import axios, {
   AxiosError,
   AxiosInstance,
@@ -73,9 +74,8 @@ client.interceptors.request.use(
       config.headers.set("Authorization", `Bearer ${token}`);
     }
 
-    const apiKey = process.env.EXPO_PUBLIC_API_KEY;
-    if (apiKey) {
-      config.headers.set("x-api-key", apiKey);
+    if (PAYCREST_SENDER_API_KEY) {
+      config.headers.set("API-Key", PAYCREST_SENDER_API_KEY);
     }
 
     if (__DEV__) {

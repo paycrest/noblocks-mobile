@@ -14,5 +14,3 @@ local.properties
 
 # Bundle artifacts
 *.jsbundle
-
-android/app/src/main/assets/smile_config.json

@@ -1,5 +1,7 @@
+import { TabBarIcon } from "@/components/navigation/TabBarIcon";
 import HomeIcon from "@/components/svgs/home-icon";
 import SettingsIcon from "@/components/svgs/settings-icon";
+import TransactionsIcon from "@/components/svgs/transactions-icon";
 import WalletIcon from "@/components/svgs/wallet-icon";
 import TabBarBackground from "@/components/ui/TabBarBackground";
 import { useAppDimensions } from "@/hooks/useAppDimensions";
@@ -10,7 +12,6 @@ import {
   usePathname,
   useSegments,
 } from "expo-router";
-import { Clock } from "lucide-react-native";
 import React from "react";
 import { Platform } from "react-native";
 
@@ -33,6 +34,7 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: colors.slate,
+        tabBarInactiveTintColor: colors.text,
         headerShown: false,
         tabBarBackground: TabBarBackground,
         tabBarIconStyle: {
@@ -43,10 +45,14 @@ export default function TabLayout() {
           : Platform.select({
               ios: {
                 position: "absolute",
-                backgroundColor: "transparent",
+                backgroundColor: colors.surface_canvas,
+                borderTopWidth: 0.5,
+                borderTopColor: colors.subtle_surface,
               },
               default: {
-                backgroundColor: colors.background,
+                backgroundColor: colors.surface_canvas,
+                borderTopWidth: 0.5,
+                borderTopColor: colors.subtle_surface,
               },
             }),
       }}
@@ -55,7 +61,11 @@ export default function TabLayout() {
         name="index"
         options={{
           title: "",
-          tabBarIcon: ({ color }) => <HomeIcon color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon focused={focused}>
+              <HomeIcon color={color} focused={focused} width={32} height={32} />
+            </TabBarIcon>
+          ),
         }}
       />
 
@@ -63,21 +73,43 @@ export default function TabLayout() {
         name="wallet"
         options={{
           title: "",
-          tabBarIcon: ({ color }) => <WalletIcon color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon focused={focused}>
+              <WalletIcon color={color} focused={focused} width={32} height={32} />
+            </TabBarIcon>
+          ),
         }}
       />
       <Tabs.Screen
         name="transactions"
         options={{
           title: "",
-          tabBarIcon: ({ color }) => <Clock color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon focused={focused}>
+              <TransactionsIcon
+                color={color}
+                focused={focused}
+                width={32}
+                height={32}
+              />
+            </TabBarIcon>
+          ),
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
           title: "",
-          tabBarIcon: ({ color }) => <SettingsIcon color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon focused={focused}>
+              <SettingsIcon
+                color={color}
+                focused={focused}
+                width={32}
+                height={32}
+              />
+            </TabBarIcon>
+          ),
         }}
       />
     </Tabs>

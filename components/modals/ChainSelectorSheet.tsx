@@ -1,7 +1,6 @@
 import { fetchLifiChains, type LifiChain } from "@/api/queryFns";
 import { QUERY_STALE_TIME_MS } from "@/api/queryConstants";
 import { useThemeColors } from "@/hooks/useThemeColor";
-import { isPrivySupportedChain } from "@/utils/privy";
 import { useQuery } from "@tanstack/react-query";
 import { Image } from "expo-image";
 import { CheckCircle2, Search, X } from "lucide-react-native";
@@ -19,14 +18,9 @@ import BackdropBlur from "./BackdropBlur";
 import BaseModal from "./BaseModal";
 import { ActivityIndicator } from "react-native-paper";
 
-const FEATURED_CHAIN_ORDER = [
-  "Base",
-  "Ethereum",
-  "Arbitrum",
-  "Optimism",
-  "Polygon",
-];
 const MODAL_HEIGHT = Math.min(420, Dimensions.get("screen").height * 0.46);
+const CHAIN_ICON_SIZE = 36;
+
 export type { LifiChain };
 
 interface ChainSelectorSheetProps {
@@ -87,14 +81,30 @@ const ChainSelectorSheet: FunctionComponent<ChainSelectorSheetProps> = ({
         }}
       >
         {item.logoURI ? (
-          <Image
-            source={{ uri: item.logoURI }}
-            style={{ width: 36, height: 36, borderRadius: 18 }}
-          />
+          <View
+            style={{
+              width: CHAIN_ICON_SIZE,
+              height: CHAIN_ICON_SIZE,
+              borderRadius: CHAIN_ICON_SIZE / 2,
+              overflow: "hidden",
+              backgroundColor: colors.neutral_surface,
+            }}
+          >
+            <Image
+              source={{ uri: item.logoURI }}
+              style={{ width: CHAIN_ICON_SIZE, height: CHAIN_ICON_SIZE }}
+              contentFit="cover"
+            />
+          </View>
         ) : (
           <View
-            style={{ backgroundColor: colors.secondary }}
-            className="w-9 h-9 rounded-full items-center justify-center"
+            style={{
+              width: CHAIN_ICON_SIZE,
+              height: CHAIN_ICON_SIZE,
+              borderRadius: CHAIN_ICON_SIZE / 2,
+              backgroundColor: colors.secondary,
+            }}
+            className="items-center justify-center"
           >
             <ResponsiveUi.Text medium fontSize={12}>
               {item.coin.slice(0, 3)}
